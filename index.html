@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>DS AUTOMOBILES | COMMAND CENTER V3.0</title>
+    <title>DS AUTOMOBILES | COMMAND CENTER V4.5 ELITE</title>
     
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Michroma&family=Rajdhani:wght@300;500;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Michroma&family=Rajdhani:wght@300;400;500;600;700&display=swap');
 
         :root { 
             --gold: #c5a059; --bg: #020202; --card: #0d0d0d; --green: #00ff9d; 
@@ -18,9 +18,9 @@
         }
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar { width: 8px; }
         ::-webkit-scrollbar-track { background: #000; }
-        ::-webkit-scrollbar-thumb { background: var(--gold); border-radius: 10px; }
+        ::-webkit-scrollbar-thumb { background: var(--gold); border-radius: 4px; }
 
         body { 
             font-family: var(--font-main); background: var(--bg); color: var(--white); margin: 0; 
@@ -28,129 +28,134 @@
         }
 
         /* --- LOGIN --- */
-        #login-system { position: fixed; inset: 0; background: #000; z-index: 9999; display: flex; flex-direction: column; align-items: center; padding: 30px 20px; overflow-y: auto; }
-        .main-header h1 { font-family: var(--font-tech); font-size: 1.8rem; letter-spacing: 8px; text-shadow: 0 0 15px var(--gold); color: var(--gold); }
-        
-        .manager-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 20px; width: 100%; max-width: 1200px; }
-        .slot-card { background: #0a0a0a; border: 1px solid #1a1a1a; border-top: 4px solid var(--gold); border-radius: 15px; padding: 15px; }
-        .m-btn { width: 100%; padding: 12px; margin: 4px 0; background: #000; border: 1px solid #222; color: #444; border-radius: 8px; font-weight: 700; cursor: pointer; }
+        #login-system { position: fixed; inset: 0; background: #000; z-index: 9999; display: flex; flex-direction: column; align-items: center; padding: 40px 20px; overflow-y: auto; }
+        .login-header h1 { font-family: var(--font-tech); font-size: 2rem; letter-spacing: 10px; color: var(--gold); text-align: center; }
+
+        .manager-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 20px; width: 100%; max-width: 1200px; margin-top: 30px; }
+        .slot-card { background: #0a0a0a; border: 1px solid #1a1a1a; border-top: 4px solid var(--gold); border-radius: 12px; padding: 15px; }
+        .m-btn { width: 100%; padding: 12px; margin: 5px 0; background: #000; border: 1px solid #222; color: #444; border-radius: 8px; font-weight: 700; cursor: pointer; transition: 0.3s; }
         .m-btn.occupied { color: #fff; border-color: var(--gold); background: rgba(197,160,89,0.1); }
 
-        /* --- LAYOUT --- */
-        .master-app { display: none; grid-template-columns: 1fr; gap: 20px; padding: 20px; max-width: 1900px; margin: auto; }
-        @media (min-width: 1200px) { .master-app { grid-template-columns: 380px 1fr 400px; } }
+        /* --- APP STRUCTURE --- */
+        .master-app { display: none; grid-template-columns: 1fr; gap: 25px; padding: 25px; max-width: 2000px; margin: auto; }
+        @media (min-width: 1200px) { .master-app { grid-template-columns: 380px 1fr 420px; } }
 
-        .panel { background: var(--card); border: 1px solid #1a1a1a; border-radius: 20px; overflow: hidden; display: flex; flex-direction: column; }
-        .panel-header { padding: 15px; background: #000; font-family: var(--font-tech); font-size: 0.6rem; color: var(--gold); border-bottom: 1px solid #151515; text-transform: uppercase; }
+        .panel { background: var(--card); border: 1px solid #1a1a1a; border-radius: 20px; overflow: hidden; display: flex; flex-direction: column; box-shadow: 0 15px 40px rgba(0,0,0,0.7); }
+        .panel-header { padding: 18px; background: #000; font-family: var(--font-tech); font-size: 0.65rem; color: var(--gold); border-bottom: 1px solid #151515; display: flex; justify-content: space-between; }
         .panel-body { padding: 20px; }
 
-        /* --- CONTADORES TOTALES --- */
+        /* --- INDICADORES --- */
         .global-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
-        .stat-box { background: #000; padding: 15px; border-radius: 15px; border: 1px solid #222; text-align: center; }
-        .stat-box label { color: var(--gold); font-size: 0.6rem; font-family: var(--font-tech); }
-        .stat-box span { display: block; font-size: 2.5rem; font-family: var(--font-tech); color: var(--white); }
-        .stat-box.highlight span { color: var(--green); }
+        .stat-box { background: #000; padding: 15px; border-radius: 12px; border: 1px solid #222; text-align: center; }
+        .stat-box label { font-family: var(--font-tech); font-size: 0.55rem; color: var(--gold); display: block; margin-bottom: 5px; }
+        .stat-box span { font-family: var(--font-tech); font-size: 2.2rem; color: var(--white); }
 
         /* --- DATA STREAM --- */
         #data-stream { 
-            background: #000; border-radius: 15px; padding: 15px; font-family: 'Courier New', monospace; 
-            color: var(--green); font-size: 0.8rem; min-height: 220px; border: 1px solid #333; line-height: 1.4; border-left: 4px solid var(--green);
+            background: #050505; border-radius: 15px; padding: 15px; font-family: 'Courier New', monospace; 
+            color: var(--green); font-size: 0.8rem; min-height: 250px; border: 1px solid #222; border-left: 5px solid var(--green); overflow-y: auto; margin-bottom: 20px;
         }
-        .crit-text { color: var(--red); animation: blink 1s infinite; }
-        @keyframes blink { 50% { opacity: 0; } }
 
         /* --- STINTS --- */
-        .stint-card { background: #080808; border-radius: 15px; padding: 18px; margin-bottom: 15px; border: 1px solid #1a1a1a; border-left: 5px solid var(--gold); }
-        .wear-bar-bg { background: #111; height: 10px; border-radius: 5px; margin-top: 8px; }
+        .stint-card { background: #080808; border: 1px solid #1a1a1a; border-left: 6px solid var(--gold); border-radius: 15px; padding: 20px; margin-bottom: 15px; }
+        .wear-bar-bg { background: #111; height: 10px; border-radius: 5px; margin-top: 10px; overflow: hidden; }
         .wear-bar-fill { height: 100%; width: 100%; background: var(--green); transition: 0.5s; }
 
-        /* --- CHAT --- */
-        #chat-box { height: 400px; background: #050505; border-radius: 15px; border: 1px solid #222; margin-bottom: 10px; overflow-y: auto; padding: 15px; }
+        /* --- CHAT & RANKING --- */
+        #chat-box { height: 350px; background: #050505; border-radius: 12px; border: 1px solid #222; margin-bottom: 10px; overflow-y: auto; padding: 15px; }
         .chat-msg { background: #111; padding: 10px; border-radius: 8px; margin-bottom: 10px; border-left: 3px solid var(--gold); }
         .chat-msg b { color: var(--gold); font-size: 0.7rem; display: block; }
-        .chat-msg span { font-size: 0.9rem; }
+        
+        .ranking-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        .ranking-table td { padding: 12px; border-bottom: 1px solid #111; font-size: 0.9rem; }
+        .ranking-table b { color: var(--gold); }
 
-        /* --- FORMS --- */
+        /* --- UI ELEMENTS --- */
         input, select, textarea { width: 100%; background: #000; border: 1px solid #222; color: #fff; padding: 12px; border-radius: 10px; margin-bottom: 15px; font-family: var(--font-main); }
-        .action-btn { width: 100%; padding: 15px; border-radius: 10px; border: none; font-family: var(--font-tech); font-weight: 700; cursor: pointer; text-transform: uppercase; font-size: 0.7rem; }
+        .action-btn { width: 100%; padding: 16px; border-radius: 10px; border: none; font-family: var(--font-tech); font-weight: 700; cursor: pointer; text-transform: uppercase; font-size: 0.7rem; transition: 0.3s; }
         .btn-gold { background: var(--gold); color: #000; }
+        .btn-gold:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(197,160,89,0.3); }
+
+        .admin-section { display: none; margin-top: 20px; border: 2px solid var(--red); padding: 15px; border-radius: 15px; background: rgba(255,49,49,0.05); }
     </style>
 </head>
 <body>
 
 <div id="login-system">
-    <div class="main-header"><h1>DS AUTOMOBILES</h1><p>Sugerencias de estrategia</p></div>
+    <div class="login-header"><h1>DS AUTOMOBILES</h1><p>Sugerencias de estrategia | ELITE</p></div>
     <div class="manager-grid" id="m-grid"></div>
+    <button onclick="activateAdmin()" style="margin-top:40px; background:none; border:none; color:#111;">[ ADMIN ACCESS ]</button>
 </div>
 
 <div class="master-app" id="app-interface">
     
     <div class="panel">
-        <div class="panel-header">CONTROL DE GP</div>
+        <div class="panel-header">CONTROL DE GP <div id="sync-status">●</div></div>
         <div class="panel-body">
-            <label>CIRCUITO (TOTAL VTS)</label>
+            <label>SELECCIÓN DE CIRCUITO</label>
             <select id="gp-select" onchange="updateCircuit()">
-                <option value="28">Australia (28v)</option><option value="29">Bahréin (29v)</option>
-                <option value="27">China (27v)</option><option value="31">España (31v)</option>
-                <option value="29">Mónaco (29v)</option><option value="31">Canadá (31v)</option>
-                <option value="34">Austria (34v)</option><option value="24">G. Bretaña (24v)</option>
-                <option value="39">Hungría (39v)</option><option value="21">Bélgica (21v)</option>
-                <option value="25">Italia (25v)</option><option value="30">Singapur (30v)</option>
-                <option value="27">Japón (27v)</option><option value="35">México (35v)</option>
-                <option value="34">Brasil (34v)</option><option value="36">Abu Dhabi (36v)</option>
-                <option value="30">Las Vegas (30v)</option>
+                <option value="28">Bahrain (28v)</option><option value="25">Saudi Arabia (25v)</option>
+                <option value="28">Australia (28v)</option><option value="27">Japan (27v)</option>
+                <option value="27">China (27v)</option><option value="24">Miami (24v)</option>
+                <option value="31">Spain (31v)</option><option value="29">Monaco (29v)</option>
+                <option value="31">Canada (31v)</option><option value="34">Austria (34v)</option>
+                <option value="24">Great Britain (24v)</option><option value="39">Hungary (39v)</option>
+                <option value="21">Belgium (21v)</option><option value="25">Italy (25v)</option>
+                <option value="23">Azerbaijan (23v)</option><option value="30">Singapore (30v)</option>
+                <option value="30">USA (30v)</option><option value="35">Mexico (35v)</option>
+                <option value="34">Brazil (34v)</option><option value="30">Las Vegas (30v)</option>
+                <option value="27">Qatar (27v)</option><option value="36">Abu Dhabi (36v)</option>
             </select>
             
             <div class="stat-box" style="margin-bottom:20px;">
                 <label>VUELTAS TOTALES GP</label>
-                <span id="v-count">0</span>
+                <span id="target-display">0</span>
             </div>
 
             <label>CONSUMO BASE (FB)</label>
-            <input type="number" id="fb-base" value="2.700" step="0.001" oninput="calculate()">
+            <input type="number" id="fb-base" value="2.700" step="0.001" oninput="calculateAll()">
 
             <label>NOTAS DE TELEMETRÍA</label>
-            <textarea id="notes" rows="4" oninput="calculate()" placeholder="LLUVIA, S.C, etc..."></textarea>
+            <textarea id="notes" rows="4" oninput="calculateAll()" placeholder="Lluvia, SC, etc..."></textarea>
             
-            <button class="action-btn" style="background:#222; color:#777;" onclick="location.reload()">LOGOUT</button>
+            <button class="action-btn" style="background:#222; color:#777;" onclick="location.reload()">CERRAR SESIÓN</button>
         </div>
     </div>
 
     <div class="panel">
         <div class="panel-header">Sugerencias de estrategia - DATA STREAM</div>
         <div class="panel-body">
-            
             <div class="global-stats">
-                <div class="stat-box highlight">
-                    <label>SUMA VTS STINTS</label>
-                    <span id="total-laps-box">0</span>
-                </div>
-                <div class="stat-box highlight">
-                    <label>LITROS TOTALES</label>
-                    <span id="total-fuel-box">0.0</span>
-                </div>
+                <div class="stat-box"><label>VTS PLANIFICADAS</label><span id="total-laps">0</span></div>
+                <div class="stat-box"><label>LITROS TOTALES</label><span id="total-fuel">0.0</span></div>
             </div>
 
-            <div id="data-stream">>> DS-CORE ONLINE...</div>
+            <div id="data-stream">>> DS-CORE ANALYZING...</div>
             
-            <div id="stint-container" style="margin-top:20px;"></div>
+            <div id="stint-list"></div>
             
-            <button class="action-btn btn-gold" onclick="addNewStint()">+ AÑADIR STINT TÁCTICO</button>
+            <button class="action-btn btn-gold" onclick="addNewStint()">+ AÑADIR NUEVO STINT</button>
         </div>
     </div>
 
     <div class="panel">
-        <div class="panel-header">MANAGER CHAT & RANKING</div>
+        <div class="panel-header">MANAGERS HUB</div>
         <div class="panel-body">
             <div id="chat-box"></div>
-            <div style="display:flex; gap:10px; margin-bottom:20px;">
+            <div style="display:flex; gap:10px; margin-bottom:25px;">
                 <input type="text" id="chat-input" placeholder="Mensaje..." style="margin:0;">
-                <button id="chat-send" class="btn-gold" style="padding:0 15px; border-radius:10px;">↑</button>
+                <button id="chat-send" class="btn-gold" style="width:60px; padding:0;">↑</button>
             </div>
 
-            <div style="border-top:1px solid #222; padding-top:15px;">
-                <label>TOP MANAGERS</label>
-                <div id="ranking-list"></div>
+            <label>RANKING TEMPORADA 2026</label>
+            <table class="ranking-table"><tbody id="ranking-body"></tbody></table>
+
+            <div id="admin-panel" class="admin-section">
+                <label style="color:var(--red)">PANEL DE CONTROL CRÍTICO</label>
+                <input type="text" id="adm-name" placeholder="NOMBRE MANAGER">
+                <input type="number" id="adm-pts" placeholder="PUNTOS">
+                <button onclick="injectPoints()" class="action-btn btn-gold" style="margin-bottom:10px;">INYECTAR PUNTOS</button>
+                <button onclick="resetSeason()" class="action-btn" style="background:var(--red); color:white;">RESET TEMPORADA</button>
             </div>
         </div>
     </div>
@@ -161,11 +166,11 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    let sessionID = ""; let managerName = ""; let stunts = [];
+    let sessionID = ""; let managerName = ""; let stints = []; let isAdmin = false;
 
     // --- LOGIN ---
     db.ref('perfiles').on('value', (s) => {
-        const grid = document.getElementById('m-grid'); if(!grid) return; grid.innerHTML = '';
+        const grid = document.getElementById('m-grid'); grid.innerHTML = '';
         const data = s.val() || {};
         ["F1", "F2", "F3", "F4", "F5", "K6"].forEach(c => {
             let html = `<div class="slot-card"><h3>${c}</h3>`;
@@ -183,19 +188,20 @@
             if(!d) {
                 let n = prompt("Nombre:"); let p = prompt("PIN:"); if(!n || !p) return;
                 d = { name: n, pin: p, fb: 2.7, notes: "" }; db.ref('perfiles/'+id).set(d);
-            } else { if(prompt("PIN:") !== d.pin) return alert("ERROR"); }
+            } else if(!isAdmin) { if(prompt("PIN:") !== d.pin) return alert("ERROR"); }
             sessionID = id; managerName = d.name.toUpperCase();
-            document.getElementById('login-system').style.display = 'none';
-            document.getElementById('app-interface').style.display = 'grid';
+            document.getElementById('login-system').style.display='none';
+            document.getElementById('app-interface').style.display='grid';
+            document.getElementById('fb-base').value = d.fb;
+            document.getElementById('notes').value = d.notes;
             updateCircuit();
         });
     }
 
-    // --- CHAT GLOBAL ---
+    // --- CHAT ---
     db.ref('chat').limitToLast(15).on('value', (s) => {
         const box = document.getElementById('chat-box'); box.innerHTML = '';
-        const msgs = s.val() || {};
-        Object.values(msgs).forEach(m => {
+        Object.values(s.val() || {}).forEach(m => {
             box.innerHTML += `<div class="chat-msg"><b>${m.user}</b><span>${m.text}</span></div>`;
         });
         box.scrollTop = box.scrollHeight;
@@ -206,24 +212,22 @@
         db.ref('chat').push({ user: managerName, text: inp.value }); inp.value = '';
     };
 
-    // --- ESTRATEGIA Y EMPUJES (REHABILITADOS) ---
+    // --- ESTRATEGIA (CON TODOS LOS EMPUJES) ---
     function addNewStint() {
         let id = Date.now();
-        stunts.push({id: id, laps: 10, push: 0, wear: 8.0});
+        stunts.push({id, laps: 10, push: 0, wear: 8.0});
         let div = document.createElement('div'); div.className = 'stint-card'; div.id = `st-${id}`;
         div.innerHTML = `
-            <div style="display:flex; justify-content:space-between;">
+            <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
                 <b>STINT #${stunts.length}</b>
-                <span onclick="removeStint(${id})" style="color:var(--red); cursor:pointer;">X</span>
+                <span onclick="removeStint(${id})" style="color:var(--red); cursor:pointer;">[X]</span>
             </div>
-            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-top:10px;">
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px;">
                 <div><label>VUELTAS</label><input type="number" value="10" oninput="updStint(${id},'laps',this.value)"></div>
                 <div><label>EMPUJE (MIX)</label>
                     <select onchange="updStint(${id},'push',this.value)">
-                        <option value="0.025">MIX 5 (MAX)</option>
-                        <option value="0.012">MIX 4</option>
-                        <option value="0" selected>MIX 3 (STD)</option>
-                        <option value="-0.008">MIX 2</option>
+                        <option value="0.025">MIX 5 (MAX)</option><option value="0.012">MIX 4</option>
+                        <option value="0" selected>MIX 3 (STD)</option><option value="-0.008">MIX 2</option>
                         <option value="-0.015">MIX 1 (ECON)</option>
                     </select>
                 </div>
@@ -233,64 +237,64 @@
                     <div class="wear-bar-bg"><div class="wear-bar-fill" id="bar-${id}"></div></div>
                 </div>
             </div>
-            <div style="text-align:center; font-family:var(--font-tech); color:var(--green); font-size:1.5rem;" id="fuel-${id}">0.00L</div>
+            <div style="text-align:center; font-family:var(--font-tech); color:var(--green); font-size:1.8rem; margin-top:10px;" id="fuel-${id}">0.00L</div>
         `;
-        document.getElementById('stint-container').appendChild(div);
-        calculate();
+        document.getElementById('stint-list').appendChild(div); calculateAll();
     }
 
-    function updStint(id, k, v) { let s = stunts.find(x=>x.id===id); if(s) s[k]=parseFloat(v); calculate(); }
-    function removeStint(id) { stunts = stunts.filter(x=>x.id!==id); document.getElementById(`st-${id}`).remove(); calculate(); }
+    function updStint(id, k, v) { let s = stunts.find(x=>x.id===id); if(s) s[k]=parseFloat(v); calculateAll(); }
+    function removeStint(id) { stunts = stunts.filter(x=>x.id!==id); document.getElementById(`st-${id}`).remove(); calculateAll(); }
 
-    // --- CÁLCULO Y DATA STREAM PERFECCIONADO ---
-    function calculate() {
+    function calculateAll() {
         let fb = parseFloat(document.getElementById('fb-base').value) || 0;
-        let tLaps = 0; let tFuel = 0; let hasDanger = false;
+        let tL = 0; let tF = 0; let danger = false;
 
         stunts.forEach(s => {
             let f = (s.laps * (fb + s.push)) + 0.3;
-            tLaps += s.laps; tFuel += f;
-            document.getElementById(`fuel-${s.id}`).innerText = f.toFixed(2) + "L";
-            
-            let wear = 100 - (s.laps * s.wear);
-            let bar = document.getElementById(`bar-${s.id}`);
-            if(bar) {
-                bar.style.width = Math.max(0, wear) + "%";
-                bar.style.background = wear < 25 ? 'var(--red)' : wear < 45 ? 'var(--orange)' : 'var(--green)';
-                if(wear < 25) hasDanger = true;
+            tL += s.laps; tF += f;
+            document.getElementById(`fuel-${s.id}`).innerText = f.toFixed(3) + "L";
+            let w = 100 - (s.laps * s.wear);
+            let b = document.getElementById(`bar-${s.id}`);
+            if(b) {
+                b.style.width = Math.max(0, w) + "%";
+                b.style.background = w < 25 ? 'var(--red)' : w < 45 ? 'var(--orange)' : 'var(--green)';
+                if(w < 25) danger = true;
             }
         });
 
-        // Actualizar Contadores Globales
-        document.getElementById('total-laps-box').innerText = tLaps;
-        document.getElementById('total-fuel-box').innerText = tFuel.toFixed(1);
-
-        updateStream(tLaps, tFuel, hasDanger);
+        document.getElementById('total-laps').innerText = tL;
+        document.getElementById('total-fuel').innerText = tF.toFixed(2);
+        updateStream(tL, tF, danger);
+        db.ref('perfiles/'+sessionID).update({ fb: document.getElementById('fb-base').value, notes: document.getElementById('notes').value });
     }
 
-    function updateStream(tl, tf, danger) {
+    function updateStream(tl, tf, d) {
         const ds = document.getElementById('data-stream');
         const target = parseInt(document.getElementById('gp-select').value);
-        const notes = document.getElementById('notes').value.toLowerCase();
-        
-        let log = `>> <b style="color:var(--gold)">TELEMETRY LIVE</b>\n`;
+        let log = `>> DS-CORE ANALYZING GP...\n`;
         log += `>> PLAN: ${tl} / ${target} VTS\n`;
-        
-        if(tl < target) log += `>> <span class="crit-text">DÉFICIT: -${target - tl} VTS PARA TERMINAR</span>\n`;
-        else if(tl > target) log += `>> <span style="color:var(--orange)">AVISO: SOBRECARGA +${tl - target} VTS</span>\n`;
-        else log += `>> <span style="color:var(--green)">STATUS: COBERTURA TOTAL OK</span>\n`;
-
-        if(danger) log += `>> <span class="crit-text">¡PELIGRO!: NEUMÁTICOS BAJO EL 25%</span>\n`;
-        if(notes.includes("lluvia")) log += `>> MODO LLUVIA: RECOMENDADO MIX 1\n`;
-
-        log += `\nSugerencias de estrategia:\n`;
-        if(tl === target) log += `* CARGA DE ${tf.toFixed(2)}L CONFIRMADA PARA GP.`;
-        else log += `* AJUSTA LAS VUELTAS DE LOS STINTS.`;
-
+        if(tl < target) log += `>> <span style="color:var(--red)">DÉFICIT: -${target-tl} VTS</span>\n`;
+        else if(tl > target) log += `>> <span style="color:var(--orange)">AVISO: EXCESO +${tl-target} VTS</span>\n`;
+        else log += `>> <span style="color:var(--green)">COBERTURA COMPLETA OK</span>\n`;
+        if(d) log += `>> <span style="color:var(--red); animation:blink 1s infinite">¡CRÍTICO!: REVISAR NEUMÁTICOS</span>\n`;
         ds.innerHTML = log;
     }
 
-    function updateCircuit() { document.getElementById('v-count').innerText = document.getElementById('gp-select').value; calculate(); }
+    function updateCircuit() { document.getElementById('target-display').innerText = document.getElementById('gp-select').value; calculateAll(); }
+
+    // --- RANKING & ADMIN ---
+    db.ref('ranking').on('value', (s) => {
+        const r = document.getElementById('ranking-body'); r.innerHTML = '';
+        const sorted = Object.values(s.val() || {}).sort((a,b) => b.pts - a.pts);
+        sorted.forEach(p => { r.innerHTML += `<tr><td><b>${p.name}</b></td><td>${p.pts} PTS</td></tr>`; });
+    });
+
+    function activateAdmin() { if(prompt("ADMIN PASS:") === "DS2026") { isAdmin = true; document.getElementById('admin-panel').style.display='block'; } }
+    function injectPoints() {
+        let n = document.getElementById('adm-name').value.toUpperCase(); let p = parseInt(document.getElementById('adm-pts').value);
+        if(n && !isNaN(p)) db.ref('ranking/'+n).set({ name: n, pts: p });
+    }
+    function resetSeason() { if(confirm("¿RESETEAR TODA LA TEMPORADA?")) db.ref('ranking').remove(); }
 </script>
 </body>
 </html>
