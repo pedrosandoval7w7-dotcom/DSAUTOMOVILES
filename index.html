@@ -379,7 +379,10 @@ function addNewStint() {
                 </div>
             </div>
         </div>
-        <div class="fuel-result" id="fuel-${id}" style="font-family:'Syncopate'; font-size:1.8rem; color:var(--green); text-align:center; margin-top:10px;">0.00L</div>`;
+        <div class="fuel-result" id="fuel-${id}" style="font-family:'Syncopate'; font-size:1.8rem; color:var(--green); text-align:center; margin-top:10px;">0.00L</div>
+        
+        <div id="footer-${id}"></div> 
+    `;
     document.getElementById('stint-container').appendChild(div);
     calculate();
 }
@@ -399,59 +402,71 @@ function removeStint(id) {
 // --- 2. EL CEREBRO: CALCULATE + IA PROFESIONAL ---
 function calculate() {
     let fb = parseFloat(document.getElementById('fb-base').value) || 0;
-    let temp = parseInt(document.getElementById('track-temp').value) || 25;
     let totalLaps = 0;
     let totalFuel = 0;
     
-    stunts.forEach(s => {
-        let fuel = (s.laps * (fb + parseFloat(s.push))) + 0.3;
-        document.getElementById(`fuel-${s.id}`).innerText = fuel.toFixed(2) + "L";
+    stunts.forEach((s, index) => {
+        // Cálculo individual por tarjeta
+        let fuelPerStint = (s.laps * (fb + parseFloat(s.push))) + 0.3;
+        totalLaps += s.laps;
+        totalFuel += fuelPerStint;
+
+        // Actualiza el consumo de la tarjeta actual
+        let fuelEl = document.getElementById(`fuel-${s.id}`);
+        if(fuelEl) fuelEl.innerText = fuelPerStint.toFixed(2) + "L";
+
+        // IMPORTANTE: Limpia el contador de esta tarjeta por si ya no es la última
+        let footerEl = document.getElementById(`footer-${s.id}`);
+        if(footerEl) footerEl.innerHTML = ""; 
+
+        // SÓLO SI ES EL ÚLTIMO STINT: Inyectamos el resumen acumulado
+        if (index === stunts.length - 1) {
+            footerEl.innerHTML = `
+                <div style="margin-top:15px; padding-top:15px; border-top:1px dashed #444; display:flex; justify-content:space-between; align-items:center;">
+                    <div style="text-align:left">
+                        <span style="color:#888; font-size:9px; display:block; font-family:'Syncopate';">VUELTAS TOTALES</span>
+                        <span style="color:#fff; font-size:1.3rem; font-family:'Syncopate'; font-weight:bold;">${totalLaps}</span>
+                    </div>
+                    <div style="text-align:right">
+                        <span style="color:#888; font-size:9px; display:block; font-family:'Syncopate';">TOTAL ACUMULADO</span>
+                        <span style="color:var(--gold); font-size:1.3rem; font-family:'Syncopate'; font-weight:bold;">${totalFuel.toFixed(2)} L</span>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Actualiza la barra de desgaste
         let wear = 100 - (s.laps * s.wear);
         let b = document.getElementById(`bar-${s.id}`);
-        if(b) { b.style.width = Math.max(0, Math.min(100, wear)) + "%"; }
-        totalLaps += s.laps;
-        totalFuel += fuel;
+        if(b) {
+            b.style.width = Math.max(0, Math.min(100, wear)) + "%";
+            b.style.background = wear < 20 ? 'var(--red)' : wear < 45 ? 'var(--orange)' : 'var(--green)';
+        }
     });
 
-    // Actualizar Totales
-    if(document.getElementById('fuel-total')) document.getElementById('fuel-total').innerText = totalFuel.toFixed(2) + " L";
-    if(document.getElementById('stint-laps-total')) document.getElementById('stint-laps-total').innerText = totalLaps;
+    // Lógica de la IA (Sugerencias de estrategia)
+    actualizarIAProfesional(totalLaps, totalFuel);
+    cloudSave();
+}
 
-    // Lógica IA
-    const target = parseInt(document.getElementById('v-count').innerText) || 0;
-    const notes = document.getElementById('notes').value.toLowerCase();
-    const diff = target - totalLaps;
+function actualizarIAProfesional(vueltas, litros) {
     const aiConsole = document.getElementById('ai-console');
-
-    // Recomendación de gomas basada en iGP
-    let tireAdvice = (temp > 30) ? "DURO (H)" : (temp < 18 ? "BLANDO (S)" : "MEDIO (M)");
-    
-    let statusColor = "#C0C0C0";
-    let updateMsg = "Telemetría nominal. Ritmo estable.";
-
-    if (notes.includes("lluvia")) {
-        updateMsg = "ALERTA: Pista mojada. Cambiar a WET/INTER.";
-        statusColor = "#3498db";
-    } else if (notes.includes("ataque")) {
-        updateMsg = "MODO ATAQUE: Exprime el KERS y el compuesto.";
-        statusColor = "#e74c3c";
-    }
-
-    let txt = `[ DS-CORE TELEMETRY | V3.0 ]\n`;
-    txt += `>> MANAGER: ${managerName.toUpperCase()}\n`;
-    txt += `>> RECOMENDACIÓN: Usar compuesto ${tireAdvice}\n\n`;
-    txt += `[ Sugerencias de estrategia ]\n`;
-    txt += `------------------------------------------\n`;
-    txt += `> ${updateMsg}\n`;
-    txt += `> GASOLINA RESTANTE: ${(diff * fb).toFixed(2)} L\n`;
-    txt += `> STATUS: ${diff <= 0 ? 'META ALCANZADA' : 'Faltan ' + diff + ' vts'}\n`;
+    const notes = document.getElementById('notes').value.toLowerCase();
     
     if(aiConsole) {
+        let estado = notes.includes("lluvia") ? "ALERTA CLIMÁTICA" : "NOMINAL";
+        let color = notes.includes("lluvia") ? "#3498db" : "#E0E0E0";
+
+        let txt = `[ DS-CORE TELEMETRY | V3.0 ]\n`;
+        txt += `>> STATUS: ${estado}\n`;
+        txt += `>> TOTAL PLAN: ${vueltas} VTS | ${litros.toFixed(2)} L\n`;
+        txt += `------------------------------------------\n`;
+        txt += `Sugerencias de estrategia: ${notes.length > 0 ? 'Analizando notas del Manager...' : 'Esperando telemetría...'}`;
+        
         aiConsole.innerText = txt;
-        aiConsole.style.borderLeft = `4px solid ${statusColor}`;
-        aiConsole.style.color = statusColor;
+        aiConsole.style.borderLeft = `4px solid ${color}`;
+        aiConsole.style.color = color;
     }
-    cloudSave();
 }
 
     function updateCircuit() {
