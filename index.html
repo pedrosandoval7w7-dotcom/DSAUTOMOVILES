@@ -23,7 +23,7 @@
             --white: #ffffff;
         }
 
-        /* RESET Y BASE DE ALTO RENDIMIENTO */
+        /* CONFIGURACIÓN BASE */
         * { 
             box-sizing: border-box; 
             -webkit-tap-highlight-color: transparent; 
@@ -78,7 +78,7 @@
             text-transform: uppercase; 
         }
 
-        /* GRID DE CATEGORÍAS */
+        /* GRID DE SELECCIÓN DE MANAGER */
         .category-grid { 
             display: grid; 
             grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); 
@@ -86,7 +86,6 @@
             width: 100%; 
             max-width: 1400px; 
             margin-top: 30px; 
-            padding-bottom: 100px;
         }
 
         .cat-box { 
@@ -133,7 +132,7 @@
             border-right: 1px solid var(--gold);
         }
 
-        /* DASHBOARD PRINCIPAL */
+        /* DASHBOARD PRINCIPAL (DESPUÉS DEL LOGIN) */
         .master-container { 
             display: none; 
             grid-template-columns: 1fr; 
@@ -178,7 +177,7 @@
 
         .content { padding: 25px; }
 
-        /* WIDGETS Y STINTS */
+        /* WIDGETS DE DATOS */
         .total-laps-widget { 
             background: linear-gradient(180deg, #000 0%, #050505 100%); 
             border: 2px solid var(--green); 
@@ -241,7 +240,7 @@
             transition: 0.8s cubic-bezier(0.18, 0.89, 0.32, 1.28); 
         }
 
-        /* RANKING Y TABLAS */
+        /* TABLA DE RANKING */
         .ranking-table { 
             width: 100%; 
             border-collapse: collapse; 
@@ -288,11 +287,7 @@
             animation: pulse 1.5s infinite; 
         }
 
-        @keyframes pulse { 
-            0% { opacity: 0.4; } 
-            50% { opacity: 1; } 
-            100% { opacity: 0.4; } 
-        }
+        @keyframes pulse { 0% { opacity: 0.4; } 50% { opacity: 1; } 100% { opacity: 0.4; } }
 
         /* BOTONES Y CONTROLES */
         .btn-master { 
@@ -308,6 +303,23 @@
             text-transform: uppercase; 
             font-size: 0.9rem; 
             letter-spacing: 3px;
+        }
+
+        .btn-reset-main {
+            background: linear-gradient(45deg, #700, #f00);
+            color: white;
+            border: 2px solid white;
+            padding: 25px;
+            width: 100%;
+            max-width: 400px;
+            border-radius: 20px;
+            font-family: 'Syncopate';
+            font-weight: 900;
+            cursor: pointer;
+            display: none;
+            margin-top: 30px;
+            box-shadow: 0 0 40px rgba(255,0,0,0.5);
+            text-transform: uppercase;
         }
 
         #commander-panel { 
@@ -349,7 +361,10 @@
         <p>Sugerencias de estrategia | ELITE ENGINEERING CLOUD V260</p>
     </div>
     <div class="category-grid" id="cat-grid"></div>
-    <button onclick="accessRoot()" style="background:none; border:none; color:#121212; cursor:pointer; font-size:0.65rem; letter-spacing:6px; font-family:'Syncopate'; margin-bottom: 80px;">SISTEMA_ROOT_AUTH</button>
+    
+    <button id="main-reset-trigger" class="btn-reset-main" onclick="resetMasterLeague()">⚠️ RESET TOTAL DE TEMPORADA</button>
+    
+    <button onclick="accessRoot()" style="background:none; border:none; color:#121212; cursor:pointer; font-size:0.65rem; letter-spacing:6px; font-family:'Syncopate'; margin-top: 60px; margin-bottom: 80px;">SISTEMA_ROOT_AUTH</button>
 </div>
 
 <div class="master-container" id="app">
@@ -415,13 +430,7 @@
             <h3 style="font-family:'Syncopate'; font-size:0.7rem; color:var(--gold); margin-top:45px; text-align:center;">RANKING EN TIEMPO REAL</h3>
             <div style="background:#000; border-radius:20px; border:1px solid #111; max-height: 400px; overflow-y: auto;">
                 <table class="ranking-table">
-                    <thead>
-                        <tr>
-                            <th>MANAGER</th>
-                            <th>PUNTOS</th>
-                            <th>GP</th>
-                        </tr>
-                    </thead>
+                    <thead><tr><th>MANAGER</th><th>PUNTOS</th><th>GP</th></tr></thead>
                     <tbody id="ranking-body"></tbody>
                 </table>
             </div>
@@ -430,8 +439,7 @@
                 <div style="color:var(--gold); font-family:'Syncopate'; font-size:0.65rem; text-align:center; margin-bottom:20px;">CENTRO DE MANDO</div>
                 <input type="text" id="adm-pilot-name" placeholder="MANAGER">
                 <input type="number" id="adm-pilot-pts" placeholder="PUNTOS">
-                <button class="btn-master" onclick="injectLeaguePoints()" style="margin-bottom:10px;">INYECTAR PUNTOS</button>
-                <button class="btn-master" onclick="resetMasterLeague()" style="background:var(--red); color:white;">⚠️ RESETEAR LIGA</button>
+                <button class="btn-master" onclick="injectLeaguePoints()">INYECTAR PUNTOS</button>
             </div>
         </div>
     </div>
@@ -441,9 +449,7 @@
         <div class="content">
             <label>TEMPERATURA DE PISTA (°C)</label>
             <input type="number" id="pista-temp" value="25" oninput="runMasterLogic()">
-            
             <div id="ai-terminal">Estableciendo conexión con el núcleo...</div>
-            
             <button class="btn-master" style="margin-top:25px; background:var(--ai); color:#fff;" onclick="simulateAIScan()">EJECUTAR ESCANEO PROFUNDO</button>
         </div>
     </div>
@@ -451,27 +457,19 @@
 </div>
 
 <script>
-    // --- CONFIGURACIÓN FIREBASE ---
-    const firebaseConfig = { 
-        databaseURL: "https://ds-automobiles-f0a17-default-rtdb.firebaseio.com/" 
-    };
+    const firebaseConfig = { databaseURL: "https://ds-automobiles-f0a17-default-rtdb.firebaseio.com/" };
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    // --- VARIABLES DE ESTADO ---
     const PASS_ROOT = "DS2026";
     const SECTIONS = ["F1", "F2", "F3", "F4", "F5", "K6"];
-    let currentId = ""; 
-    let pilotName = ""; 
-    let stints = []; 
-    let isRoot = false;
+    let currentId = ""; let pilotName = ""; let stints = []; let isRoot = false;
 
-    // --- CARGA DE PERFILES (GRILLA INICIAL) ---
+    // ACTUALIZACIÓN DE GRILLA EN TIEMPO REAL
     db.ref('perfiles').on('value', (snapshot) => {
         const grid = document.getElementById('cat-grid');
         grid.innerHTML = '';
         const dataCloud = snapshot.val() || {};
-        
         SECTIONS.forEach(cat => {
             let box = `<div class="cat-box"><h3>${cat}</h3>`;
             for(let i=1; i<=4; i++) {
@@ -485,129 +483,84 @@
         });
     });
 
-    // --- ESCUCHA DE RANKING EN TIEMPO REAL ---
+    // ACTUALIZACIÓN DE RANKING
     db.ref('ranking').on('value', (snapshot) => {
         const database = snapshot.val() || {};
         let htmlRows = '';
         const sortedRanking = Object.values(database).sort((a,b) => b.pts - a.pts);
-        
         sortedRanking.forEach(p => {
             let isMe = (pilotName && p.name === pilotName.trim().toUpperCase());
             htmlRows += `<tr class="${isMe?'row-highlight':''}">
                 <td style="text-align:left; padding-left:20px;">${p.name}</td>
-                <td>${p.pts}</td>
-                <td>${p.gp}</td>
-            </tr>`;
+                <td>${p.pts}</td><td>${p.gp}</td></tr>`;
         });
         document.getElementById('ranking-body').innerHTML = htmlRows;
     });
 
-    // --- SISTEMA DE AUTENTICACIÓN ---
     function handleLogin(id) {
         db.ref('perfiles/' + id).once('value').then((snapshot) => {
             let data = snapshot.val();
-            
             if(!data) {
-                let n = prompt("Nombre del nuevo Manager:"); 
-                if(!n) return;
-                let p = prompt("Crea un PIN de acceso:");
-                data = { name: n, pin: p, fb: 2.7, notes: "" };
+                let n = prompt("Nombre del Manager:"); if(!n) return;
+                let p = prompt("PIN:"); data = { name: n, pin: p, fb: 2.7, notes: "" };
                 db.ref('perfiles/' + id).set(data);
-            } else {
-                if(!isRoot) {
-                    let p = prompt("Introduce tu PIN para acceder:");
-                    if(p !== data.pin) return alert("PIN INCORRECTO. ACCESO DENEGADO.");
-                }
+            } else if(!isRoot) {
+                let p = prompt("PIN:"); if(p !== data.pin) return alert("PIN INCORRECTO.");
             }
-
-            currentId = id; 
-            pilotName = data.name;
-            
+            currentId = id; pilotName = data.name;
             document.getElementById('login-system').style.display = 'none';
             document.getElementById('app').style.display = 'grid';
-            
-            if(isRoot) {
-                document.getElementById('commander-panel').style.display = 'block';
-            }
-
+            if(isRoot) document.getElementById('commander-panel').style.display = 'block';
             document.getElementById('display-id').innerText = id;
             document.getElementById('fb-main').value = data.fb;
             document.getElementById('notes-main').value = data.notes;
-
-            createStint(); 
             syncCircuit();
         });
     }
 
-    // --- PERSISTENCIA EN LA NUBE ---
-    function persistDataCloud() {
-        if(!currentId) return;
-        db.ref('perfiles/' + currentId).update({
-            fb: document.getElementById('fb-main').value,
-            notes: document.getElementById('notes-main').value
-        });
-    }
-
-    // --- MOTOR DE INGENIERÍA Y STINTS ---
     function createStint() {
         let sid = Date.now();
         stints.push({ id: sid, laps: 10, push: 0, wear: 8.0 });
-        
         let div = document.createElement('div');
-        div.className = 'stint-block';
-        div.id = `block-${sid}`;
+        div.className = 'stint-block'; div.id = `block-${sid}`;
         div.innerHTML = `
             <div style="display:flex; justify-content:space-between; align-items:center;">
-                <b style="color:var(--gold); font-size:0.85rem; letter-spacing:2px;">STINT #${stints.length}</b>
+                <b style="color:var(--gold); letter-spacing:2px;">STINT #${stints.length}</b>
                 <span onclick="killStint(${sid})" style="color:var(--red); cursor:pointer; font-weight:900;">[X]</span>
             </div>
             <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px; margin-top:20px;">
-                <div>
-                    <label>Vueltas</label>
-                    <input type="number" value="10" oninput="updStint(${sid},'laps',this.value)">
-                </div>
-                <div>
-                    <label>Mapa Motor (Push)</label>
+                <div><label>Vueltas</label><input type="number" value="10" oninput="updStint(${sid},'laps',this.value)"></div>
+                <div><label>Mapa Motor</label>
                     <select onchange="updStint(${sid},'push',this.value)">
-                        <option value="0.025">PL5 - ATAQUE</option>
-                        <option value="0.012">PL4 - ALTO</option>
-                        <option value="0" selected>PL3 - NORMAL</option>
-                        <option value="-0.006">PL2 - AHORRO</option>
-                        <option value="-0.012">PL1 - EXTREMO</option>
+                        <option value="0.025">PL5</option><option value="0" selected>PL3</option><option value="-0.012">PL1</option>
                     </select>
                 </div>
                 <div style="grid-column: span 2;">
-                    <label>Desgaste % por vta</label>
-                    <input type="number" value="8.0" step="0.1" oninput="updStint(${sid},'wear',this.value)">
+                    <label>Desgaste % por vta</label><input type="number" value="8.0" step="0.1" oninput="updStint(${sid},'wear',this.value)">
                     <div class="wear-container"><div class="wear-bar" id="bar-${sid}"></div></div>
                 </div>
             </div>
             <div class="fuel-calc" id="fuel-val-${sid}">0.00L</div>`;
-        
         document.getElementById('stint-container').appendChild(div);
         runMasterLogic();
     }
 
     function updStint(id, key, val) {
-        let s = stints.find(x => x.id === id);
-        if(s) s[key] = parseFloat(val);
+        let s = stints.find(x => x.id === id); if(s) s[key] = parseFloat(val);
         runMasterLogic();
     }
 
     function killStint(id) {
-        stints = stints.filter(x => x.id !== id);
-        document.getElementById(`block-${id}`).remove();
+        stints = stints.filter(x => x.id !== id); document.getElementById(`block-${id}`).remove();
         runMasterLogic();
     }
 
     function runMasterLogic() {
         let fbBase = parseFloat(document.getElementById('fb-main').value) || 0;
         let totalLaps = 0;
-        
         stints.forEach(s => {
             let resFuel = (s.laps * (fbBase + s.push)) + 0.3;
             document.getElementById(`fuel-val-${s.id}`).innerText = resFuel.toFixed(2) + "L";
-            
             let resWear = 100 - (s.laps * s.wear);
             let b = document.getElementById(`bar-${s.id}`);
             if(b) {
@@ -616,59 +569,37 @@
             }
             totalLaps += s.laps;
         });
-        
         document.getElementById('total-stint-laps').innerText = totalLaps;
         updateAITerminal(totalLaps);
         persistDataCloud();
     }
 
-    // --- SISTEMA IA CORE REPOTENCIADO ---
-    function simulateAIScan() {
-        const terminal = document.getElementById('ai-terminal');
-        terminal.innerHTML = `<span class="ai-pulse">>>> INICIANDO ESCANEO DE TELEMETRÍA CLOUD...</span><br>>>> ACCEDIENDO A SENSORES DE PISTA...<br>>>> CALCULANDO DELTAS DE COMBUSTIBLE EN TIEMPO REAL...`;
-        setTimeout(() => runMasterLogic(), 800);
+    function persistDataCloud() {
+        if(!currentId) return;
+        db.ref('perfiles/' + currentId).update({
+            fb: document.getElementById('fb-main').value,
+            notes: document.getElementById('notes-main').value
+        });
     }
 
     function updateAITerminal(totalLaps) {
         const terminal = document.getElementById('ai-terminal');
         let target = parseInt(document.getElementById('v-target').innerText);
         let temp = parseInt(document.getElementById('pista-temp').value);
-
-        let report = `<span style="color:var(--ai); font-weight:900;">[Sugerencias de estrategia | DS-CORE V2.6 CLOUD]</span><br>`;
-        report += `-----------------------------------------<br>`;
-        report += `MANAGER: <span style="color:#fff;">${pilotName.toUpperCase()}</span><br>`;
-        report += `ESTADO: <span style="color:var(--green);">ONLINE (SYNCHRONIZED)</span><br><br>`;
-        
-        report += `OBJETIVO GP: ${target} VUELTAS<br>`;
-        report += `PLAN ACTUAL: ${totalLaps} VUELTAS<br>`;
-        
-        let delta = target - totalLaps;
-        if(delta > 0) {
-            report += `DELTA VTA: <span style="color:var(--red)">-${delta} (DÉFICIT)</span><br>`;
-            report += `> <span style="color:var(--red)">AVISO: COMBUSTIBLE INSUFICIENTE.</span><br>`;
-        } else if(delta < 0) {
-            report += `DELTA VTA: <span style="color:var(--orange)">+${Math.abs(delta)} (EXCESO)</span><br>`;
-            report += `> <span style="color:var(--orange)">LASTRE: EXCESO DE PESO EN TANQUE.</span><br>`;
-        } else {
-            report += `DELTA VTA: <span style="color:var(--green)">0.000 (CARGA ÓPTIMA)</span><br>`;
-        }
-
-        report += `<br><span style="color:var(--gold)">[ANÁLISIS DE NEUMÁTICOS]</span><br>`;
-        report += `TEMP. PISTA: ${temp}°C<br>`;
-        let tyre = temp > 28 ? 'DURO (C1/C2)' : (temp < 18 ? 'BLANDO (C4/C5)' : 'MEDIO (C3)');
-        report += `COMPUESTO SUGERIDO: <b style="color:#fff;">${tyre}</b><br>`;
-        
-        report += `<br><span style="color:var(--ai)">[SISTEMA DE LIGA]</span><br>`;
-        report += `> CONEXIÓN CON FIREBASE ESTABLECIDA.<br>`;
-        report += `> RANKING ACTUALIZADO AUTOMÁTICAMENTE.<br>`;
-        
-        report += `-----------------------------------------<br>`;
-        report += `<span class="ai-pulse">SISTEMA LISTO PARA SECUENCIA DE SALIDA.</span>`;
-
+        let report = `<span style="color:var(--ai); font-weight:900;">[Sugerencias de estrategia | V2.6]</span><br>--------------------<br>`;
+        report += `PLAN: ${totalLaps} / ${target} VTS<br>`;
+        if(target > totalLaps) report += `<span style="color:var(--red)">DÉFICIT: -${target-totalLaps} VTS</span><br>`;
+        let tyre = temp > 28 ? 'DURO' : (temp < 18 ? 'BLANDO' : 'MEDIO');
+        report += `NEUMÁTICO: ${tyre}<br>TEMPERATURA: ${temp}°C<br>--------------------<br><span class="ai-pulse">SISTEMA ONLINE.</span>`;
         terminal.innerHTML = report;
     }
 
-    // --- FUNCIONES DE ADMINISTRACIÓN ---
+    function simulateAIScan() {
+        const term = document.getElementById('ai-terminal');
+        term.innerHTML = `<span class="ai-pulse">>>> ESCANEANDO NUBE...</span>`;
+        setTimeout(() => runMasterLogic(), 800);
+    }
+
     function syncCircuit() {
         document.getElementById('v-target').innerText = document.getElementById('gp-selector').value;
         runMasterLogic();
@@ -677,37 +608,28 @@
     function injectLeaguePoints() {
         let pName = document.getElementById('adm-pilot-name').value.trim().toUpperCase();
         let pPoints = parseInt(document.getElementById('adm-pilot-pts').value);
-        if(!pName || isNaN(pPoints)) return alert("ERROR: FALTAN DATOS");
-
-        db.ref('ranking/' + pName).once('value').then(snapshot => {
-            let current = snapshot.val() || { name: pName, pts: 0, gp: 0 };
-            db.ref('ranking/' + pName).set({
-                name: pName,
-                pts: Number(current.pts) + pPoints,
-                gp: Number(current.gp) + 1
-            });
-            alert("NUBE ACTUALIZADA: " + pName + " + " + pPoints + " PTS");
-            document.getElementById('adm-pilot-name').value = '';
-            document.getElementById('adm-pilot-pts').value = '';
+        db.ref('ranking/' + pName).once('value').then(snap => {
+            let cur = snap.val() || { name: pName, pts: 0, gp: 0 };
+            db.ref('ranking/' + pName).set({ name: pName, pts: Number(cur.pts) + pPoints, gp: Number(cur.gp) + 1 });
+            alert("PUNTOS INYECTADOS.");
         });
     }
 
     function accessRoot() {
-        if(prompt("ROOT_KEY_REQUIRED:") === PASS_ROOT) {
+        if(prompt("ROOT_KEY:") === PASS_ROOT) {
             isRoot = true; 
-            alert("MODO COMANDANTE ACTIVADO. ACCESO TOTAL.");
-            if(currentId) document.getElementById('commander-panel').style.display = 'block';
+            document.getElementById('main-reset-trigger').style.display = 'block';
+            alert("MODO COMANDANTE. BOTÓN DE RESET TOTAL ACTIVADO.");
         }
     }
 
     function resetMasterLeague() {
-        if(!isRoot) return alert("ERROR: REQUIERE MODO COMANDANTE.");
-        
-        if(confirm("⚠️ ¿BORRAR TODA LA LIGA? Esta acción limpiará el ranking y los perfiles de la nube.")) {
+        if(!isRoot) return;
+        if(confirm("🚨 ¡ADVERTENCIA! Se eliminarán todos los MANAGERS (nombres y pines) y el RANKING. ¿Confirmar limpieza total de temporada?")) {
             db.ref('/').remove().then(() => {
-                alert("NUBE LIMPIADA. REINICIANDO SISTEMA...");
+                alert("NUBE LIMPIA. REINICIANDO...");
                 location.reload();
-            }).catch(e => alert("FALLO EN NUBE: " + e.message));
+            });
         }
     }
 </script>
