@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>DS AUTOMOBILES | COMMAND CENTER V2.6</title>
+    <title>DS AUTOMOBILES | COMMAND CENTER V3.0</title>
     
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
@@ -17,150 +17,140 @@
             --font-main: 'Rajdhani', sans-serif; --font-tech: 'Michroma', sans-serif;
         }
 
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: #000; }
         ::-webkit-scrollbar-thumb { background: var(--gold); border-radius: 10px; }
 
         body { 
             font-family: var(--font-main); background: var(--bg); color: var(--white); margin: 0; 
-            min-height: 100vh; background-image: radial-gradient(circle at top, #0a0a0a 0%, #000 100%);
+            min-height: 100vh; background-image: radial-gradient(circle at top, #111 0%, #000 100%);
         }
 
         /* --- LOGIN --- */
         #login-system { position: fixed; inset: 0; background: #000; z-index: 9999; display: flex; flex-direction: column; align-items: center; padding: 30px 20px; overflow-y: auto; }
-        .main-header { text-align: center; margin-bottom: 40px; }
-        .main-header h1 { font-family: var(--font-tech); font-size: 1.8rem; letter-spacing: 8px; text-shadow: 0 0 15px var(--gold); margin: 0; }
-        .main-header p { font-size: 0.7rem; color: var(--gold); letter-spacing: 3px; text-transform: uppercase; font-weight: 700; margin-top: 10px; }
+        .main-header h1 { font-family: var(--font-tech); font-size: 1.8rem; letter-spacing: 8px; text-shadow: 0 0 15px var(--gold); color: var(--gold); }
         
         .manager-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 20px; width: 100%; max-width: 1200px; }
         .slot-card { background: #0a0a0a; border: 1px solid #1a1a1a; border-top: 4px solid var(--gold); border-radius: 15px; padding: 15px; }
         .m-btn { width: 100%; padding: 12px; margin: 4px 0; background: #000; border: 1px solid #222; color: #444; border-radius: 8px; font-weight: 700; cursor: pointer; }
         .m-btn.occupied { color: #fff; border-color: var(--gold); background: rgba(197,160,89,0.1); }
 
-        /* --- APP --- */
-        .master-app { display: none; grid-template-columns: 1fr; gap: 20px; padding: 20px; max-width: 1800px; margin: auto; }
-        @media (min-width: 1200px) { .master-app { grid-template-columns: 350px 1fr 400px; } }
+        /* --- LAYOUT --- */
+        .master-app { display: none; grid-template-columns: 1fr; gap: 20px; padding: 20px; max-width: 1900px; margin: auto; }
+        @media (min-width: 1200px) { .master-app { grid-template-columns: 380px 1fr 400px; } }
 
         .panel { background: var(--card); border: 1px solid #1a1a1a; border-radius: 20px; overflow: hidden; display: flex; flex-direction: column; }
-        .panel-header { padding: 18px; background: #000; font-family: var(--font-tech); font-size: 0.6rem; color: var(--gold); border-bottom: 1px solid #151515; }
+        .panel-header { padding: 15px; background: #000; font-family: var(--font-tech); font-size: 0.6rem; color: var(--gold); border-bottom: 1px solid #151515; text-transform: uppercase; }
         .panel-body { padding: 20px; }
 
-        /* RADAR DE TELEMETRÍA (Sustituye Mapas) */
-        .radar-box { 
-            height: 150px; background: #000; border-radius: 15px; border: 1px solid #222; 
-            margin-bottom: 20px; display: flex; align-items: center; justify-content: center;
-            position: relative; overflow: hidden;
-        }
-        .radar-line { position: absolute; width: 100%; height: 2px; background: rgba(0, 255, 157, 0.1); animation: scan 3s infinite linear; }
-        @keyframes scan { from { top: 0; } to { top: 100%; } }
+        /* --- CONTADORES TOTALES --- */
+        .global-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
+        .stat-box { background: #000; padding: 15px; border-radius: 15px; border: 1px solid #222; text-align: center; }
+        .stat-box label { color: var(--gold); font-size: 0.6rem; font-family: var(--font-tech); }
+        .stat-box span { display: block; font-size: 2.5rem; font-family: var(--font-tech); color: var(--white); }
+        .stat-box.highlight span { color: var(--green); }
 
-        .v-target-box { background: #000; border-radius: 15px; padding: 15px; text-align: center; border: 1px solid #1a1a1a; margin-bottom: 20px; }
-        .v-target-box span { font-family: var(--font-tech); font-size: 4rem; color: var(--gold); display: block; }
-        
-        /* STINTS Y DESGASTE REHABILITADO */
-        .stint-card { background: #050505; border-radius: 12px; padding: 18px; margin-bottom: 15px; border: 1px solid #1a1a1a; border-left: 6px solid var(--gold); }
-        .wear-bar-bg { background: #111; height: 10px; border-radius: 5px; overflow: hidden; margin-top: 8px; border: 1px solid #222; }
-        .wear-bar-fill { height: 100%; width: 100%; background: var(--green); transition: 1s cubic-bezier(0.075, 0.82, 0.165, 1); }
-
-        .fuel-result { font-family: var(--font-tech); font-size: 2.8rem; color: var(--green); text-align: center; }
-        label { font-size: 0.6rem; font-family: var(--font-tech); color: #666; display: block; margin-bottom: 8px; }
-        input, select, textarea { width: 100%; background: #000; border: 1px solid #222; color: #fff; padding: 14px; border-radius: 10px; margin-bottom: 20px; font-family: var(--font-main); font-size: 1.1rem; }
-
-        /* DATA STREAM CONSOLE */
+        /* --- DATA STREAM --- */
         #data-stream { 
-            background: #000; border-radius: 12px; padding: 20px; font-family: 'Courier New', monospace; 
-            color: var(--green); font-size: 0.8rem; min-height: 250px; border: 1px solid #333; 
-            line-height: 1.5; border-left: 4px solid var(--green); overflow-y: auto;
+            background: #000; border-radius: 15px; padding: 15px; font-family: 'Courier New', monospace; 
+            color: var(--green); font-size: 0.8rem; min-height: 220px; border: 1px solid #333; line-height: 1.4; border-left: 4px solid var(--green);
         }
-        .stream-alert { color: var(--red); font-weight: bold; animation: blink 1s infinite; }
+        .crit-text { color: var(--red); animation: blink 1s infinite; }
         @keyframes blink { 50% { opacity: 0; } }
 
-        .action-btn { width: 100%; padding: 16px; border-radius: 10px; border: none; font-family: var(--font-tech); font-weight: 700; cursor: pointer; text-transform: uppercase; font-size: 0.7rem; }
-        .btn-gold { background: var(--gold); color: #000; }
+        /* --- STINTS --- */
+        .stint-card { background: #080808; border-radius: 15px; padding: 18px; margin-bottom: 15px; border: 1px solid #1a1a1a; border-left: 5px solid var(--gold); }
+        .wear-bar-bg { background: #111; height: 10px; border-radius: 5px; margin-top: 8px; }
+        .wear-bar-fill { height: 100%; width: 100%; background: var(--green); transition: 0.5s; }
 
-        .ranking-table { width: 100%; border-collapse: collapse; }
-        .ranking-table td { padding: 12px; text-align: center; border-bottom: 1px solid #111; }
+        /* --- CHAT --- */
+        #chat-box { height: 400px; background: #050505; border-radius: 15px; border: 1px solid #222; margin-bottom: 10px; overflow-y: auto; padding: 15px; }
+        .chat-msg { background: #111; padding: 10px; border-radius: 8px; margin-bottom: 10px; border-left: 3px solid var(--gold); }
+        .chat-msg b { color: var(--gold); font-size: 0.7rem; display: block; }
+        .chat-msg span { font-size: 0.9rem; }
+
+        /* --- FORMS --- */
+        input, select, textarea { width: 100%; background: #000; border: 1px solid #222; color: #fff; padding: 12px; border-radius: 10px; margin-bottom: 15px; font-family: var(--font-main); }
+        .action-btn { width: 100%; padding: 15px; border-radius: 10px; border: none; font-family: var(--font-tech); font-weight: 700; cursor: pointer; text-transform: uppercase; font-size: 0.7rem; }
+        .btn-gold { background: var(--gold); color: #000; }
     </style>
 </head>
 <body>
 
 <div id="login-system">
-    <div class="main-header">
-        <h1>DS AUTOMOBILES</h1>
-        <p>Sugerencias de estrategia | ELITE ENGINEERING</p>
-    </div>
+    <div class="main-header"><h1>DS AUTOMOBILES</h1><p>Sugerencias de estrategia</p></div>
     <div class="manager-grid" id="m-grid"></div>
 </div>
 
 <div class="master-app" id="app-interface">
     
     <div class="panel">
-        <div class="panel-header">CONTROL DE CIRCUITO</div>
+        <div class="panel-header">CONTROL DE GP</div>
         <div class="panel-body">
-            <div class="radar-box">
-                <div class="radar-line"></div>
-                <svg width="80" height="80" viewBox="0 0 100 100">
-                    <circle cx="50" cy="50" r="45" fill="none" stroke="#222" stroke-width="2"/>
-                    <circle cx="50" cy="50" r="25" fill="none" stroke="#222" stroke-width="2"/>
-                    <path d="M50 5 L50 95 M5 50 L95 50" stroke="#111" stroke-width="1"/>
-                </svg>
-            </div>
-            <label>GP SELECCIONADO (TODOS)</label>
+            <label>CIRCUITO (TOTAL VTS)</label>
             <select id="gp-select" onchange="updateCircuit()">
-                <option value="29">Australia (29v)</option>
-                <option value="29">Bahréin (29v)</option>
-                <option value="27">China (27v)</option>
-                <option value="23">Azerbaiyán (23v)</option>
-                <option value="31">España (31v)</option>
-                <option value="29">Mónaco (29v)</option>
-                <option value="31">Canadá (31v)</option>
-                <option value="24">Francia (24v)</option>
-                <option value="34">Austria (34v)</option>
-                <option value="24">Gran Bretaña (24v)</option>
-                <option value="39">Hungría (39v)</option>
-                <option value="21">Bélgica (21v)</option>
-                <option value="25">Italia (25v)</option>
-                <option value="30">Singapur (30v)</option>
-                <option value="23">Rusia (23v)</option>
-                <option value="27">Japón (27v)</option>
-                <option value="30">USA - Austin (30v)</option>
-                <option value="35">México (35v)</option>
-                <option value="34">Brasil (34v)</option>
-                <option value="36">Abu Dhabi (36v)</option>
-                <option value="35">Holanda (35v)</option>
-                <option value="27">Turquía (27v)</option>
+                <option value="28">Australia (28v)</option><option value="29">Bahréin (29v)</option>
+                <option value="27">China (27v)</option><option value="31">España (31v)</option>
+                <option value="29">Mónaco (29v)</option><option value="31">Canadá (31v)</option>
+                <option value="34">Austria (34v)</option><option value="24">G. Bretaña (24v)</option>
+                <option value="39">Hungría (39v)</option><option value="21">Bélgica (21v)</option>
+                <option value="25">Italia (25v)</option><option value="30">Singapur (30v)</option>
+                <option value="27">Japón (27v)</option><option value="35">México (35v)</option>
+                <option value="34">Brasil (34v)</option><option value="36">Abu Dhabi (36v)</option>
                 <option value="30">Las Vegas (30v)</option>
-                <option value="27">Malasia (27v)</option>
-                <option value="35">Sudáfrica (35v)</option>
             </select>
-            <div class="v-target-box">
-                <label>VTS TOTALES</label>
+            
+            <div class="stat-box" style="margin-bottom:20px;">
+                <label>VUELTAS TOTALES GP</label>
                 <span id="v-count">0</span>
             </div>
+
             <label>CONSUMO BASE (FB)</label>
             <input type="number" id="fb-base" value="2.700" step="0.001" oninput="calculate()">
-            <label>NOTAS DEL MANAGER</label>
-            <textarea id="notes" rows="4" placeholder="Escribe aquí (ej. lluvia)..." oninput="calculate()"></textarea>
+
+            <label>NOTAS DE TELEMETRÍA</label>
+            <textarea id="notes" rows="4" oninput="calculate()" placeholder="LLUVIA, S.C, etc..."></textarea>
+            
+            <button class="action-btn" style="background:#222; color:#777;" onclick="location.reload()">LOGOUT</button>
         </div>
     </div>
 
     <div class="panel">
-        <div class="panel-header">DATA-STREAM & ESTRATEGIA</div>
+        <div class="panel-header">Sugerencias de estrategia - DATA STREAM</div>
         <div class="panel-body">
-            <div id="data-stream">>> SISTEMA INICIADO...</div>
-            <div id="stint-container" style="margin-top:20px;"></div>
-            <button class="action-btn btn-gold" onclick="addNewStint()" style="margin: 20px 0;">+ AÑADIR STINT</button>
-
-            <div style="margin-top:20px; border-top:1px solid #222; padding-top:20px;">
-                <h3 style="font-family:var(--font-tech); font-size:0.5rem; color:var(--gold); text-align:center;">RANKING TEMPORADA</h3>
-                <table class="ranking-table"><tbody id="ranking-body"></tbody></table>
-            </div>
             
-            <div id="admin-tools" style="display:none; margin-top:20px; border:1px solid var(--gold); padding:10px; border-radius:10px;">
-                <input type="text" id="adm-name" placeholder="MANAGER" style="margin:5px 0;">
-                <input type="number" id="adm-pts" placeholder="PTS" style="margin:5px 0;">
-                <button onclick="injectPoints()" class="action-btn btn-gold">INYECTAR</button>
+            <div class="global-stats">
+                <div class="stat-box highlight">
+                    <label>SUMA VTS STINTS</label>
+                    <span id="total-laps-box">0</span>
+                </div>
+                <div class="stat-box highlight">
+                    <label>LITROS TOTALES</label>
+                    <span id="total-fuel-box">0.0</span>
+                </div>
+            </div>
+
+            <div id="data-stream">>> DS-CORE ONLINE...</div>
+            
+            <div id="stint-container" style="margin-top:20px;"></div>
+            
+            <button class="action-btn btn-gold" onclick="addNewStint()">+ AÑADIR STINT TÁCTICO</button>
+        </div>
+    </div>
+
+    <div class="panel">
+        <div class="panel-header">MANAGER CHAT & RANKING</div>
+        <div class="panel-body">
+            <div id="chat-box"></div>
+            <div style="display:flex; gap:10px; margin-bottom:20px;">
+                <input type="text" id="chat-input" placeholder="Mensaje..." style="margin:0;">
+                <button id="chat-send" class="btn-gold" style="padding:0 15px; border-radius:10px;">↑</button>
+            </div>
+
+            <div style="border-top:1px solid #222; padding-top:15px;">
+                <label>TOP MANAGERS</label>
+                <div id="ranking-list"></div>
             </div>
         </div>
     </div>
@@ -171,11 +161,11 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    let sessionID = ""; let stunts = []; let isAdmin = false;
+    let sessionID = ""; let managerName = ""; let stunts = [];
 
-    // LOGIN SYNC
+    // --- LOGIN ---
     db.ref('perfiles').on('value', (s) => {
-        const grid = document.getElementById('m-grid'); grid.innerHTML = '';
+        const grid = document.getElementById('m-grid'); if(!grid) return; grid.innerHTML = '';
         const data = s.val() || {};
         ["F1", "F2", "F3", "F4", "F5", "K6"].forEach(c => {
             let html = `<div class="slot-card"><h3>${c}</h3>`;
@@ -187,106 +177,120 @@
         });
     });
 
-    db.ref('ranking').on('value', (s) => {
-        const data = s.val() || {};
-        const sorted = Object.values(data).sort((a,b) => b.pts - a.pts);
-        let rows = ''; sorted.forEach(p => { rows += `<tr><td>${p.name}</td><td>${p.pts}</td><td>${p.gp}</td></tr>`; });
-        document.getElementById('ranking-body').innerHTML = rows;
-    });
-
     function handleLogin(id) {
         db.ref('perfiles/'+id).once('value').then(s => {
             let d = s.val();
             if(!d) {
                 let n = prompt("Nombre:"); let p = prompt("PIN:"); if(!n || !p) return;
                 d = { name: n, pin: p, fb: 2.7, notes: "" }; db.ref('perfiles/'+id).set(d);
-            } else if(!isAdmin) { if(prompt("PIN:") !== d.pin) return alert("ERROR"); }
-            sessionID = id; document.getElementById('login-system').style.display='none';
-            document.getElementById('app-interface').style.display='grid';
-            document.getElementById('fb-base').value = d.fb;
-            document.getElementById('notes').value = d.notes;
+            } else { if(prompt("PIN:") !== d.pin) return alert("ERROR"); }
+            sessionID = id; managerName = d.name.toUpperCase();
+            document.getElementById('login-system').style.display = 'none';
+            document.getElementById('app-interface').style.display = 'grid';
             updateCircuit();
         });
     }
 
-    // STINTS Y DESGASTE
+    // --- CHAT GLOBAL ---
+    db.ref('chat').limitToLast(15).on('value', (s) => {
+        const box = document.getElementById('chat-box'); box.innerHTML = '';
+        const msgs = s.val() || {};
+        Object.values(msgs).forEach(m => {
+            box.innerHTML += `<div class="chat-msg"><b>${m.user}</b><span>${m.text}</span></div>`;
+        });
+        box.scrollTop = box.scrollHeight;
+    });
+
+    document.getElementById('chat-send').onclick = () => {
+        const inp = document.getElementById('chat-input'); if(!inp.value) return;
+        db.ref('chat').push({ user: managerName, text: inp.value }); inp.value = '';
+    };
+
+    // --- ESTRATEGIA Y EMPUJES (REHABILITADOS) ---
     function addNewStint() {
-        let id = Date.now(); stunts.push({id: id, laps: 10, push: 0, wear: 8.0});
+        let id = Date.now();
+        stunts.push({id: id, laps: 10, push: 0, wear: 8.0});
         let div = document.createElement('div'); div.className = 'stint-card'; div.id = `st-${id}`;
         div.innerHTML = `
-            <div style="display:flex; justify-content:space-between; align-items:center;">
-                <b style="color:var(--gold); font-size:0.6rem;">STINT #${stunts.length}</b>
-                <span onclick="removeStint(${id})" style="color:var(--red); cursor:pointer; font-weight:bold;">[X]</span>
+            <div style="display:flex; justify-content:space-between;">
+                <b>STINT #${stunts.length}</b>
+                <span onclick="removeStint(${id})" style="color:var(--red); cursor:pointer;">X</span>
             </div>
-            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px; margin-top:10px;">
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-top:10px;">
                 <div><label>VUELTAS</label><input type="number" value="10" oninput="updStint(${id},'laps',this.value)"></div>
-                <div><label>MIX</label><select onchange="updStint(${id},'push',this.value)">
-                    <option value="0.02">MIX 5</option><option value="0" selected>MIX 3</option><option value="-0.007">MIX 1</option>
-                </select></div>
+                <div><label>EMPUJE (MIX)</label>
+                    <select onchange="updStint(${id},'push',this.value)">
+                        <option value="0.025">MIX 5 (MAX)</option>
+                        <option value="0.012">MIX 4</option>
+                        <option value="0" selected>MIX 3 (STD)</option>
+                        <option value="-0.008">MIX 2</option>
+                        <option value="-0.015">MIX 1 (ECON)</option>
+                    </select>
+                </div>
                 <div style="grid-column: span 2;">
                     <label>DESGASTE %/VTA</label>
                     <input type="number" value="8.0" step="0.1" oninput="updStint(${id},'wear',this.value)">
                     <div class="wear-bar-bg"><div class="wear-bar-fill" id="bar-${id}"></div></div>
                 </div>
             </div>
-            <div class="fuel-result" id="fuel-${id}">0.00L</div>`;
-        document.getElementById('stint-container').appendChild(div); calculate();
+            <div style="text-align:center; font-family:var(--font-tech); color:var(--green); font-size:1.5rem;" id="fuel-${id}">0.00L</div>
+        `;
+        document.getElementById('stint-container').appendChild(div);
+        calculate();
     }
 
     function updStint(id, k, v) { let s = stunts.find(x=>x.id===id); if(s) s[k]=parseFloat(v); calculate(); }
     function removeStint(id) { stunts = stunts.filter(x=>x.id!==id); document.getElementById(`st-${id}`).remove(); calculate(); }
 
+    // --- CÁLCULO Y DATA STREAM PERFECCIONADO ---
     function calculate() {
         let fb = parseFloat(document.getElementById('fb-base').value) || 0;
-        let tL = 0; let tF = 0; let minWear = 100;
+        let tLaps = 0; let tFuel = 0; let hasDanger = false;
 
-        stunts.forEach((s) => {
-            let f = (s.laps * (fb + parseFloat(s.push))) + 0.3;
-            tL += s.laps; tF += f;
+        stunts.forEach(s => {
+            let f = (s.laps * (fb + s.push)) + 0.3;
+            tLaps += s.laps; tFuel += f;
             document.getElementById(`fuel-${s.id}`).innerText = f.toFixed(2) + "L";
             
-            let w = 100 - (s.laps * s.wear); 
-            if(w < minWear) minWear = w;
-            let b = document.getElementById(`bar-${s.id}`);
-            if(b) {
-                b.style.width = Math.max(0, Math.min(100, w)) + "%";
-                b.style.background = w < 25 ? 'var(--red)' : w < 50 ? 'var(--orange)' : 'var(--green)';
+            let wear = 100 - (s.laps * s.wear);
+            let bar = document.getElementById(`bar-${s.id}`);
+            if(bar) {
+                bar.style.width = Math.max(0, wear) + "%";
+                bar.style.background = wear < 25 ? 'var(--red)' : wear < 45 ? 'var(--orange)' : 'var(--green)';
+                if(wear < 25) hasDanger = true;
             }
         });
-        updateDataStream(tL, tF, minWear);
+
+        // Actualizar Contadores Globales
+        document.getElementById('total-laps-box').innerText = tLaps;
+        document.getElementById('total-fuel-box').innerText = tFuel.toFixed(1);
+
+        updateStream(tLaps, tFuel, hasDanger);
     }
 
-    // OPCIÓN 2: DATA-STREAM (Telemetría Predictiva)
-    function updateDataStream(vts, fuel, wear) {
+    function updateStream(tl, tf, danger) {
         const ds = document.getElementById('data-stream');
+        const target = parseInt(document.getElementById('gp-select').value);
         const notes = document.getElementById('notes').value.toLowerCase();
-        const gpVts = parseInt(document.getElementById('gp-select').value);
         
-        let log = `>> DS-CORE TELEMETRY LOG\n`;
-        log += `>> STATUS: ${notes.includes("lluvia") ? "WEATHER ALERT" : "NOMINAL"}\n`;
-        log += `>> FUEL LOAD: ${fuel.toFixed(2)}L / ${vts} VTS\n`;
+        let log = `>> <b style="color:var(--gold)">TELEMETRY LIVE</b>\n`;
+        log += `>> PLAN: ${tl} / ${target} VTS\n`;
         
-        // Alertas inteligentes
-        if(vts > gpVts) log += `<span class="stream-alert">>> ERROR: VTS EXCEDE GP (${gpVts})</span>\n`;
-        if(wear < 25) log += `<span class="stream-alert">>> CRITICAL: TYRE WEAR @ ${wear.toFixed(1)}%</span>\n`;
-        if(fuel > 100) log += `<span class="stream-alert">>> WARNING: TANK OVERFLOW</span>\n`;
-        
+        if(tl < target) log += `>> <span class="crit-text">DÉFICIT: -${target - tl} VTS PARA TERMINAR</span>\n`;
+        else if(tl > target) log += `>> <span style="color:var(--orange)">AVISO: SOBRECARGA +${tl - target} VTS</span>\n`;
+        else log += `>> <span style="color:var(--green)">STATUS: COBERTURA TOTAL OK</span>\n`;
+
+        if(danger) log += `>> <span class="crit-text">¡PELIGRO!: NEUMÁTICOS BAJO EL 25%</span>\n`;
+        if(notes.includes("lluvia")) log += `>> MODO LLUVIA: RECOMENDADO MIX 1\n`;
+
         log += `\nSugerencias de estrategia:\n`;
-        if(notes.includes("lluvia")) log += `* ACTIVAR MAPA MOTOR MIX 1\n* MONITORIZAR AQUAPLANING S2`;
-        else if(wear < 30) log += `* LLAMADA A BOX EN PRÓXIMA VUELTA\n* PREPARAR NEUMÁTICOS NUEVOS`;
-        else if(vts < gpVts) log += `* FALTAN ${gpVts - vts} VTS PARA COMPLETAR GP\n* AJUSTAR STINTS`;
-        else log += `* RITMO ÓPTIMO DETECTADO\n* MANTENER DISTANCIA DE DRS`;
+        if(tl === target) log += `* CARGA DE ${tf.toFixed(2)}L CONFIRMADA PARA GP.`;
+        else log += `* AJUSTA LAS VUELTAS DE LOS STINTS.`;
 
         ds.innerHTML = log;
     }
 
     function updateCircuit() { document.getElementById('v-count').innerText = document.getElementById('gp-select').value; calculate(); }
-
-    function injectPoints() {
-        let n = document.getElementById('adm-name').value.toUpperCase(); let p = parseInt(document.getElementById('adm-pts').value);
-        if(!n || isNaN(p)) return;
-        db.ref('ranking/'+n).set({ name: n, pts: p, gp: 1 }); alert("OK");
-    }
 </script>
 </body>
 </html>
