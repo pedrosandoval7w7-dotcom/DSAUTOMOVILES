@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>DS AUTOMOBILES | COMMAND CENTER V6.0 ELITE</title>
+    <title>DS AUTOMOBILES | COMMAND CENTER V8.0 ELITE</title>
     
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     
     <style>
-        /* --- ESTILOS DE ALTA FIDELIDAD --- */
+        /* --- ARQUITECTURA VISUAL COMPLETA --- */
         @import url('https://fonts.googleapis.com/css2?family=Michroma&family=Rajdhani:wght@300;400;500;600;700&display=swap');
 
         :root { 
@@ -33,13 +33,11 @@
             color: var(--white); 
             margin: 0; 
             min-height: 100vh; 
-            background-image: 
-                linear-gradient(rgba(0,0,0,0.9), rgba(0,0,0,0.9)),
-                url('https://www.transparenttextures.com/patterns/carbon-fibre.png');
+            background-image: radial-gradient(circle at top, #111 0%, #000 100%);
             overflow-x: hidden;
         }
 
-        /* --- SISTEMA DE LOGIN --- */
+        /* --- LOGIN SYSTEM (REFORZADO) --- */
         #login-system { 
             position: fixed; 
             inset: 0; 
@@ -60,6 +58,7 @@
             color: var(--gold);
             text-shadow: 0 0 20px var(--gold-glow);
         }
+        .login-header p { letter-spacing: 5px; color: #444; font-size: 0.7rem; font-weight: bold; }
 
         .manager-grid { 
             display: grid; 
@@ -75,6 +74,7 @@
             border-top: 5px solid var(--gold); 
             border-radius: 12px; 
             padding: 20px;
+            transition: 0.3s;
         }
 
         .slot-card h3 { 
@@ -105,7 +105,7 @@
             background: linear-gradient(45deg, #1a150e, #000); 
         }
 
-        /* --- INTERFAZ PRINCIPAL --- */
+        /* --- INTERFAZ DE COMANDO --- */
         .master-app { 
             display: none; 
             grid-template-columns: 1fr; 
@@ -138,17 +138,19 @@
             border-bottom: 1px solid #1a1a1a;
             display: flex;
             justify-content: space-between;
+            align-items: center;
         }
 
         .panel-body { padding: 25px; }
 
-        /* --- STATS GLOBALES --- */
+        /* --- TELEMETRÍA BOXES --- */
         .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 25px; }
         .stat-card-mega { 
             background: #000; padding: 20px; border-radius: 18px; border: 1px solid #222; text-align: center;
         }
         .stat-card-mega label { font-family: var(--font-tech); font-size: 0.55rem; color: var(--gold); display: block; margin-bottom: 10px; }
-        .stat-card-mega span { font-family: var(--font-tech); font-size: 2.2rem; line-height: 1; }
+        .stat-card-mega span { font-family: var(--font-tech); font-size: 2.2rem; line-height: 1; color: var(--white); }
+        .stat-card-mega.active span { color: var(--green); text-shadow: 0 0 10px rgba(0, 255, 157, 0.3); }
 
         /* --- DATA STREAM --- */
         #data-stream { 
@@ -157,33 +159,52 @@
             overflow-y: auto; margin-bottom: 25px; line-height: 1.6;
         }
 
-        /* --- STINTS --- */
+        /* --- STINTS & DESGASTE --- */
         .stint-card { 
             background: #0a0a0a; border: 1px solid #1a1a1a; border-left: 8px solid var(--gold); 
-            border-radius: 15px; padding: 20px; margin-bottom: 20px;
+            border-radius: 15px; padding: 20px; margin-bottom: 20px; position: relative;
         }
-        .wear-bar-outer { background: #1a1a1a; height: 12px; border-radius: 6px; margin-top: 10px; overflow: hidden; }
-        .wear-bar-inner { height: 100%; width: 100%; background: var(--green); transition: 1s; }
+        .wear-bar-outer { background: #1a1a1a; height: 12px; border-radius: 6px; margin-top: 15px; overflow: hidden; border: 1px solid #222; }
+        .wear-bar-inner { height: 100%; width: 100%; background: var(--green); transition: 1s cubic-bezier(0.4, 0, 0.2, 1); }
+        .wear-info { display: flex; justify-content: space-between; margin-top: 8px; font-family: var(--font-tech); font-size: 0.55rem; color: #666; }
 
-        /* --- CHAT SYSTEM --- */
-        #chat-panel { height: 400px; background: #050505; border-radius: 20px; border: 1px solid #222; display: flex; flex-direction: column; overflow: hidden; }
+        /* --- CHAT GLOBAL --- */
+        #chat-panel { height: 400px; background: #050505; border-radius: 20px; border: 1px solid #222; display: flex; flex-direction: column; overflow: hidden; margin-bottom: 25px; }
         #chat-messages { flex-grow: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; }
-        .msg-bubble { background: #111; padding: 12px; border-radius: 12px; border-left: 4px solid var(--gold); }
-        .msg-bubble b { display: block; color: var(--gold); font-family: var(--font-tech); font-size: 0.6rem; margin-bottom: 4px; }
+        .msg-bubble { background: #111; padding: 12px; border-radius: 12px; border-left: 4px solid var(--gold); animation: slideIn 0.3s ease-out; }
+        .msg-bubble b { display: block; color: var(--gold); font-family: var(--font-tech); font-size: 0.6rem; margin-bottom: 4px; text-transform: uppercase; }
+        .msg-bubble span { font-size: 0.95rem; line-height: 1.4; color: #ddd; }
+        @keyframes slideIn { from { transform: translateX(20px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
 
-        /* --- RANKING --- */
-        .ranking-container { margin-top: 30px; }
-        .rank-row { display: flex; justify-content: space-between; padding: 15px 0; border-bottom: 1px solid #111; }
-        .rank-row b { color: var(--gold); font-family: var(--font-tech); font-size: 0.8rem; }
+        /* --- RANKING ACUMULADO --- */
+        .ranking-container { background: #080808; border-radius: 15px; border: 1px solid #1a1a1a; padding: 15px; }
+        .rank-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 10px; border-bottom: 1px solid #111; }
+        .rank-row:last-child { border: none; }
+        .rank-row b { color: var(--gold); font-family: var(--font-tech); font-size: 0.75rem; }
+        .rank-row span { color: var(--green); font-weight: bold; font-family: var(--font-tech); font-size: 0.9rem; }
 
-        /* --- ELEMENTOS FORM --- */
-        label { font-family: var(--font-tech); font-size: 0.6rem; color: #555; margin-bottom: 8px; display: block; }
-        input, select, textarea { width: 100%; background: #000; border: 1px solid #222; color: #fff; padding: 15px; border-radius: 12px; font-family: var(--font-main); font-size: 1.1rem; margin-bottom: 20px; }
+        /* --- ADMIN PANEL (ROJO) --- */
+        .admin-section { display: none; margin-top: 30px; border: 2px solid var(--red); padding: 25px; border-radius: 20px; background: rgba(255,49,49,0.05); }
+        .admin-section h4 { color: var(--red); font-family: var(--font-tech); font-size: 0.7rem; margin: 0 0 20px 0; text-align: center; letter-spacing: 2px; }
+
+        /* --- ELEMENTOS DE FORMULARIO --- */
+        label { font-family: var(--font-tech); font-size: 0.6rem; color: #555; margin-bottom: 8px; display: block; text-transform: uppercase; letter-spacing: 1px; }
+        input, select, textarea { 
+            width: 100%; background: #000; border: 1px solid #222; color: #fff; padding: 15px; 
+            border-radius: 12px; font-family: var(--font-main); font-size: 1.1rem; margin-bottom: 20px; transition: 0.3s;
+        }
+        input:focus, select:focus, textarea:focus { border-color: var(--gold); box-shadow: 0 0 10px rgba(197,160,89,0.1); }
         
-        .action-btn { width: 100%; padding: 18px; border-radius: 12px; border: none; font-family: var(--font-tech); font-weight: 700; cursor: pointer; text-transform: uppercase; font-size: 0.8rem; transition: 0.3s; }
-        .btn-gold { background: var(--gold); color: #000; }
+        .action-btn { 
+            width: 100%; padding: 18px; border-radius: 12px; border: none; font-family: var(--font-tech); 
+            font-weight: 700; cursor: pointer; text-transform: uppercase; font-size: 0.8rem; transition: 0.3s; 
+        }
+        .btn-gold { background: var(--gold); color: #000; box-shadow: 0 5px 15px rgba(197,160,89,0.2); }
+        .btn-gold:hover { transform: translateY(-2px); background: #d4af6a; }
         
-        .admin-panel { display: none; margin-top: 30px; border: 2px solid var(--red); padding: 20px; border-radius: 20px; background: rgba(255,49,49,0.05); }
+        /* --- UTILIDADES --- */
+        .blink { animation: blink-anim 1s infinite; }
+        @keyframes blink-anim { 0% { opacity: 1; } 50% { opacity: 0.4; } 100% { opacity: 1; } }
     </style>
 </head>
 <body>
@@ -191,18 +212,18 @@
 <div id="login-system">
     <div class="login-header">
         <h1>DS AUTOMOBILES</h1>
-        <p>Sugerencias de estrategia | ELITE HUB</p>
+        <p>Sugerencias de estrategia | WORLD HUB</p>
     </div>
     <div class="manager-grid" id="m-grid"></div>
-    <button onclick="authAdmin()" style="margin-top:60px; background:none; border:none; color:#111; cursor:pointer;">[ ENCRYPTED ADMIN ]</button>
+    <button onclick="authAdmin()" style="margin-top:60px; background:none; border:none; color:#111; cursor:pointer; font-size:0.6rem;">[ ACCESO ENCRIPTADO ADMINISTRACIÓN ]</button>
 </div>
 
 <div class="master-app" id="app-interface">
     
     <div class="panel">
-        <div class="panel-header">CONFIGURACIÓN GP <div id="sync-led" style="width:8px; height:8px; background:#333; border-radius:50%;"></div></div>
+        <div class="panel-header">PANEL DE CONFIGURACIÓN <div id="sync-status" class="blink" style="width:10px; height:10px; background:var(--green); border-radius:50%;"></div></div>
         <div class="panel-body">
-            <label>SELECCIÓN DE CIRCUITO</label>
+            <label>SELECCIÓN DE GP (TEMPORADA 2026)</label>
             <select id="gp-select" onchange="updateCircuit()">
                 <option value="28">Bahrain International (28v)</option>
                 <option value="25">Jeddah Corniche (25v)</option>
@@ -228,106 +249,123 @@
                 <option value="36">Yas Marina (36v)</option>
             </select>
 
-            <div class="stat-card-mega" style="margin-bottom: 25px;">
-                <label>VUELTAS TOTALES GP</label>
+            <div class="stat-card-mega" style="margin-bottom: 25px; border-color: var(--gold);">
+                <label>META TOTAL DEL GP</label>
                 <span id="target-display">0</span>
             </div>
 
-            <label>CONSUMO BASE (FB)</label>
+            <label>CONSUMO BASE POR VUELTA (FB)</label>
             <input type="number" id="fb-base" value="2.700" step="0.001" oninput="calculateAll()">
 
-            <label>BLOC DE NOTAS (AUTO-GUARDADO)</label>
-            <textarea id="notes" rows="8" placeholder="Reportes de SC, lluvia, stints de rivales..." oninput="calculateAll()"></textarea>
+            <label>BLOC DE NOTAS DE ESTRATEGIA (AUTO-GUARDADO)</label>
+            <textarea id="notes" rows="10" placeholder="Escribe aquí telemetría de rivales, incidentes, clima o degradación observada..." oninput="calculateAll()"></textarea>
 
-            <button class="action-btn" style="background:#111; color:#555;" onclick="location.reload()">LOGOUT</button>
+            <button class="action-btn" style="background:#111; color:#555; margin-top:10px;" onclick="location.reload()">CERRAR SESIÓN SEGURA</button>
         </div>
     </div>
 
     <div class="panel">
-        <div class="panel-header">Sugerencias de estrategia - CONTROL MAESTRO</div>
+        <div class="panel-header">Sugerencias de estrategia - INGENIERÍA</div>
         <div class="panel-body">
             <div class="stat-grid">
-                <div class="stat-card-mega">
+                <div class="stat-card-mega active">
                     <label>VTS PLANIFICADAS</label>
                     <span id="total-laps">0</span>
                 </div>
-                <div class="stat-card-mega">
+                <div class="stat-card-mega active">
                     <label>LITROS TOTALES</label>
                     <span id="total-fuel">0.000</span>
                 </div>
             </div>
 
-            <div id="data-stream">>> DS-CORE ANALYZING...</div>
+            <div id="data-stream">>> DS-CORE SYSTEM ONLINE... ANALYZING CIRCUIT DATA...</div>
 
             <div id="stint-list"></div>
 
-            <button class="action-btn btn-gold" onclick="addNewStint()">+ AÑADIR NUEVO STINT</button>
+            <button class="action-btn btn-gold" onclick="addNewStint()">+ AÑADIR NUEVO STINT TÁCTICO</button>
         </div>
     </div>
 
     <div class="panel">
-        <div class="panel-header">HUB DE MANAGERS</div>
+        <div class="panel-header">HUB DE COMUNICACIONES</div>
         <div class="panel-body">
+            <label>CHAT GLOBAL DE MANAGERS</label>
             <div id="chat-panel">
                 <div id="chat-messages"></div>
-                <div style="display:flex; gap:10px; padding:15px; background:#000;">
-                    <input type="text" id="chat-input" placeholder="Mensaje..." style="margin:0;">
-                    <button id="chat-send" class="btn-gold" style="width:60px; padding:0;">↑</button>
+                <div style="display:flex; gap:10px; padding:15px; background:#000; border-top:1px solid #111;">
+                    <input type="text" id="chat-input" placeholder="Escribir mensaje..." style="margin:0;">
+                    <button id="chat-send" class="btn-gold" style="width:65px; padding:0;">↑</button>
                 </div>
             </div>
 
             <div class="ranking-container">
-                <label>RANKING TEMPORADA 2026</label>
+                <label>RANKING ACUMULADO TEMPORADA</label>
                 <div id="ranking-list"></div>
             </div>
 
-            <div id="admin-panel" class="admin-panel">
-                <h3 style="color:var(--red); font-family:var(--font-tech); font-size:0.7rem; text-align:center;">CONTROL DE ADMINISTRADOR</h3>
-                <label>INYECTAR PUNTOS</label>
-                <input type="text" id="adm-user" placeholder="NOMBRE MANAGER">
-                <input type="number" id="adm-pts" placeholder="PUNTOS">
-                <button onclick="injectPoints()" class="action-btn btn-gold" style="margin-bottom:15px;">ACTUALIZAR DATABASE</button>
+            <div id="admin-panel" class="admin-section">
+                <h4>CONTROL MAESTRO DE BASE DE DATOS</h4>
+                <label>INYECTAR PUNTOS (ACUMULATIVO)</label>
+                <input type="text" id="adm-user" placeholder="NOMBRE DEL MANAGER">
+                <input type="number" id="adm-pts" placeholder="CANTIDAD A SUMAR">
+                <button onclick="injectPoints()" class="action-btn btn-gold" style="margin-bottom:15px;">ACTUALIZAR RANKING</button>
                 
-                <label>RESET DE TEMPORADA</label>
-                <button onclick="resetSeason()" class="action-btn" style="background:var(--red); color:white;">BORRAR RANKING TOTAL</button>
+                <label>ACCIONES CRÍTICAS</label>
+                <button onclick="resetSeason()" class="action-btn" style="background:var(--red); color:white; border:none;">RESET TOTAL TEMPORADA</button>
             </div>
         </div>
     </div>
 </div>
 
 <script>
-    // --- FIREBASE ---
+    // --- INICIALIZACIÓN DE FIREBASE ---
     const firebaseConfig = { databaseURL: "https://ds-automobiles-f0a17-default-rtdb.firebaseio.com/" };
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    let currentID = ""; let managerName = ""; let stints = []; let isAdmin = false;
+    let sessionID = ""; 
+    let managerName = ""; 
+    let stunts = []; // Lista de stints
+    let isAdmin = false;
 
-    // --- LOGIN ---
-    db.ref('perfiles').on('value', (s) => {
-        const grid = document.getElementById('m-grid'); grid.innerHTML = '';
-        const data = s.val() || {};
-        ["F1", "F2", "F3", "F4", "F5", "K6"].forEach(cat => {
+    // --- SISTEMA DE LOGIN Y PERFILES ---
+    db.ref('perfiles').on('value', (snapshot) => {
+        const grid = document.getElementById('m-grid');
+        grid.innerHTML = '';
+        const data = snapshot.val() || {};
+        
+        const categorias = ["F1", "F2", "F3", "F4", "F5", "K6"];
+        
+        categorias.forEach(cat => {
             let html = `<div class="slot-card"><h3>${cat}</h3>`;
             for(let i=1; i<=4; i++) {
-                let id = `${cat}_M${i}`; let p = data[id];
-                let isOcc = p ? 'occupied' : ''; let name = p ? p.name.toUpperCase() : 'VACANTE';
-                html += `<button class="m-btn ${isOcc}" onclick="login('${id}')">${name}</button>`;
+                let id = `${cat}_M${i}`;
+                let perfil = data[id];
+                let cssClass = perfil ? 'occupied' : '';
+                let label = perfil ? perfil.name.toUpperCase() : 'VACANTE';
+                html += `<button class="m-btn ${cssClass}" onclick="handleLogin('${id}')">${label}</button>`;
             }
             grid.innerHTML += html + `</div>`;
         });
     });
 
-    function login(id) {
+    function handleLogin(id) {
         db.ref('perfiles/'+id).once('value').then(s => {
             let p = s.val();
             if(!p) {
-                let n = prompt("Nombre:"); let pin = prompt("PIN:"); if(!n || !pin) return;
-                p = { name: n, pin: pin, fb: 2.7, notes: "" }; db.ref('perfiles/'+id).set(p);
+                let n = prompt("Nombre del nuevo Manager:");
+                let pin = prompt("Crea un PIN de seguridad:");
+                if(!n || !pin) return;
+                p = { name: n, pin: pin, fb: 2.7, notes: "" };
+                db.ref('perfiles/'+id).set(p);
             } else if(!isAdmin) {
-                if(prompt("PIN:") !== p.pin) return alert("ACCESO DENEGADO");
+                if(prompt("Introduce tu PIN de acceso:") !== p.pin) {
+                    alert("PIN INCORRECTO. ACCESO DENEGADO.");
+                    return;
+                }
             }
-            currentID = id; managerName = p.name.toUpperCase();
+            sessionID = id;
+            managerName = p.name.toUpperCase();
             document.getElementById('login-system').style.display = 'none';
             document.getElementById('app-interface').style.display = 'grid';
             document.getElementById('fb-base').value = p.fb || 2.7;
@@ -336,100 +374,236 @@
         });
     }
 
-    // --- CHAT ---
-    db.ref('chat').limitToLast(20).on('value', (s) => {
-        const container = document.getElementById('chat-messages'); container.innerHTML = '';
-        Object.values(s.val() || {}).forEach(m => {
-            container.innerHTML += `<div class="msg-bubble"><b>${m.user}</b><span>${m.text}</span></div>`;
+    // --- CHAT EN VIVO ---
+    db.ref('chat').limitToLast(20).on('value', (snapshot) => {
+        const container = document.getElementById('chat-messages');
+        container.innerHTML = '';
+        const msgs = snapshot.val() || {};
+        Object.values(msgs).forEach(m => {
+            container.innerHTML += `
+                <div class="msg-bubble">
+                    <b>${m.user}</b>
+                    <span>${m.text}</span>
+                </div>`;
         });
         container.scrollTop = container.scrollHeight;
     });
 
-    document.getElementById('chat-send').onclick = () => {
-        const inp = document.getElementById('chat-input'); if(!inp.value.trim()) return;
-        db.ref('chat').push({ user: managerName, text: inp.value }); inp.value = '';
-    };
+    document.getElementById('chat-send').onclick = sendChatMessage;
+    document.getElementById('chat-input').onkeypress = (e) => { if(e.key === 'Enter') sendChatMessage(); };
 
-    // --- ESTRATEGIA ---
+    function sendChatMessage() {
+        const inp = document.getElementById('chat-input');
+        if(!inp.value.trim()) return;
+        db.ref('chat').push({
+            user: managerName,
+            text: inp.value,
+            timestamp: Date.now()
+        });
+        inp.value = '';
+    }
+
+    // --- MOTOR DE ESTRATEGIA (CON DESGASTE) ---
     function addNewStint() {
-        let id = Date.now(); stints.push({id, laps: 10, push: 0, wear: 8.0});
-        let div = document.createElement('div'); div.className = 'stint-card'; div.id = `st-${id}`;
+        let id = Date.now();
+        stunts.push({id: id, laps: 10, push: 0, wear: 8.0});
+        
+        let div = document.createElement('div');
+        div.className = 'stint-card';
+        div.id = `st-${id}`;
         div.innerHTML = `
-            <div style="display:flex; justify-content:space-between; margin-bottom:15px;">
-                <b style="color:var(--gold); font-size:0.7rem;">STINT #${stunts.length}</b>
-                <span onclick="removeStint(${id})" style="color:var(--red); cursor:pointer;">[ ELIMINAR ]</span>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+                <b style="color:var(--gold); font-family:var(--font-tech); font-size:0.65rem;">STINT TÁCTICO #${stunts.length}</b>
+                <span onclick="removeStint(${id})" style="color:var(--red); cursor:pointer; font-weight:bold; font-size:0.8rem;">[ ELIMINAR ]</span>
             </div>
             <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px;">
-                <div><label>VUELTAS</label><input type="number" value="10" oninput="updStint(${id},'laps',this.value)"></div>
-                <div><label>MIX MOTOR</label>
+                <div>
+                    <label>VUELTAS DEL STINT</label>
+                    <input type="number" value="10" oninput="updStint(${id},'laps',this.value)">
+                </div>
+                <div>
+                    <label>MAPA MOTOR (MIX)</label>
                     <select onchange="updStint(${id},'push',this.value)">
-                        <option value="0.025">MIX 5 (+0.025)</option><option value="0.012">MIX 4 (+0.012)</option>
-                        <option value="0" selected>MIX 3 (STD)</option><option value="-0.008">MIX 2 (-0.008)</option>
-                        <option value="-0.015">MIX 1 (-0.015)</option>
+                        <option value="0.025">MIX 5 (MÁXIMO)</option>
+                        <option value="0.012">MIX 4 (EMPUJE)</option>
+                        <option value="0" selected>MIX 3 (ESTÁNDAR)</option>
+                        <option value="-0.008">MIX 2 (AHORRO)</option>
+                        <option value="-0.015">MIX 1 (CRÍTICO)</option>
                     </select>
                 </div>
                 <div style="grid-column: span 2;">
-                    <label>DESGASTE %/VTA</label><input type="number" value="8.0" step="0.1" oninput="updStint(${id},'wear',this.value)">
-                    <div class="wear-bar-outer"><div class="wear-bar-inner" id="bar-${id}"></div></div>
+                    <label>DESGASTE ESTIMADO (% POR VUELTA)</label>
+                    <input type="number" value="8.0" step="0.1" oninput="updStint(${id},'wear',this.value)">
+                    <div class="wear-bar-outer">
+                        <div class="wear-bar-inner" id="bar-${id}"></div>
+                    </div>
+                    <div class="wear-info">
+                        <span id="wear-text-${id}">ESTADO: 100% (NUEVO)</span>
+                        <span id="wear-alert-${id}"></span>
+                    </div>
                 </div>
             </div>
-            <div style="text-align:center; color:var(--green); font-size:2rem; margin-top:15px;" id="fuel-${id}">0.000L</div>`;
-        document.getElementById('stint-list').appendChild(div); calculateAll();
+            <div style="text-align:center; color:var(--green); font-family:var(--font-tech); font-size:2.2rem; margin-top:15px; border-top:1px solid #111; padding-top:15px;" id="fuel-${id}">
+                0.000L
+            </div>
+        `;
+        document.getElementById('stint-list').appendChild(div);
+        calculateAll();
     }
 
-    function updStint(id, k, v) { let s = stints.find(x=>x.id===id); if(s) s[k]=parseFloat(v); calculateAll(); }
-    function removeStint(id) { stints = stints.filter(x=>x.id!==id); document.getElementById(`st-${id}`).remove(); calculateAll(); }
+    function updStint(id, key, val) {
+        let s = stunts.find(x => x.id === id);
+        if(s) s[key] = parseFloat(val);
+        calculateAll();
+    }
+
+    function removeStint(id) {
+        stunts = stunts.filter(x => x.id !== id);
+        document.getElementById(`st-${id}`).remove();
+        calculateAll();
+    }
 
     function calculateAll() {
-        let fb = parseFloat(document.getElementById('fb-base').value) || 0;
-        let tL = 0; let tF = 0; let danger = false;
+        let baseFB = parseFloat(document.getElementById('fb-base').value) || 0;
+        let totalLaps = 0;
+        let totalFuel = 0;
+        let hasDanger = false;
 
         stunts.forEach(s => {
-            let f = (s.laps * (fb + s.push)) + 0.3; tL += s.laps; tF += f;
-            document.getElementById(`fuel-${s.id}`).innerText = f.toFixed(3) + "L";
-            let w = 100 - (s.laps * s.wear);
-            let b = document.getElementById(`bar-${s.id}`);
-            if(b) {
-                b.style.width = Math.max(0, w) + "%";
-                b.style.background = w < 25 ? 'var(--red)' : w < 45 ? 'var(--orange)' : 'var(--green)';
-                if(w < 25) danger = true;
+            // Cálculo de combustible (Consumo base + Mapa Motor) * Vueltas + Margen de Seguridad 0.3L
+            let fuelForStint = (s.laps * (baseFB + s.push)) + 0.3;
+            totalLaps += s.laps;
+            totalFuel += fuelForStint;
+
+            document.getElementById(`fuel-${s.id}`).innerText = fuelForStint.toFixed(3) + "L";
+
+            // LÓGICA DE DESGASTE RESTAURADA
+            let remainingWear = 100 - (s.laps * s.wear);
+            let bar = document.getElementById(`bar-${s.id}`);
+            let txt = document.getElementById(`wear-text-${s.id}`);
+            let alertMsg = document.getElementById(`wear-alert-${s.id}`);
+
+            if(bar) {
+                bar.style.width = Math.max(0, remainingWear) + "%";
+                txt.innerText = `ESTADO: ${Math.max(0, remainingWear).toFixed(1)}% RESTANTE`;
+                
+                if(remainingWear < 25) {
+                    bar.style.background = 'var(--red)';
+                    alertMsg.innerText = "¡CRÍTICO!";
+                    alertMsg.style.color = 'var(--red)';
+                    hasDanger = true;
+                } else if(remainingWear < 45) {
+                    bar.style.background = 'var(--orange)';
+                    alertMsg.innerText = "AVISO";
+                    alertMsg.style.color = 'var(--orange)';
+                } else {
+                    bar.style.background = 'var(--green)';
+                    alertMsg.innerText = "ÓPTIMO";
+                    alertMsg.style.color = 'var(--green)';
+                }
             }
         });
 
-        document.getElementById('total-laps').innerText = tL;
-        document.getElementById('total-fuel').innerText = tF.toFixed(3);
-        updateStream(tL, tF, danger);
-        db.ref('perfiles/'+currentID).update({ fb: document.getElementById('fb-base').value, notes: document.getElementById('notes').value });
+        document.getElementById('total-laps').innerText = totalLaps;
+        document.getElementById('total-fuel').innerText = totalFuel.toFixed(3);
+        
+        updateDataStream(totalLaps, totalFuel, hasDanger);
+
+        // Guardado automático del perfil (FB y Notas)
+        if(sessionID) {
+            db.ref('perfiles/'+sessionID).update({
+                fb: document.getElementById('fb-base').value,
+                notes: document.getElementById('notes').value
+            });
+        }
     }
 
-    function updateStream(tl, tf, d) {
-        const ds = document.getElementById('data-stream'); const target = parseInt(document.getElementById('gp-select').value);
-        let log = `>> <b style="color:var(--gold)">ANÁLISIS DE TELEMETRÍA</b>\n`;
-        log += `>> PLAN: ${tl} / ${target} VUELTAS\n`;
-        if(tl < target) log += `>> <span style="color:var(--red)">DÉFICIT: -${target-tl} VTS (CARRERA INCOMPLETA)</span>\n`;
-        else if(tl > target) log += `>> <span style="color:var(--orange)">EXCESO: +${tl-target} VTS (SOBRECARGA)</span>\n`;
-        else log += `>> <span style="color:var(--green)">COBERTURA DE CARRERA: 100% OK</span>\n`;
-        if(d) log += `>> <span style="color:var(--red); animation:blink 1s infinite">ALERTA: REVISAR DESGASTE EN STINT</span>\n`;
-        ds.innerHTML = log;
+    function updateDataStream(tl, tf, danger) {
+        const stream = document.getElementById('data-stream');
+        const target = parseInt(document.getElementById('gp-select').value);
+        let content = `>> <b style="color:var(--gold)">ANÁLISIS DE TELEMETRÍA DS-CORE</b>\n`;
+        content += `>> ESTADO DEL PLAN: ${tl} / ${target} VUELTAS\n`;
+        
+        if(tl < target) {
+            content += `>> <span style="color:var(--red)">DÉFICIT DETECTADO: -${target-tl} VTS</span>\n`;
+            content += `>> ACCIÓN: AÑADIR VUELTAS PARA COMPLETAR GP.\n`;
+        } else if(tl > target) {
+            content += `>> <span style="color:var(--orange)">EXCESO DETECTADO: +${tl-target} VTS</span>\n`;
+            content += `>> ACCIÓN: REVISAR CARGA DE COMBUSTIBLE.\n`;
+        } else {
+            content += `>> <span style="color:var(--green)">COBERTURA DE CARRERA: 100% (OK)</span>\n`;
+        }
+
+        if(danger) {
+            content += `>> <span style="color:var(--red); font-weight:bold" class="blink">ALERTA: DEGRADACIÓN DE NEUMÁTICOS CRÍTICA</span>\n`;
+        }
+
+        content += `\nSugerencias de estrategia:\n`;
+        content += `* CARGA RECOMENDADA: ${tf.toFixed(3)}L\n`;
+        content += `* ESTRATEGIA ACTUALIZADA EN TIEMPO REAL.`;
+
+        stream.innerHTML = content;
     }
 
-    function updateCircuit() { document.getElementById('target-display').innerText = document.getElementById('gp-select').value; calculateAll(); }
+    function updateCircuit() {
+        document.getElementById('target-display').innerText = document.getElementById('gp-select').value;
+        calculateAll();
+    }
 
-    // --- RANKING & ADMIN ---
-    db.ref('ranking').on('value', (s) => {
-        const list = document.getElementById('ranking-list'); list.innerHTML = '';
-        const sorted = Object.values(s.val() || {}).sort((a,b) => b.pts - a.pts);
-        sorted.forEach(p => {
-            list.innerHTML += `<div class="rank-row"><b>${p.name}</b> <span>${p.pts} PTS</span></div>`;
+    // --- RANKING ACUMULATIVO ---
+    db.ref('ranking').on('value', (snapshot) => {
+        const list = document.getElementById('ranking-list');
+        list.innerHTML = '';
+        const rawData = snapshot.val() || {};
+        const sorted = Object.values(rawData).sort((a,b) => b.pts - a.pts);
+        
+        sorted.forEach(player => {
+            list.innerHTML += `
+                <div class="rank-row">
+                    <b>${player.name}</b>
+                    <span>${player.pts} PTS</span>
+                </div>`;
         });
     });
 
-    function authAdmin() { if(prompt("ADMIN PASS:") === "DS2026") { isAdmin = true; document.getElementById('admin-panel').style.display='block'; } }
-    function injectPoints() {
-        let n = document.getElementById('adm-user').value.toUpperCase(); let p = parseInt(document.getElementById('adm-pts').value);
-        if(n && !isNaN(p)) db.ref('ranking/'+n).set({ name: n, pts: p });
+    // --- PANEL DE ADMINISTRACIÓN ---
+    function authAdmin() {
+        if(prompt("PASS DE NIVEL MAESTRO:") === "DS2026") {
+            isAdmin = true;
+            document.getElementById('admin-panel').style.display = 'block';
+            alert("MODO ADMINISTRADOR ACTIVADO.");
+        }
     }
-    function resetSeason() { if(confirm("¿RESETEAR TODO EL RANKING?")) db.ref('ranking').remove(); }
+
+    function injectPoints() {
+        const user = document.getElementById('adm-user').value.toUpperCase();
+        const ptsToAdd = parseInt(document.getElementById('adm-pts').value);
+        
+        if(!user || isNaN(ptsToAdd)) return;
+
+        // LÓGICA ACUMULATIVA: Lee primero, suma después.
+        db.ref('ranking/'+user).once('value').then(snap => {
+            let currentPts = 0;
+            if(snap.exists()) {
+                currentPts = snap.val().pts;
+            }
+            db.ref('ranking/'+user).set({
+                name: user,
+                pts: currentPts + ptsToAdd
+            });
+            alert(`SISTEMA: SE HAN SUMADO ${ptsToAdd} PUNTOS A ${user}.`);
+            document.getElementById('adm-pts').value = '';
+        });
+    }
+
+    function resetSeason() {
+        if(confirm("¿ESTÁS SEGURO? ESTO ELIMINARÁ LOS PUNTOS DE TODA LA TEMPORADA 2026.")) {
+            if(confirm("CONFIRMACIÓN FINAL: ESTA ACCIÓN NO SE PUEDE DESHACER.")) {
+                db.ref('ranking').remove();
+                alert("DATABASE RESETEADA.");
+            }
+        }
+    }
 </script>
 </body>
 </html>
