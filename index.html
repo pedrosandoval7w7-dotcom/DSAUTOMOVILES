@@ -467,6 +467,17 @@
             if(currentId) document.getElementById('commander-panel').style.display = 'block';
         }
     }
+
+    function resetMasterLeague() {
+        if(!isRoot) return alert("ERROR: REQUIERE MODO COMANDANTE.");
+        
+        if(confirm("⚠️ ¿BORRAR TODA LA LIGA? Esta acción limpiará el ranking y los perfiles de la nube.")) {
+            db.ref('/').remove().then(() => {
+                alert("NUBE LIMPIADA. REINICIANDO SISTEMA...");
+                location.reload();
+            }).catch(e => alert("FALLO EN NUBE: " + e.message));
+        }
+    }
 </script>
 </body>
 </html>
