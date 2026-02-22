@@ -23,6 +23,7 @@
             --font-tech: 'Michroma', sans-serif;
         }
 
+        /* --- RESET Y SCROLL --- */
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: #000; }
@@ -37,7 +38,7 @@
             background-image: linear-gradient(180deg, #000 0%, #0a0a0a 100%);
         }
 
-        /* --- LOGIN SYSTEM --- */
+        /* --- SISTEMA DE ACCESO --- */
         #login-system { 
             position: fixed; inset: 0; background: #000; z-index: 9999; 
             display: flex; flex-direction: column; align-items: center; 
@@ -49,7 +50,10 @@
             font-family: var(--font-tech); font-size: 1.8rem; color: var(--white); 
             letter-spacing: 8px; text-shadow: 0 0 15px var(--gold); margin: 0;
         }
-        .main-header p { font-size: 0.7rem; color: var(--gold); letter-spacing: 3px; text-transform: uppercase; margin-top: 10px; }
+        .main-header p { 
+            font-size: 0.7rem; color: var(--gold); letter-spacing: 3px; 
+            text-transform: uppercase; font-weight: 700; margin-top: 10px;
+        }
 
         #admin-control-panel {
             width: 100%; max-width: 600px; background: #080808; 
@@ -60,58 +64,87 @@
         #master-reset-btn {
             width: 100%; padding: 18px; border-radius: 12px; border: 2px solid #222;
             background: #111; color: #444; font-family: var(--font-tech);
-            font-size: 0.6rem; text-transform: uppercase;
+            font-size: 0.6rem; cursor: not-allowed; text-transform: uppercase;
+            transition: all 0.3s ease;
         }
 
-        .manager-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 20px; width: 100%; max-width: 1200px; }
-        .slot-card { background: #0a0a0a; border: 1px solid #1a1a1a; border-top: 4px solid var(--gold); border-radius: 15px; padding: 15px; }
-        .slot-card h3 { font-family: var(--font-tech); font-size: 0.6rem; color: var(--gold); text-align: center; margin-bottom: 12px; }
-        
+        .manager-grid { 
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); 
+            gap: 20px; width: 100%; max-width: 1200px; 
+        }
+        .slot-card { 
+            background: #0a0a0a; border: 1px solid #1a1a1a; border-top: 4px solid var(--gold);
+            border-radius: 15px; padding: 15px; 
+        }
+        .slot-card h3 { 
+            font-family: var(--font-tech); font-size: 0.6rem; color: var(--gold); 
+            text-align: center; margin-bottom: 12px; 
+        }
         .m-btn { 
             width: 100%; padding: 12px; margin: 4px 0; background: #000; border: 1px solid #222;
             color: #444; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 0.8rem;
+            transition: 0.3s;
         }
         .m-btn.occupied { color: #fff; border-color: var(--gold); background: rgba(197,160,89,0.1); }
 
-        /* --- APP INTERFACE --- */
-        .master-app { display: none; grid-template-columns: 1fr; gap: 20px; padding: 20px; max-width: 1800px; margin: auto; }
+        /* --- INTERFAZ DE INGENIERÍA --- */
+        .master-app { 
+            display: none; grid-template-columns: 1fr; gap: 20px; padding: 20px; 
+            max-width: 1800px; margin: auto; 
+        }
         @media (min-width: 1200px) { .master-app { grid-template-columns: 350px 1fr 400px; } }
 
-        .panel { background: var(--card); border: 1px solid #1a1a1a; border-radius: 20px; overflow: hidden; display: flex; flex-direction: column; }
-        .panel-header { padding: 18px; background: #000; font-family: var(--font-tech); font-size: 0.6rem; color: var(--gold); border-bottom: 1px solid #151515; }
-        .panel-body { padding: 20px; }
+        .panel { 
+            background: var(--card); border: 1px solid #1a1a1a; border-radius: 20px; 
+            position: relative; overflow: hidden; display: flex; flex-direction: column;
+        }
+        .panel-header { 
+            padding: 18px; background: #000; font-family: var(--font-tech); 
+            font-size: 0.6rem; color: var(--gold); border-bottom: 1px solid #151515; 
+        }
+        .panel-body { padding: 20px; flex-grow: 1; }
 
         .v-target-box { background: #000; border-radius: 15px; padding: 15px; text-align: center; border: 1px solid #1a1a1a; margin-bottom: 20px; }
         .v-target-box span { font-family: var(--font-tech); font-size: 4rem; color: var(--gold); display: block; }
         
-        /* DESGASTE REINSTALADO */
-        .stint-card { background: #050505; border-radius: 12px; padding: 18px; margin-bottom: 15px; border: 1px solid #1a1a1a; border-left: 6px solid var(--gold); }
-        .wear-container { margin-top: 15px; }
-        .wear-bg { background: #111; height: 10px; border-radius: 5px; overflow: hidden; margin-top: 5px; border: 1px solid #222; }
-        .wear-fill { height: 100%; width: 100%; background: var(--green); transition: 0.6s cubic-bezier(0.17, 0.67, 0.83, 0.67); }
+        /* BLOQUE DE NEUMÁTICOS REINSTALADO */
+        .stint-card { 
+            background: #050505; border-radius: 12px; padding: 18px; margin-bottom: 15px;
+            border: 1px solid #1a1a1a; border-left: 6px solid var(--gold);
+        }
+        .wear-indicator { margin-top: 15px; }
+        .wear-bar-bg { background: #111; height: 10px; border-radius: 5px; overflow: hidden; border: 1px solid #222; margin-top: 5px; }
+        .wear-bar-fill { height: 100%; width: 100%; background: var(--green); transition: 0.8s ease-out; }
 
         .fuel-result { font-family: var(--font-tech); font-size: 2.8rem; color: var(--green); text-align: center; margin: 10px 0; }
         
-        label { font-size: 0.6rem; font-family: var(--font-tech); color: #666; display: block; margin-bottom: 8px; }
-        input, select, textarea { width: 100%; background: #000; border: 1px solid #222; color: #fff; padding: 14px; border-radius: 10px; margin-bottom: 20px; font-family: var(--font-main); font-size: 1.1rem; }
+        label { font-size: 0.6rem; font-family: var(--font-tech); color: #666; display: block; margin-bottom: 8px; margin-left: 5px; }
+        input, select, textarea { 
+            width: 100%; background: #000; border: 1px solid #222; color: #fff; padding: 14px;
+            border-radius: 10px; margin-bottom: 20px; font-family: var(--font-main); font-size: 1.1rem;
+        }
 
-        .action-btn { width: 100%; padding: 16px; border-radius: 10px; border: none; font-family: var(--font-tech); font-size: 0.7rem; cursor: pointer; text-transform: uppercase; }
+        .action-btn { 
+            width: 100%; padding: 16px; border-radius: 10px; border: none; font-family: var(--font-tech);
+            font-weight: 700; font-size: 0.7rem; cursor: pointer; text-transform: uppercase;
+        }
         .btn-gold { background: var(--gold); color: #000; }
 
-        /* CONSOLA IA REPARADA */
+        /* CONSOLA IA - SISTEMA DE ALTA RESPUESTA */
         #ai-console { 
             background: #000; border-radius: 12px; padding: 20px; 
             font-family: 'Courier New', monospace; color: var(--green); font-size: 0.85rem; 
             min-height: 220px; border: 1px solid #333; line-height: 1.6;
             white-space: pre-wrap; overflow-y: auto; border-left: 4px solid var(--green);
+            box-shadow: inset 0 0 20px rgba(0, 255, 157, 0.02);
         }
 
         #sync-led { width: 10px; height: 10px; background: #222; border-radius: 50%; display: inline-block; margin-left: 10px; }
         .led-active { background: var(--green) !important; box-shadow: 0 0 10px var(--green); }
-        
+
         .ranking-table { width: 100%; border-collapse: collapse; }
         .ranking-table th { font-family: var(--font-tech); font-size: 0.5rem; color: var(--gold); border-bottom: 1px solid var(--gold); padding: 10px; }
-        .ranking-table td { padding: 12px; text-align: center; border-bottom: 1px solid #111; font-size: 1rem; }
+        .ranking-table td { padding: 12px; text-align: center; border-bottom: 1px solid #111; font-weight: 500; }
     </style>
 </head>
 <body>
@@ -129,7 +162,6 @@
 </div>
 
 <div class="master-app" id="app-interface">
-    
     <div class="panel">
         <div class="panel-header">DATOS DE CIRCUITO</div>
         <div class="panel-body">
@@ -162,14 +194,14 @@
                 <option value="35">Sudáfrica (35v)</option>
             </select>
             <div class="v-target-box">
-                <label>VUELTAS</label>
+                <label>VUELTAS TOTALES</label>
                 <span id="v-count">0</span>
             </div>
             <label>CONSUMO BASE (FB)</label>
             <input type="number" id="fb-base" value="2.700" step="0.001" oninput="calculate()">
             <label>NOTAS DEL MANAGER <div id="sync-led"></div></label>
             <textarea id="notes" rows="6" oninput="calculate()"></textarea>
-            <button class="action-btn" style="background:#111; color:#444;" onclick="location.reload()">LOGOUT</button>
+            <button class="action-btn" style="background:#111; color:#444;" onclick="location.reload()">CERRAR SESIÓN</button>
         </div>
     </div>
 
@@ -179,11 +211,11 @@
             <div id="stint-container"></div>
             <button class="action-btn btn-gold" onclick="addNewStint()" style="margin-bottom: 25px;">+ AÑADIR STINT</button>
 
-            <div style="background:#000; padding:10px; border-radius:15px; border:1px solid #222;">
-                <div id="ai-console">>> DS-CORE ONLINE. ESPERANDO MANAGER...</div>
+            <div style="background:#000; padding:15px; border-radius:15px; border:1px solid #222;">
+                <div id="ai-console">>> DS-CORE V2.6 ONLINE. ANALIZANDO...</div>
                 <div style="display:flex; gap:10px; margin-top:10px;">
                     <input type="text" id="ai-prompt" placeholder="Habla con la IA..." style="margin:0; flex-grow:1;">
-                    <button onclick="interactuarIA()" style="background:var(--green); border:none; color:#000; padding:10px 20px; border-radius:10px; font-weight:bold; font-family:var(--font-tech); cursor:pointer;">ENVIAR</button>
+                    <button id="btn-ia-send" style="background:var(--green); border:none; color:#000; padding:10px 20px; border-radius:10px; font-weight:bold; font-family:var(--font-tech); cursor:pointer;">ENVIAR</button>
                 </div>
             </div>
 
@@ -205,14 +237,15 @@
 </div>
 
 <script>
+    // 1. FIREBASE
     const firebaseConfig = { databaseURL: "https://ds-automobiles-f0a17-default-rtdb.firebaseio.com/" };
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
     let sessionID = ""; let stunts = []; let isAdmin = false;
-    let iaResponse = "IDENTIFICACIÓN REQUERIDA PARA ACCESO A TELEMETRÍA.";
+    let iaResponse = "IDENTIFICACIÓN COMPLETA. ESPERANDO DATOS DE TELEMETRÍA.";
 
-    // SYNC DATA
+    // 2. CARGA DE DATOS
     db.ref('perfiles').on('value', (s) => {
         const grid = document.getElementById('m-grid'); if(!grid) return; grid.innerHTML = '';
         const data = s.val() || {};
@@ -234,21 +267,21 @@
         document.getElementById('ranking-body').innerHTML = rows;
     });
 
+    // 3. LOGIN Y ADMIN
     function handleLogin(id) {
         db.ref('perfiles/'+id).once('value').then(s => {
             let d = s.val();
             if(!d) {
-                let n = prompt("Nombre:"); let p = prompt("PIN:"); if(!n || !p) return;
+                let n = prompt("Nombre Manager:"); let p = prompt("PIN:"); if(!n || !p) return;
                 d = { name: n, pin: p, fb: 2.7, notes: "" }; db.ref('perfiles/'+id).set(d);
             } else if(!isAdmin) {
-                if(prompt("PIN:") !== d.pin) return alert("ERROR");
+                if(prompt("PIN:") !== d.pin) return alert("PIN INCORRECTO");
             }
             sessionID = id; document.getElementById('login-system').style.display='none';
             document.getElementById('app-interface').style.display='grid';
             document.getElementById('fb-base').value = d.fb;
             document.getElementById('notes').value = d.notes;
             if(isAdmin) document.getElementById('admin-points').style.display='block';
-            iaResponse = "BIENVENIDO MANAGER. SISTEMA DS-CORE V2.6 LISTO.";
             updateCircuit();
         });
     }
@@ -256,22 +289,22 @@
     function requestAdmin() {
         if(prompt("PASS:") === "DS2026") {
             isAdmin = true; let btn = document.getElementById('master-reset-btn');
-            btn.innerText = "⚠️ RESET MAESTRO DESBLOQUEADO"; btn.style.background = "var(--red)"; btn.style.color="white";
+            btn.innerText = "⚠️ MODO MAESTRO ACTIVADO"; btn.style.background = "var(--red)"; btn.style.color="white"; btn.style.cursor="pointer";
         }
     }
 
     function executeSeasonReset() {
-        if(isAdmin && confirm("¿BORRAR TEMPORADA?")) db.ref('/').remove().then(()=>location.reload());
+        if(isAdmin && confirm("¿BORRAR TODA LA TEMPORADA?")) db.ref('/').remove().then(()=>location.reload());
     }
 
-    // STINTS Y DESGASTE
+    // 4. LÓGICA DE STINTS Y NEUMÁTICOS
     function addNewStint() {
         let id = Date.now(); stunts.push({id: id, laps: 10, push: 0, wear: 8.0});
         let div = document.createElement('div'); div.className = 'stint-card'; div.id = `st-${id}`;
         div.innerHTML = `
             <div style="display:flex; justify-content:space-between; align-items:center;">
-                <b style="color:var(--gold); font-family:var(--font-tech); font-size:0.6rem;">STINT #${stunts.length}</b>
-                <span onclick="removeStint(${id})" style="color:var(--red); cursor:pointer; font-weight:bold;">[X]</span>
+                <b style="color:var(--gold); font-size:0.6rem;">STINT #${stunts.length}</b>
+                <span onclick="removeStint(${id})" style="color:var(--red); cursor:pointer;">[X]</span>
             </div>
             <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px; margin-top:15px;">
                 <div><label>VUELTAS</label><input type="number" value="10" oninput="updStint(${id},'laps',this.value)"></div>
@@ -280,10 +313,10 @@
                     <option value="0" selected>MIX 3</option><option value="-0.004">MIX 2</option>
                     <option value="-0.007">MIX 1</option>
                 </select></div>
-                <div style="grid-column: span 2;" class="wear-container">
+                <div style="grid-column: span 2;" class="wear-indicator">
                     <label>DESGASTE %/VTA</label>
                     <input type="number" value="8.0" step="0.1" oninput="updStint(${id},'wear',this.value)">
-                    <div class="wear-bg"><div class="wear-fill" id="bar-${id}"></div></div>
+                    <div class="wear-bar-bg"><div class="wear-bar-fill" id="bar-${id}"></div></div>
                 </div>
             </div>
             <div class="fuel-result" id="fuel-${id}">0.00L</div><div id="footer-${id}"></div>`;
@@ -301,7 +334,7 @@
             tL += s.laps; tF += f;
             document.getElementById(`fuel-${s.id}`).innerText = f.toFixed(2) + "L";
             
-            // Lógica de Desgaste
+            // CÁLCULO DE DESGASTE
             let w = 100 - (s.laps * s.wear); 
             let b = document.getElementById(`bar-${s.id}`);
             if(b) {
@@ -310,25 +343,26 @@
             }
 
             let foot = document.getElementById(`footer-${s.id}`); foot.innerHTML = "";
-            if(i === stunts.length - 1) foot.innerHTML = `<div style="display:flex; justify-content:space-between; border-top:1px dashed #444; padding-top:10px; font-size:0.9rem;"><span>VTS: ${tL}</span><span style="color:var(--gold)">SUMA: ${tF.toFixed(2)}L</span></div>`;
+            if(i === stunts.length - 1) foot.innerHTML = `<div style="display:flex; justify-content:space-between; border-top:1px dashed #444; padding-top:10px;"><span>VTS: ${tL}</span><span style="color:var(--gold)">TOTAL: ${tF.toFixed(2)}L</span></div>`;
         });
         refreshIA(tL, tF); cloudSave();
     }
 
-    // IA DINÁMICA
-    function interactuarIA() {
+    // 5. MOTOR DE IA - REPARADO CON EVENT LISTENER
+    document.getElementById('btn-ia-send').addEventListener('click', function() {
         const input = document.getElementById('ai-prompt');
         const msg = input.value.toLowerCase().trim();
         if(!msg) return;
 
-        if(msg.includes("lluvia")) iaResponse = "DETECTADA PRECIPITACIÓN. CAMBIAR A MIX 1 Y MONITORIZAR DESGASTE.";
-        else if(msg.includes("hola")) iaResponse = "MANAGER IDENTIFICADO. TELEMETRÍA ESTABLE. ¿ORDENES?";
-        else if(msg.includes("desgaste")) iaResponse = "NEUMÁTICOS EN RANGO. RECUERDA: MENOS DEL 20% ES CRÍTICO.";
-        else if(msg.includes("ganar")) iaResponse = "ESTRATEGIA ÓPTIMA: MANTENER AIRE LIMPIO Y MIX 3. BOX EN VUELTA PROGRAMADA.";
-        else iaResponse = "COMANDO PROCESADO: " + msg.toUpperCase() + ". AJUSTANDO CÁLCULOS.";
+        if(msg.includes("lluvia")) iaResponse = "ALERTA: PISTA HÚMEDA. RECOMENDADO MIX 1 Y VIGILAR TRACCIÓN.";
+        else if(msg.includes("hola")) iaResponse = "MANAGER IDENTIFICADO. TODOS LOS SISTEMAS NOMINALES.";
+        else if(msg.includes("neumat")) iaResponse = "ANALIZANDO DESGASTE. SI LA BARRA ESTÁ EN ROJO, ENTRA A BOX.";
+        else if(msg.includes("estrategia")) iaResponse = "Sugerencias de estrategia: MANTENER AIRE LIMPIO. OVERCUT DISPONIBLE.";
+        else iaResponse = "COMANDO RECIBIDO: " + msg.toUpperCase() + ". PROCESANDO EN NUBE...";
 
-        input.value = ""; refreshIA();
-    }
+        input.value = ""; 
+        refreshIA();
+    });
 
     function refreshIA(v = 0, l = 0) {
         const consoleEl = document.getElementById('ai-console');
@@ -342,13 +376,10 @@
         const notes = document.getElementById('notes').value.toLowerCase();
         let status = notes.includes("lluvia") ? "!! ALERTA CLIMÁTICA !!" : "SISTEMA NOMINAL";
         
-        consoleEl.innerText = `[ DS-CORE TELEMETRY V2.6 ]\nSTATUS: ${status}\nDATOS: ${v} VTS / ${l.toFixed(2)} L\n--------------------------\nSugerencias de estrategia:\n"${iaResponse}"`;
+        consoleEl.innerText = `[ DS-CORE TELEMETRY V2.6 ]\nSTATUS: ${status}\nTELEMETRÍA: ${v} VTS / ${l.toFixed(2)} L\n--------------------------\nSugerencias de estrategia:\n"${iaResponse}"`;
     }
 
-    function updateCircuit() { 
-        document.getElementById('v-count').innerText = document.getElementById('gp-select').value; 
-        calculate(); 
-    }
+    function updateCircuit() { document.getElementById('v-count').innerText = document.getElementById('gp-select').value; calculate(); }
     
     function injectPoints() {
         let n = document.getElementById('adm-name').value.toUpperCase(); let p = parseInt(document.getElementById('adm-pts').value);
@@ -356,7 +387,7 @@
         db.ref('ranking/'+n).once('value').then(s => {
             let cur = s.val() || { name: n, pts: 0, gp: 0 };
             db.ref('ranking/'+n).set({ name: n, pts: Number(cur.pts) + p, gp: Number(cur.gp) + 1 });
-            alert("PUNTOS INYECTADOS");
+            alert("PUNTOS OK");
         });
     }
 
