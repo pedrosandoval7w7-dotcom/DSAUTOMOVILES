@@ -16,133 +16,157 @@
             --green: #00ff9d; --red: #ff3131; --white: #ffffff;
         }
 
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
         body { 
             font-family: 'Outfit', sans-serif; background: var(--bg); color: var(--white); 
             margin: 0; padding: 0; overflow-x: hidden;
         }
         
-        /* ZONA DE RESET (SIEMPRE ARRIBA EN EL LOGIN) */
+        /* ZONA DE CONTROL MAESTRO (RESET) */
         #admin-lock-zone {
-            background: #111; border: 2px solid #222; margin: 15px; padding: 15px;
-            border-radius: 15px; text-align: center; transition: all 0.5s;
+            background: #111; border: 2px solid #222; margin: 15px; padding: 20px;
+            border-radius: 20px; text-align: center; transition: all 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
-        .lock-ready { border-color: var(--red) !important; background: #200 !important; box-shadow: 0 0 30px rgba(255,0,0,0.3); }
+        .lock-ready { border-color: var(--red) !important; background: radial-gradient(circle, #300 0%, #000 100%) !important; box-shadow: 0 0 40px rgba(255,0,0,0.5); transform: scale(1.02); }
 
         #master-reset-btn {
-            background: #222; color: #444; border: 1px solid #333; padding: 20px;
-            width: 100%; font-family: 'Syncopate'; font-weight: 900; border-radius: 10px;
-            cursor: not-allowed; text-transform: uppercase; font-size: 0.8rem;
+            background: #222; color: #444; border: 1px solid #333; padding: 22px;
+            width: 100%; font-family: 'Syncopate'; font-weight: 900; border-radius: 12px;
+            cursor: not-allowed; text-transform: uppercase; font-size: 0.9rem; transition: 0.3s;
         }
-        .btn-panic { background: linear-gradient(45deg, #f00, #800) !important; color: white !important; cursor: pointer !important; box-shadow: 0 0 20px #f00; border: 2px solid white !important; }
+        .btn-panic { background: linear-gradient(45deg, #f00, #800) !important; color: white !important; cursor: pointer !important; box-shadow: 0 0 25px #f00; border: 2px solid white !important; }
 
-        /* LOGIN STYLE */
+        /* LOGIN SYSTEM */
         #login-system { position: fixed; inset: 0; background: #000; z-index: 9999; display: flex; flex-direction: column; padding: 20px; overflow-y: auto; }
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 15px; padding: 10px; }
-        .cat-box { background: #080808; border: 1px solid var(--gold); border-radius: 15px; padding: 10px; border-top: 5px solid var(--gold); }
-        .slot-btn { width: 100%; padding: 12px; margin: 5px 0; background: #000; border: 1px solid #222; color: #444; border-radius: 8px; cursor: pointer; font-weight: 900; font-size: 0.7rem; }
-        .occupied { color: #fff; border-left: 5px solid var(--gold); background: #111; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 15px; padding: 10px; margin-top: 20px; }
+        .cat-box { background: #080808; border: 1px solid var(--gold); border-radius: 18px; padding: 12px; border-top: 6px solid var(--gold); box-shadow: 0 10px 20px rgba(0,0,0,0.5); }
+        .cat-box h3 { font-family: 'Syncopate'; font-size: 0.8rem; color: var(--gold); text-align: center; margin-bottom: 10px; }
+        .slot-btn { width: 100%; padding: 14px; margin: 6px 0; background: #000; border: 1px solid #222; color: #444; border-radius: 10px; cursor: pointer; font-weight: 900; font-size: 0.75rem; transition: 0.3s; }
+        .occupied { color: #fff; border-left: 6px solid var(--gold); background: rgba(197, 160, 89, 0.1); border-right: 1px solid var(--gold); }
 
-        /* APP STYLE */
-        .master-container { display: none; grid-template-columns: 1fr; gap: 20px; padding: 15px; }
+        /* DASHBOARD PRINCIPAL */
+        .master-container { display: none; grid-template-columns: 1fr; gap: 25px; padding: 20px; max-width: 1600px; margin: auto; }
         @media (min-width: 1100px) { .master-container { grid-template-columns: repeat(3, 1fr); } }
-        .card { background: var(--card); border: 1px solid #1a1a1a; border-radius: 20px; padding: 20px; position: relative; }
-        .card::before { content: ""; position: absolute; top: 0; left: 0; width: 100%; height: 4px; background: var(--gold); }
         
-        .fuel-val { font-size: 3.5rem; font-family: 'Syncopate'; color: var(--green); text-align: center; margin: 10px 0; }
-        input, select, textarea { background: #000; border: 1px solid #333; color: #fff; width: 100%; padding: 12px; border-radius: 10px; margin-bottom: 15px; }
-        .btn-master { background: var(--gold); color: #000; border: none; padding: 15px; width: 100%; border-radius: 10px; font-weight: 900; font-family: 'Syncopate'; cursor: pointer; }
+        .card { background: var(--card); border: 1px solid #1a1a1a; border-radius: 25px; padding: 25px; position: relative; box-shadow: 0 20px 40px rgba(0,0,0,0.8); }
+        .card::before { content: ""; position: absolute; top: 0; left: 0; width: 100%; height: 5px; background: var(--gold); border-radius: 25px 25px 0 0; }
         
-        #terminal { background: #000; padding: 15px; color: var(--green); font-family: monospace; font-size: 0.8rem; min-height: 350px; border-left: 3px solid var(--gold); }
+        .fuel-val { font-size: 4rem; font-family: 'Syncopate'; color: var(--green); text-align: center; margin: 15px 0; text-shadow: 0 0 20px rgba(0,255,157,0.3); }
+        
+        input, select, textarea { 
+            background: #000; border: 1px solid #333; color: #fff; width: 100%; 
+            padding: 15px; border-radius: 12px; margin-bottom: 18px; font-family: 'Outfit'; font-size: 1rem;
+        }
+        
+        .btn-master { 
+            background: var(--gold); color: #000; border: none; padding: 20px; 
+            width: 100%; border-radius: 15px; font-weight: 900; font-family: 'Syncopate'; 
+            cursor: pointer; text-transform: uppercase; letter-spacing: 1px; transition: 0.3s;
+        }
+        .btn-master:active { transform: scale(0.98); }
+        
+        #terminal { 
+            background: #000; padding: 20px; color: var(--green); font-family: 'Courier New', monospace; 
+            font-size: 0.9rem; min-height: 450px; border-left: 4px solid var(--gold); border-radius: 0 15px 15px 0;
+            line-height: 1.5;
+        }
+
+        /* RANKING TABLE */
+        .r-table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        .r-table th { font-family: 'Syncopate'; font-size: 0.6rem; color: var(--gold); padding: 10px; border-bottom: 2px solid var(--gold); }
+        .r-table td { padding: 12px; border-bottom: 1px solid #111; font-weight: bold; }
     </style>
 </head>
 <body>
 
 <div id="login-system">
-    <h1 style="font-family:'Syncopate'; text-align:center; letter-spacing:8px;">DS AUTOMOBILES</h1>
+    <div style="text-align:center; padding: 20px;">
+        <h1 style="font-family:'Syncopate'; letter-spacing:12px; margin:0; font-size: 2.5rem;">DS AUTOMOBILES</h1>
+        <p style="color:var(--gold); letter-spacing:5px; font-size:0.8rem; margin-top:10px;">Sugerencias de estrategia | CLOUD V260</p>
+    </div>
     
     <div id="admin-lock-zone">
-        <p id="lock-status" style="font-family:'Syncopate'; font-size:0.6rem; color:#444; margin-bottom:10px;">CONTROL DE TEMPORADA RESTRINGIDO</p>
+        <p id="lock-status" style="font-family:'Syncopate'; font-size:0.65rem; color:#555; margin-bottom:12px;">SISTEMA DE GESTIÓN BLOQUEADO</p>
         <button id="master-reset-btn" onclick="triggerReset()">⚠️ RESET TOTAL DE TEMPORADA</button>
     </div>
 
     <div class="grid" id="cat-grid"></div>
 
-    <button onclick="unlockAdmin()" style="background:none; border:none; color:#151515; margin-top:50px; cursor:pointer; font-family:'Syncopate'; font-size:0.6rem;">ADMIN_PANEL_AUTH</button>
+    <button onclick="unlockAdmin()" style="background:none; border:none; color:#1a1a1a; margin-top:60px; cursor:pointer; font-family:'Syncopate'; font-size:0.6rem;">ADMIN_PANEL_AUTH</button>
 </div>
 
 <div class="master-container" id="app">
+    
     <div class="card">
-        <h3 style="color:var(--gold); font-family:'Syncopate'; font-size:0.7rem;">CIRCUITO: <span id="id-tag"></span></h3>
+        <h3 style="color:var(--gold); font-family:'Syncopate'; font-size:0.75rem; letter-spacing:2px;">CONFIGURACIÓN | <span id="id-tag" style="color:white;"></span></h3>
+        <label style="font-size:0.7rem; color:var(--gold);">CIRCUITO DEL GP</label>
         <select id="gp-sel" onchange="syncGP()">
-            <option value="31">España (31v)</option>
-            <option value="21">Bélgica (21v)</option>
-            <option value="25">Italia (25v)</option>
-            <option value="29">Mónaco (29v)</option>
-            <option value="39">Hungría (39v)</option>
-            <option value="30">Singapur (30v)</option>
-            <option value="34">Austria (34v)</option>
-            <option value="29">Bahréin (29v)</option>
-            <option value="34">Brasil (34v)</option>
-            <option value="28">Australia (28v)</option>
-            <option value="31">Canadá (31v)</option>
-            <option value="27">China (27v)</option>
-            <option value="30">USA (30v)</option>
-            <option value="24">Francia (24v)</option>
-            <option value="24">G. Bretaña (24v)</option>
-            <option value="27">Japón (27v)</option>
-            <option value="35">México (35v)</option>
-            <option value="23">Rusia (23v)</option>
-            <option value="27">Turquía (27v)</option>
-            <option value="23">Azerbaiyán (23v)</option>
-            <option value="27">Malasia (27v)</option>
-            <option value="25">Europa (25v)</option>
-            <option value="35">Holanda (35v)</option>
-            <option value="36">Abu Dhabi (36v)</option>
+            <option value="31">España (31v)</option><option value="21">Bélgica (21v)</option>
+            <option value="25">Italia (25v)</option><option value="29">Mónaco (29v)</option>
+            <option value="39">Hungría (39v)</option><option value="30">Singapur (30v)</option>
+            <option value="34">Austria (34v)</option><option value="29">Bahréin (29v)</option>
+            <option value="34">Brasil (34v)</option><option value="28">Australia (28v)</option>
+            <option value="31">Canadá (31v)</option><option value="27">China (27v)</option>
+            <option value="30">USA (30v)</option><option value="24">Francia (24v)</option>
+            <option value="24">G. Bretaña (24v)</option><option value="27">Japón (27v)</option>
+            <option value="35">México (35v)</option><option value="23">Rusia (23v)</option>
+            <option value="27">Turquía (27v)</option><option value="23">Azerbaiyán (23v)</option>
+            <option value="27">Malasia (27v)</option><option value="25">Europa (25v)</option>
+            <option value="35">Holanda (35v)</option><option value="36">Abu Dhabi (36v)</option>
             <option value="35">Sudáfrica (35v)</option>
         </select>
-        <div style="text-align:center;">
-            <div id="target-display" style="font-size:5rem; font-family:'Syncopate'; color:var(--gold);">0</div>
+        
+        <div style="text-align:center; background:#000; border-radius:20px; padding:15px; border:1px solid #222; margin-bottom:20px;">
+            <label style="font-size:0.6rem; color:#666; font-family:'Syncopate';">META DE VUELTAS</label>
+            <div id="target-display" style="font-size:5.5rem; font-family:'Syncopate'; color:var(--gold); line-height:1;">0</div>
         </div>
-        <label>FB (CONSUMO BASE)</label>
+
+        <label style="font-size:0.7rem; color:var(--gold);">CONSUMO BASE (FB)</label>
         <input type="number" id="fb-in" value="2.700" step="0.001" oninput="run()">
-        <textarea id="notes-in" rows="5" placeholder="Notas..." oninput="saveData()"></textarea>
-        <button class="btn-master" style="background:#111; color:#555;" onclick="location.reload()">LOGOUT</button>
+        
+        <label style="font-size:0.7rem; color:var(--gold);">NOTAS TÉCNICAS</label>
+        <textarea id="notes-in" rows="6" placeholder="Setups, clima, incidentes..." oninput="saveData()"></textarea>
+        
+        <button class="btn-master" style="background:#111; color:#444;" onclick="location.reload()">CERRAR SESIÓN</button>
     </div>
 
     <div class="card">
-        <h3 style="color:var(--gold); font-family:'Syncopate'; font-size:0.7rem;">ESTRATEGIA</h3>
+        <h3 style="color:var(--gold); font-family:'Syncopate'; font-size:0.75rem; letter-spacing:2px;">ESTRATEGIA DE CARRERA</h3>
         <div id="stints-list"></div>
-        <button class="btn-master" onclick="addStint()">+ AÑADIR STINT</button>
+        <button class="btn-master" onclick="addStint()">+ AÑADIR NUEVO STINT</button>
         
-        <div style="margin-top:30px; border-top:1px solid #222; padding-top:20px;">
-            <table style="width:100%; text-align:center;">
-                <thead style="font-family:'Syncopate'; font-size:0.6rem; color:var(--gold);">
-                    <tr><th>MANAGER</th><th>PTS</th><th>GP</th></tr>
-                </thead>
-                <tbody id="rank-table"></tbody>
+        <div style="margin-top:35px; border-top:2px solid #222; padding-top:20px;">
+            <h3 style="color:var(--gold); font-family:'Syncopate'; font-size:0.75rem; text-align:center;">RANKING DE MANAGERS</h3>
+            <table class="r-table">
+                <thead><tr><th>MANAGER</th><th>PUNTOS</th><th>GP</th></tr></thead>
+                <tbody id="rank-table" style="text-align:center;"></tbody>
             </table>
         </div>
-        <div id="adm-pts" style="display:none; margin-top:20px; border:1px solid var(--gold); padding:10px;">
-            <input type="text" id="m-name" placeholder="MANAGER">
-            <input type="number" id="m-pts" placeholder="PUNTOS">
-            <button class="btn-master" onclick="injectPts()">INYECTAR</button>
+
+        <div id="adm-pts" style="display:none; margin-top:25px; border:2px solid var(--gold); padding:15px; border-radius:15px; background:#050500;">
+            <label style="font-size:0.6rem; color:var(--gold); font-family:'Syncopate';">INYECTOR DE PUNTOS</label>
+            <input type="text" id="m-name" placeholder="NOMBRE EXACTO">
+            <input type="number" id="m-pts" placeholder="CANTIDAD PTS">
+            <button class="btn-master" onclick="injectPts()">APLICAR PUNTOS</button>
         </div>
     </div>
 
     <div class="card">
-        <h3 style="color:var(--gold); font-family:'Syncopate'; font-size:0.7rem;">Sugerencias de estrategia</h3>
-        <div id="terminal">NÚCLEO DS-CORE LISTO...</div>
+        <h3 style="color:var(--gold); font-family:'Syncopate'; font-size:0.75rem; letter-spacing:2px;">Sugerencias de estrategia</h3>
+        <div id="terminal">SISTEMA DS-CORE V260: ESPERANDO TELEMETRÍA...</div>
     </div>
 </div>
 
 <script>
+    // CONFIGURACIÓN DE TU BASE DE DATOS
     const firebaseConfig = { databaseURL: "https://ds-automobiles-f0a17-default-rtdb.firebaseio.com/" };
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
     let curID = ""; let isAdmin = false; let stintArr = [];
 
-    // CARGAR MANAGERS
+    // CARGAR ESTRUCTURA DE MANAGERS
     db.ref('perfiles').on('value', s => {
         const grid = document.getElementById('cat-grid'); grid.innerHTML = '';
         const data = s.val() || {};
@@ -156,12 +180,12 @@
         });
     });
 
-    // CARGAR RANKING
+    // CARGAR RANKING DE LIGA
     db.ref('ranking').on('value', s => {
         const data = s.val() || {};
         const sorted = Object.values(data).sort((a,b) => b.pts - a.pts);
         let h = '';
-        sorted.forEach(p => h += `<tr style="border-bottom:1px solid #111; font-size:0.9rem;"><td>${p.name}</td><td>${p.pts}</td><td>${p.gp}</td></tr>`);
+        sorted.forEach(p => h += `<tr style="border-bottom:1px solid #111;"><td>${p.name}</td><td>${p.pts}</td><td>${p.gp}</td></tr>`);
         document.getElementById('rank-table').innerHTML = h;
     });
 
@@ -169,11 +193,11 @@
         db.ref('perfiles/'+id).once('value').then(s => {
             let d = s.val();
             if(!d) {
-                let n = prompt("Nombre Manager:"); if(!n) return;
+                let n = prompt("Nombre del nuevo Manager:"); if(!n) return;
                 d = {name:n, pin:"1234", fb:2.7, notes:""};
                 db.ref('perfiles/'+id).set(d);
             } else if(!isAdmin) {
-                if(prompt("PIN:") !== d.pin) return alert("ERROR");
+                if(prompt("Introduce tu PIN de acceso:") !== d.pin) return alert("ACCESO DENEGADO");
             }
             curID = id;
             document.getElementById('login-system').style.display = 'none';
@@ -186,35 +210,39 @@
         });
     }
 
-    // LÓGICA DE ADMINISTRACIÓN Y RESET
+    // GESTIÓN DE RESET Y ADMINISTRACIÓN
     function unlockAdmin() {
-        if(prompt("ROOT_KEY:") === "DS2026") {
+        if(prompt("PASSWORD DE COMANDANTE:") === "DS2026") {
             isAdmin = true;
             document.getElementById('admin-lock-zone').classList.add('lock-ready');
             document.getElementById('lock-status').innerText = "ACCESO TOTAL DESBLOQUEADO";
-            document.getElementById('lock-status').style.color = "yellow";
+            document.getElementById('lock-status').style.color = "#0f0";
             document.getElementById('master-reset-btn').classList.add('btn-panic');
-            alert("ADMIN ACTIVADO: Botón de Reset ahora funciona.");
+            alert("ADMIN: Sistema de Reset y Panel de Puntos activados.");
         }
     }
 
     function triggerReset() {
-        if(!isAdmin) return alert("Pulsa ADMIN abajo primero.");
-        if(confirm("🚨 ¡ADVERTENCIA! ¿Borrar todos los managers y el ranking?")) {
+        if(!isAdmin) return alert("Acción bloqueada. Pulsa ADMIN e identifícate.");
+        if(confirm("🚨 ¡PELIGRO! Vas a borrar permanentemente a todos los managers y el ranking de la liga. ¿Proceder?")) {
             db.ref('/').remove().then(() => {
-                alert("NUBE LIMPIA."); location.reload();
+                alert("RESET EXITOSO. Base de datos vacía."); location.reload();
             });
         }
     }
 
-    // LÓGICA DE ESTRATEGIA
+    // INGENIERÍA DE CARRERA
     function addStint() {
         let id = Date.now(); stintArr.push({id:id, v:10, m:0});
         let d = document.createElement('div'); d.id = `st-${id}`;
-        d.style = "background:#050505; padding:15px; border-radius:12px; border-left:4px solid var(--gold); margin-bottom:15px;";
-        d.innerHTML = `<div style="display:flex; justify-content:space-between; font-size:0.6rem; color:var(--gold);"><b>STINT #${stintArr.length}</b><span onclick="delStint(${id})" style="color:red; cursor:pointer;">[BORRAR]</span></div>
-            <input type="number" value="10" oninput="updStint(${id},'v',this.value)">
-            <select onchange="updStint(${id},'m',this.value)"><option value="0.025">PL5</option><option value="0" selected>PL3</option><option value="-0.012">PL1</option></select>
+        d.style = "background:#050505; padding:18px; border-radius:15px; border-left:5px solid var(--gold); margin-bottom:15px; border-right:1px solid #1a1a1a;";
+        d.innerHTML = `<div style="display:flex; justify-content:space-between; font-size:0.65rem; color:var(--gold); font-family:'Syncopate';"><b>STINT #${stintArr.length}</b><span onclick="delStint(${id})" style="color:red; cursor:pointer;">[ELIMINAR]</span></div>
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-top:10px;">
+                <input type="number" value="10" placeholder="Vueltas" oninput="updStint(${id},'v',this.value)">
+                <select onchange="updStint(${id},'m',this.value)">
+                    <option value="0.025">PUSH (PL5)</option><option value="0" selected>NORMAL (PL3)</option><option value="-0.012">LEAN (PL1)</option>
+                </select>
+            </div>
             <div id="f-${id}" class="fuel-val">0.00L</div>`;
         document.getElementById('stints-list').appendChild(d);
         run();
@@ -231,7 +259,9 @@
             document.getElementById(`f-${s.id}`).innerText = res.toFixed(2) + "L";
             tot += s.v;
         });
-        document.getElementById('terminal').innerText = `Sugerencias de estrategia\n-----------------\nTOTAL VTS: ${tot}\nSTATUS: Sincronizado.`;
+        let target = parseInt(document.getElementById('gp-sel').value);
+        let diff = target - tot;
+        document.getElementById('terminal').innerText = `ESTADO DE CARRERA:\n-----------------\nPLANIFICADO: ${tot} vts\nRESTANTE: ${diff} vts\nSTATUS: Telemetría Sincronizada.`;
         saveData();
     }
 
@@ -239,12 +269,13 @@
     function syncGP() { document.getElementById('target-display').innerText = document.getElementById('gp-sel').value; run(); }
 
     function injectPts() {
-        let n = document.getElementById('m-name').value.toUpperCase();
+        let n = document.getElementById('m-name').value.toUpperCase().trim();
         let p = parseInt(document.getElementById('m-pts').value);
+        if(!n || isNaN(p)) return alert("Datos incompletos.");
         db.ref('ranking/'+n).once('value').then(s => {
             let c = s.val() || {name:n, pts:0, gp:0};
             db.ref('ranking/'+n).set({name:n, pts:Number(c.pts)+p, gp:Number(c.gp)+1});
-            alert("PUNTOS INYECTADOS");
+            alert("SISTEMA: Puntos inyectados con éxito.");
         });
     }
 </script>
