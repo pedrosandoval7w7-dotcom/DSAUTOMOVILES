@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>DS AUTOMOBILES | COMMAND CENTER V4.5 ELITE</title>
+    <title>DS AUTOMOBILES | COMMAND CENTER V5.0 ELITE</title>
     
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
@@ -17,7 +17,7 @@
             --font-main: 'Rajdhani', sans-serif; --font-tech: 'Michroma', sans-serif;
         }
 
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
         ::-webkit-scrollbar { width: 8px; }
         ::-webkit-scrollbar-track { background: #000; }
         ::-webkit-scrollbar-thumb { background: var(--gold); border-radius: 4px; }
@@ -27,56 +27,66 @@
             min-height: 100vh; background-image: radial-gradient(circle at top, #111 0%, #000 100%);
         }
 
-        /* --- LOGIN --- */
+        /* --- LOGIN SYSTEM --- */
         #login-system { position: fixed; inset: 0; background: #000; z-index: 9999; display: flex; flex-direction: column; align-items: center; padding: 40px 20px; overflow-y: auto; }
-        .login-header h1 { font-family: var(--font-tech); font-size: 2rem; letter-spacing: 10px; color: var(--gold); text-align: center; }
+        .login-header h1 { font-family: var(--font-tech); font-size: 2rem; letter-spacing: 10px; color: var(--gold); text-align: center; text-shadow: 0 0 15px rgba(197,160,89,0.5); }
+        .login-header p { text-align: center; letter-spacing: 4px; color: #555; font-weight: bold; text-transform: uppercase; font-size: 0.7rem; }
 
         .manager-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 20px; width: 100%; max-width: 1200px; margin-top: 30px; }
         .slot-card { background: #0a0a0a; border: 1px solid #1a1a1a; border-top: 4px solid var(--gold); border-radius: 12px; padding: 15px; }
+        .slot-card h3 { font-family: var(--font-tech); font-size: 0.6rem; color: var(--gold); text-align: center; border-bottom: 1px solid #1a1a1a; padding-bottom: 10px; }
+        
         .m-btn { width: 100%; padding: 12px; margin: 5px 0; background: #000; border: 1px solid #222; color: #444; border-radius: 8px; font-weight: 700; cursor: pointer; transition: 0.3s; }
         .m-btn.occupied { color: #fff; border-color: var(--gold); background: rgba(197,160,89,0.1); }
 
-        /* --- APP STRUCTURE --- */
+        /* --- APP MAIN --- */
         .master-app { display: none; grid-template-columns: 1fr; gap: 25px; padding: 25px; max-width: 2000px; margin: auto; }
         @media (min-width: 1200px) { .master-app { grid-template-columns: 380px 1fr 420px; } }
 
-        .panel { background: var(--card); border: 1px solid #1a1a1a; border-radius: 20px; overflow: hidden; display: flex; flex-direction: column; box-shadow: 0 15px 40px rgba(0,0,0,0.7); }
-        .panel-header { padding: 18px; background: #000; font-family: var(--font-tech); font-size: 0.65rem; color: var(--gold); border-bottom: 1px solid #151515; display: flex; justify-content: space-between; }
+        .panel { background: var(--card); border: 1px solid #1a1a1a; border-radius: 20px; overflow: hidden; display: flex; flex-direction: column; box-shadow: 0 15px 40px rgba(0,0,0,0.8); }
+        .panel-header { padding: 18px; background: #000; font-family: var(--font-tech); font-size: 0.65rem; color: var(--gold); border-bottom: 1px solid #151515; display: flex; justify-content: space-between; align-items: center; }
         .panel-body { padding: 20px; }
 
-        /* --- INDICADORES --- */
+        /* --- INDICADORES TOTALES --- */
         .global-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
         .stat-box { background: #000; padding: 15px; border-radius: 12px; border: 1px solid #222; text-align: center; }
-        .stat-box label { font-family: var(--font-tech); font-size: 0.55rem; color: var(--gold); display: block; margin-bottom: 5px; }
-        .stat-box span { font-family: var(--font-tech); font-size: 2.2rem; color: var(--white); }
+        .stat-box label { font-family: var(--font-tech); font-size: 0.55rem; color: var(--gold); display: block; margin-bottom: 8px; }
+        .stat-box span { font-family: var(--font-tech); font-size: 2.2rem; color: var(--white); line-height: 1; }
+        .stat-box.highlight span { color: var(--green); }
 
         /* --- DATA STREAM --- */
         #data-stream { 
             background: #050505; border-radius: 15px; padding: 15px; font-family: 'Courier New', monospace; 
-            color: var(--green); font-size: 0.8rem; min-height: 250px; border: 1px solid #222; border-left: 5px solid var(--green); overflow-y: auto; margin-bottom: 20px;
+            color: var(--green); font-size: 0.82rem; min-height: 250px; border: 1px solid #222; border-left: 5px solid var(--green); overflow-y: auto; margin-bottom: 25px; line-height: 1.5;
         }
 
         /* --- STINTS --- */
-        .stint-card { background: #080808; border: 1px solid #1a1a1a; border-left: 6px solid var(--gold); border-radius: 15px; padding: 20px; margin-bottom: 15px; }
-        .wear-bar-bg { background: #111; height: 10px; border-radius: 5px; margin-top: 10px; overflow: hidden; }
-        .wear-bar-fill { height: 100%; width: 100%; background: var(--green); transition: 0.5s; }
+        .stint-card { background: #080808; border: 1px solid #1a1a1a; border-left: 6px solid var(--gold); border-radius: 15px; padding: 20px; margin-bottom: 15px; position: relative; }
+        .wear-bar-bg { background: #111; height: 10px; border-radius: 5px; margin-top: 10px; overflow: hidden; border: 1px solid #222; }
+        .wear-bar-fill { height: 100%; width: 100%; background: var(--green); transition: 0.8s cubic-bezier(0.2, 0.8, 0.2, 1); }
 
-        /* --- CHAT & RANKING --- */
-        #chat-box { height: 350px; background: #050505; border-radius: 12px; border: 1px solid #222; margin-bottom: 10px; overflow-y: auto; padding: 15px; }
-        .chat-msg { background: #111; padding: 10px; border-radius: 8px; margin-bottom: 10px; border-left: 3px solid var(--gold); }
-        .chat-msg b { color: var(--gold); font-size: 0.7rem; display: block; }
-        
+        /* --- CHAT GLOBAL --- */
+        #chat-box { height: 380px; background: #050505; border-radius: 12px; border: 1px solid #222; margin-bottom: 15px; overflow-y: auto; padding: 15px; }
+        .chat-msg { background: #111; padding: 10px; border-radius: 8px; margin-bottom: 10px; border-left: 3px solid var(--gold); animation: slideIn 0.3s ease; }
+        .chat-msg b { color: var(--gold); font-size: 0.7rem; display: block; font-family: var(--font-tech); margin-bottom: 3px; }
+        .chat-msg span { font-size: 0.95rem; color: #eee; }
+
+        /* --- RANKING TABLE --- */
         .ranking-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        .ranking-table td { padding: 12px; border-bottom: 1px solid #111; font-size: 0.9rem; }
-        .ranking-table b { color: var(--gold); }
+        .ranking-table td { padding: 15px 10px; border-bottom: 1px solid #111; font-size: 1rem; }
+        .ranking-table b { color: var(--gold); font-family: var(--font-tech); font-size: 0.75rem; }
+        .ranking-table span { float: right; color: var(--green); font-weight: bold; }
 
-        /* --- UI ELEMENTS --- */
-        input, select, textarea { width: 100%; background: #000; border: 1px solid #222; color: #fff; padding: 12px; border-radius: 10px; margin-bottom: 15px; font-family: var(--font-main); }
-        .action-btn { width: 100%; padding: 16px; border-radius: 10px; border: none; font-family: var(--font-tech); font-weight: 700; cursor: pointer; text-transform: uppercase; font-size: 0.7rem; transition: 0.3s; }
+        /* --- ADMIN PANEL --- */
+        .admin-section { display: none; margin-top: 30px; border: 2px solid var(--red); padding: 20px; border-radius: 15px; background: rgba(255,49,49,0.05); }
+        .admin-section h4 { color: var(--red); font-family: var(--font-tech); font-size: 0.7rem; margin: 0 0 15px 0; text-align: center; }
+
+        /* --- FORM ELEMENTS --- */
+        label { font-family: var(--font-tech); font-size: 0.6rem; color: #666; display: block; margin-bottom: 8px; letter-spacing: 1px; }
+        input, select, textarea { width: 100%; background: #000; border: 1px solid #222; color: #fff; padding: 14px; border-radius: 10px; margin-bottom: 15px; font-family: var(--font-main); font-size: 1.1rem; }
+        
+        .action-btn { width: 100%; padding: 16px; border-radius: 10px; border: none; font-family: var(--font-tech); font-weight: 700; cursor: pointer; text-transform: uppercase; font-size: 0.75rem; transition: 0.3s; }
         .btn-gold { background: var(--gold); color: #000; }
-        .btn-gold:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(197,160,89,0.3); }
-
-        .admin-section { display: none; margin-top: 20px; border: 2px solid var(--red); padding: 15px; border-radius: 15px; background: rgba(255,49,49,0.05); }
     </style>
 </head>
 <body>
@@ -84,15 +94,15 @@
 <div id="login-system">
     <div class="login-header"><h1>DS AUTOMOBILES</h1><p>Sugerencias de estrategia | ELITE</p></div>
     <div class="manager-grid" id="m-grid"></div>
-    <button onclick="activateAdmin()" style="margin-top:40px; background:none; border:none; color:#111;">[ ADMIN ACCESS ]</button>
+    <button onclick="activateAdmin()" style="margin-top:50px; background:none; border:none; color:#151515;">[ ACCESO ADMIN ]</button>
 </div>
 
 <div class="master-app" id="app-interface">
     
     <div class="panel">
-        <div class="panel-header">CONTROL DE GP <div id="sync-status">●</div></div>
+        <div class="panel-header">ESTADO DEL CIRCUITO <div id="sync-led" style="width:8px; height:8px; background:#333; border-radius:50%;"></div></div>
         <div class="panel-body">
-            <label>SELECCIÓN DE CIRCUITO</label>
+            <label>CIRCUITO (VUELTAS SEGÚN LISTA)</label>
             <select id="gp-select" onchange="updateCircuit()">
                 <option value="28">Bahrain (28v)</option><option value="25">Saudi Arabia (25v)</option>
                 <option value="28">Australia (28v)</option><option value="27">Japan (27v)</option>
@@ -107,39 +117,33 @@
                 <option value="27">Qatar (27v)</option><option value="36">Abu Dhabi (36v)</option>
             </select>
             
-            <div class="stat-box" style="margin-bottom:20px;">
-                <label>VUELTAS TOTALES GP</label>
-                <span id="target-display">0</span>
-            </div>
+            <div class="stat-box" style="margin-bottom:20px;"><label>META GP</label><span id="target-display">0</span></div>
 
             <label>CONSUMO BASE (FB)</label>
             <input type="number" id="fb-base" value="2.700" step="0.001" oninput="calculateAll()">
 
-            <label>NOTAS DE TELEMETRÍA</label>
-            <textarea id="notes" rows="4" oninput="calculateAll()" placeholder="Lluvia, SC, etc..."></textarea>
+            <label>NOTAS DE TELEMETRÍA (AUTO-GUARDADO)</label>
+            <textarea id="notes" rows="6" oninput="calculateAll()" placeholder="Apuntes de carrera..."></textarea>
             
-            <button class="action-btn" style="background:#222; color:#777;" onclick="location.reload()">CERRAR SESIÓN</button>
+            <button class="action-btn" style="background:#111; color:#444;" onclick="location.reload()">LOGOUT</button>
         </div>
     </div>
 
     <div class="panel">
-        <div class="panel-header">Sugerencias de estrategia - DATA STREAM</div>
+        <div class="panel-header">Sugerencias de estrategia - INGENIERÍA</div>
         <div class="panel-body">
             <div class="global-stats">
-                <div class="stat-box"><label>VTS PLANIFICADAS</label><span id="total-laps">0</span></div>
-                <div class="stat-box"><label>LITROS TOTALES</label><span id="total-fuel">0.0</span></div>
+                <div class="stat-box highlight"><label>VTS TOTALES</label><span id="total-laps">0</span></div>
+                <div class="stat-box highlight"><label>LITROS TOTALES</label><span id="total-fuel">0.00</span></div>
             </div>
-
-            <div id="data-stream">>> DS-CORE ANALYZING...</div>
-            
+            <div id="data-stream">>> DS-CORE ONLINE...</div>
             <div id="stint-list"></div>
-            
-            <button class="action-btn btn-gold" onclick="addNewStint()">+ AÑADIR NUEVO STINT</button>
+            <button class="action-btn btn-gold" onclick="addNewStint()">+ AÑADIR STINT</button>
         </div>
     </div>
 
     <div class="panel">
-        <div class="panel-header">MANAGERS HUB</div>
+        <div class="panel-header">MANAGER HUB GLOBAL</div>
         <div class="panel-body">
             <div id="chat-box"></div>
             <div style="display:flex; gap:10px; margin-bottom:25px;">
@@ -147,11 +151,11 @@
                 <button id="chat-send" class="btn-gold" style="width:60px; padding:0;">↑</button>
             </div>
 
-            <label>RANKING TEMPORADA 2026</label>
+            <label>RANKING DE LA TEMPORADA</label>
             <table class="ranking-table"><tbody id="ranking-body"></tbody></table>
 
             <div id="admin-panel" class="admin-section">
-                <label style="color:var(--red)">PANEL DE CONTROL CRÍTICO</label>
+                <h4>PANEL DE CONTROL ADMIN</h4>
                 <input type="text" id="adm-name" placeholder="NOMBRE MANAGER">
                 <input type="number" id="adm-pts" placeholder="PUNTOS">
                 <button onclick="injectPoints()" class="action-btn btn-gold" style="margin-bottom:10px;">INYECTAR PUNTOS</button>
@@ -166,9 +170,8 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    let sessionID = ""; let managerName = ""; let stints = []; let isAdmin = false;
+    let sessionID = ""; let managerName = ""; let stunts = []; let isAdmin = false;
 
-    // --- LOGIN ---
     db.ref('perfiles').on('value', (s) => {
         const grid = document.getElementById('m-grid'); grid.innerHTML = '';
         const data = s.val() || {};
@@ -176,8 +179,8 @@
             let html = `<div class="slot-card"><h3>${c}</h3>`;
             for(let i=1; i<=4; i++){
                 let id = `${c}_M${i}`; let e = data[id];
-                let isOcc = e ? 'occupied' : ''; let name = e ? e.name.toUpperCase() : 'VACANTE';
-                html += `<button class="m-btn ${isOcc}" onclick="handleLogin('${id}')">${name}</button>`;
+                let name = e ? e.name.toUpperCase() : 'VACANTE';
+                html += `<button class="m-btn ${e?'occupied':''}" onclick="handleLogin('${id}')">${name}</button>`;
             } grid.innerHTML += html + `</div>`;
         });
     });
@@ -192,13 +195,12 @@
             sessionID = id; managerName = d.name.toUpperCase();
             document.getElementById('login-system').style.display='none';
             document.getElementById('app-interface').style.display='grid';
-            document.getElementById('fb-base').value = d.fb;
-            document.getElementById('notes').value = d.notes;
+            document.getElementById('fb-base').value = d.fb || 2.7;
+            document.getElementById('notes').value = d.notes || "";
             updateCircuit();
         });
     }
 
-    // --- CHAT ---
     db.ref('chat').limitToLast(15).on('value', (s) => {
         const box = document.getElementById('chat-box'); box.innerHTML = '';
         Object.values(s.val() || {}).forEach(m => {
@@ -212,33 +214,21 @@
         db.ref('chat').push({ user: managerName, text: inp.value }); inp.value = '';
     };
 
-    // --- ESTRATEGIA (CON TODOS LOS EMPUJES) ---
     function addNewStint() {
-        let id = Date.now();
-        stunts.push({id, laps: 10, push: 0, wear: 8.0});
+        let id = Date.now(); stunts.push({id, laps: 10, push: 0, wear: 8.0});
         let div = document.createElement('div'); div.className = 'stint-card'; div.id = `st-${id}`;
         div.innerHTML = `
-            <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
-                <b>STINT #${stunts.length}</b>
-                <span onclick="removeStint(${id})" style="color:var(--red); cursor:pointer;">[X]</span>
-            </div>
+            <div style="display:flex; justify-content:space-between; margin-bottom:10px;"><b>STINT #${stunts.length}</b><span onclick="removeStint(${id})" style="color:var(--red); cursor:pointer;">[X]</span></div>
             <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px;">
                 <div><label>VUELTAS</label><input type="number" value="10" oninput="updStint(${id},'laps',this.value)"></div>
-                <div><label>EMPUJE (MIX)</label>
-                    <select onchange="updStint(${id},'push',this.value)">
-                        <option value="0.025">MIX 5 (MAX)</option><option value="0.012">MIX 4</option>
-                        <option value="0" selected>MIX 3 (STD)</option><option value="-0.008">MIX 2</option>
-                        <option value="-0.015">MIX 1 (ECON)</option>
-                    </select>
-                </div>
-                <div style="grid-column: span 2;">
-                    <label>DESGASTE %/VTA</label>
-                    <input type="number" value="8.0" step="0.1" oninput="updStint(${id},'wear',this.value)">
-                    <div class="wear-bar-bg"><div class="wear-bar-fill" id="bar-${id}"></div></div>
-                </div>
+                <div><label>MIX</label><select onchange="updStint(${id},'push',this.value)">
+                    <option value="0.025">MIX 5</option><option value="0.012">MIX 4</option>
+                    <option value="0" selected>MIX 3</option><option value="-0.008">MIX 2</option>
+                    <option value="-0.015">MIX 1</option>
+                </select></div>
+                <div style="grid-column: span 2;"><div class="wear-bar-bg"><div class="wear-bar-fill" id="bar-${id}"></div></div></div>
             </div>
-            <div style="text-align:center; font-family:var(--font-tech); color:var(--green); font-size:1.8rem; margin-top:10px;" id="fuel-${id}">0.00L</div>
-        `;
+            <div style="text-align:center; color:var(--green); font-size:1.8rem; margin-top:10px;" id="fuel-${id}">0.000L</div>`;
         document.getElementById('stint-list').appendChild(div); calculateAll();
     }
 
@@ -247,54 +237,32 @@
 
     function calculateAll() {
         let fb = parseFloat(document.getElementById('fb-base').value) || 0;
-        let tL = 0; let tF = 0; let danger = false;
-
+        let tL = 0; let tF = 0;
         stunts.forEach(s => {
-            let f = (s.laps * (fb + s.push)) + 0.3;
-            tL += s.laps; tF += f;
+            let f = (s.laps * (fb + s.push)) + 0.3; tL += s.laps; tF += f;
             document.getElementById(`fuel-${s.id}`).innerText = f.toFixed(3) + "L";
-            let w = 100 - (s.laps * s.wear);
-            let b = document.getElementById(`bar-${s.id}`);
-            if(b) {
-                b.style.width = Math.max(0, w) + "%";
-                b.style.background = w < 25 ? 'var(--red)' : w < 45 ? 'var(--orange)' : 'var(--green)';
-                if(w < 25) danger = true;
-            }
+            let w = 100 - (s.laps * 8.0);
+            document.getElementById(`bar-${s.id}`).style.width = Math.max(0, w) + "%";
         });
-
         document.getElementById('total-laps').innerText = tL;
-        document.getElementById('total-fuel').innerText = tF.toFixed(2);
-        updateStream(tL, tF, danger);
+        document.getElementById('total-fuel').innerText = tF.toFixed(3);
         db.ref('perfiles/'+sessionID).update({ fb: document.getElementById('fb-base').value, notes: document.getElementById('notes').value });
     }
 
-    function updateStream(tl, tf, d) {
-        const ds = document.getElementById('data-stream');
-        const target = parseInt(document.getElementById('gp-select').value);
-        let log = `>> DS-CORE ANALYZING GP...\n`;
-        log += `>> PLAN: ${tl} / ${target} VTS\n`;
-        if(tl < target) log += `>> <span style="color:var(--red)">DÉFICIT: -${target-tl} VTS</span>\n`;
-        else if(tl > target) log += `>> <span style="color:var(--orange)">AVISO: EXCESO +${tl-target} VTS</span>\n`;
-        else log += `>> <span style="color:var(--green)">COBERTURA COMPLETA OK</span>\n`;
-        if(d) log += `>> <span style="color:var(--red); animation:blink 1s infinite">¡CRÍTICO!: REVISAR NEUMÁTICOS</span>\n`;
-        ds.innerHTML = log;
-    }
-
     function updateCircuit() { document.getElementById('target-display').innerText = document.getElementById('gp-select').value; calculateAll(); }
-
-    // --- RANKING & ADMIN ---
     db.ref('ranking').on('value', (s) => {
         const r = document.getElementById('ranking-body'); r.innerHTML = '';
-        const sorted = Object.values(s.val() || {}).sort((a,b) => b.pts - a.pts);
-        sorted.forEach(p => { r.innerHTML += `<tr><td><b>${p.name}</b></td><td>${p.pts} PTS</td></tr>`; });
+        Object.values(s.val() || {}).sort((a,b)=>b.pts-a.pts).forEach(p => {
+            r.innerHTML += `<tr><td><b>${p.name}</b></td><td><span>${p.pts} PTS</span></td></tr>`;
+        });
     });
 
-    function activateAdmin() { if(prompt("ADMIN PASS:") === "DS2026") { isAdmin = true; document.getElementById('admin-panel').style.display='block'; } }
+    function activateAdmin() { if(prompt("PASS:") === "DS2026") { isAdmin = true; document.getElementById('admin-panel').style.display='block'; } }
     function injectPoints() {
         let n = document.getElementById('adm-name').value.toUpperCase(); let p = parseInt(document.getElementById('adm-pts').value);
         if(n && !isNaN(p)) db.ref('ranking/'+n).set({ name: n, pts: p });
     }
-    function resetSeason() { if(confirm("¿RESETEAR TODA LA TEMPORADA?")) db.ref('ranking').remove(); }
+    function resetSeason() { if(confirm("¿RESET?")) db.ref('ranking').remove(); }
 </script>
 </body>
 </html>
