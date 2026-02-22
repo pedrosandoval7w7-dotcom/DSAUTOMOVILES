@@ -343,131 +343,115 @@
         }
     }
 
-    function addNewStint() {
-        let id = Date.now();
-        stunts.push({ id: id, laps: 10, push: 0, wear: 8.0 });
-        let div = document.createElement('div');
-        div.className = 'stint-card'; div.id = `st-${id}`;
-        div.style = "background:#050505; padding:15px; border-radius:12px; border-left:4px solid var(--gold); margin-bottom:10px; border:1px solid #1a1a1a;";
-        div.innerHTML = `
-            <div style="display:flex; justify-content:space-between; align-items:center;">
-                <b style="color:var(--gold); font-size:0.7rem; font-family:'Syncopate';">STINT #${stunts.length}</b>
-                <span onclick="removeStint(${id})" style="color:var(--red); cursor:pointer; font-weight:900; font-size:0.7rem;">[BORRAR]</span>
+  // --- 1. GESTIÓN DE STINTS ---
+function addNewStint() {
+    let id = Date.now();
+    stunts.push({ id: id, laps: 10, push: 0, wear: 8.0 });
+    let div = document.createElement('div');
+    div.className = 'stint-card'; 
+    div.id = `st-${id}`;
+    div.style = "background:#050505; padding:15px; border-radius:12px; border-left:4px solid var(--gold); margin-bottom:10px; border:1px solid #1a1a1a;";
+    div.innerHTML = `
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+            <b style="color:var(--gold); font-size:0.7rem; font-family:'Syncopate';">STINT #${stunts.length}</b>
+            <span onclick="removeStint(${id})" style="color:var(--red); cursor:pointer; font-weight:900; font-size:0.7rem;">[BORRAR]</span>
+        </div>
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px; margin-top:15px;">
+            <div>
+                <label style="font-size:10px; color:#666;">VUELTAS</label>
+                <input type="number" value="10" oninput="updStint(${id},'laps',this.value)" style="width:100%; background:#000; color:#fff; border:1px solid #333; padding:8px; border-radius:5px;">
             </div>
-            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px; margin-top:15px;">
-                <div>
-                    <label style="font-size:10px; color:#666;">VUELTAS</label>
-                    <input type="number" value="10" oninput="updStint(${id},'laps',this.value)" style="width:100%; background:#000; color:#fff; border:1px solid #333; padding:8px; border-radius:5px;">
-                </div>
-                <div>
-                    <label style="font-size:10px; color:#666;">MAPA MOTOR (MIX)</label>
-                    <select onchange="updStint(${id},'push',this.value)" style="width:100%; background:#000; color:#fff; border:1px solid #333; padding:8px; border-radius:5px;">
-                        <option value="0.02">MIX 5: ▲▲ (+0.02)</option>
-                        <option value="0.01">MIX 4: ▲ (+0.01)</option>
-                        <option value="0" selected>MIX 3: ● (0)</option>
-                        <option value="-0.004">MIX 2: ▼ (-0.004)</option>
-                        <option value="-0.007">MIX 1: ▼▼ (-0.007)</option>
-                    </select>
-                </div>
-                <div style="grid-column: span 2;">
-                    <label style="font-size:10px; color:#666;">DESGASTE %/VTA</label>
-                    <input type="number" value="8.0" step="0.1" oninput="updStint(${id},'wear',this.value)" style="width:100%; background:#000; color:#fff; border:1px solid #333; padding:8px; border-radius:5px;">
-                    <div class="wear-bg" style="background:#111; height:6px; border-radius:3px; margin-top:10px;"><div class="wear-fill" id="bar-${id}" style="height:100%; background:var(--green); width:100%;"></div></div>
+            <div>
+                <label style="font-size:10px; color:#666;">MAPA MOTOR (MIX)</label>
+                <select onchange="updStint(${id},'push',this.value)" style="width:100%; background:#000; color:#fff; border:1px solid #333; padding:8px; border-radius:5px;">
+                    <option value="0.02">MIX 5: ▲▲ (+0.02)</option>
+                    <option value="0.01">MIX 4: ▲ (+0.01)</option>
+                    <option value="0" selected>MIX 3: ● (0)</option>
+                    <option value="-0.004">MIX 2: ▼ (-0.004)</option>
+                    <option value="-0.007">MIX 1: ▼▼ (-0.007)</option>
+                </select>
+            </div>
+            <div style="grid-column: span 2;">
+                <label style="font-size:10px; color:#666;">DESGASTE %/VTA</label>
+                <input type="number" value="8.0" step="0.1" oninput="updStint(${id},'wear',this.value)" style="width:100%; background:#000; color:#fff; border:1px solid #333; padding:8px; border-radius:5px;">
+                <div class="wear-bg" style="background:#111; height:6px; border-radius:3px; margin-top:10px;">
+                    <div class="wear-fill" id="bar-${id}" style="height:100%; background:var(--green); width:100%;"></div>
                 </div>
             </div>
-            <div class="fuel-result" id="fuel-${id}" style="font-family:'Syncopate'; font-size:1.8rem; color:var(--green); text-align:center; margin-top:10px;">0.00L</div>`;
-        document.getElementById('stint-container').appendChild(div);
-        calculate();
-    }
+        </div>
+        <div class="fuel-result" id="fuel-${id}" style="font-family:'Syncopate'; font-size:1.8rem; color:var(--green); text-align:center; margin-top:10px;">0.00L</div>`;
+    document.getElementById('stint-container').appendChild(div);
+    calculate();
+}
 
-    function updStint(id, key, val) {
-        let s = stunts.find(x => x.id === id); if(s) s[key] = parseFloat(val);
-        calculate();
-    }
+function updStint(id, key, val) {
+    let s = stunts.find(x => x.id === id); 
+    if(s) s[key] = parseFloat(val);
+    calculate();
+}
 
-    function removeStint(id) {
-        stunts = stunts.filter(x => x.id !== id);
-        document.getElementById(`st-${id}`).remove();
-        calculate();
-    }
+function removeStint(id) {
+    stunts = stunts.filter(x => x.id !== id);
+    document.getElementById(`st-${id}`).remove();
+    calculate();
+}
 
-    function calculate() {
-        let fb = parseFloat(document.getElementById('fb-base').value) || 0;
-        let totalLaps = 0;
-        stunts.forEach(s => {
-            // TU FÓRMULA MAESTRA: (Vueltas * (FB + MIX)) + 0.3
-            let fuel = (s.laps * (fb + s.push)) + 0.3;
-            document.getElementById(`fuel-${s.id}`).innerText = fuel.toFixed(2) + "L";
-            
-            let wear = 100 - (s.laps * s.wear);
-            let b = document.getElementById(`bar-${s.id}`);
-            if(b) {
-                b.style.width = Math.max(0, Math.min(100, wear)) + "%";
-                b.style.background = wear < 20 ? 'var(--red)' : wear < 45 ? 'var(--orange)' : 'var(--green)';
-            }
-            totalLaps += s.laps;
-        });
-        updateAI(totalLaps);
-        cloudSave();
-    }
-
-    function updateAI(total) {
-        let target = parseInt(document.getElementById('v-count').innerText);
-        let temp = parseInt(document.getElementById('track-temp').value);
-        let console = document.getElementById('ai-console');
-        let diff = target - total;
-        
-        let txt = `>> ANALIZANDO TELEMETRÍA...\n`;
-        txt += `>> MANAGER: ${managerName}\n`;
-        txt += `>> GP STATUS: ${total} / ${target} VTS\n`;
-        txt += `>> BALANCE: ${diff <= 0 ? 'COMPLETADO' : diff + ' VTS RESTANTES'}\n`;
-        txt += `>> RECOMENDACIÓN GOMAS: ${temp > 30 ? 'DURO (H)' : (temp < 18 ? 'BLANDO (S)' : 'MEDIO (M)')}\n`;
-        txt += `>> CLOUD STATUS: SINCRONIZADO\n`;
-        txt += `-----------------------------------\n`;
-        txt += `Sugerencias de estrategia: Mantener mapa PL3 en tráfico para conservar temperatura.`;
-        console.innerText = txt;
-    }
-
-    function updateAI(total, fb) {
-    const target = parseInt(document.getElementById('v-count').innerText) || 0;
-    const temp = parseInt(document.getElementById('track-temp').value) || 25;
-    const notes = document.getElementById('notes').value.toLowerCase();
-    const diff = target - total;
-    const console = document.getElementById('ai-console');
+// --- 2. EL CEREBRO: CALCULATE + IA PROFESIONAL ---
+function calculate() {
+    let fb = parseFloat(document.getElementById('fb-base').value) || 0;
+    let temp = parseInt(document.getElementById('track-temp').value) || 25;
+    let totalLaps = 0;
+    let totalFuel = 0;
     
-    let fuelNeeded = (diff * fb).toFixed(2);
-    let statusColor = "#a020f0"; 
-    let strategyNote = "Sin eventos reportados.";
+    stunts.forEach(s => {
+        let fuel = (s.laps * (fb + parseFloat(s.push))) + 0.3;
+        document.getElementById(`fuel-${s.id}`).innerText = fuel.toFixed(2) + "L";
+        let wear = 100 - (s.laps * s.wear);
+        let b = document.getElementById(`bar-${s.id}`);
+        if(b) { b.style.width = Math.max(0, Math.min(100, wear)) + "%"; }
+        totalLaps += s.laps;
+        totalFuel += fuel;
+    });
 
-    // Lógica interactiva de neumáticos
-    let tireAdvice = (temp > 32) ? "ALTA DEGRADACIÓN: Solo Compuesto DURO (H)." : 
-                     (temp < 15) ? "BAJA ADHERENCIA: Pista fría. Usar BLANDO (S)." : 
-                     "ESTADO ÓPTIMO: El MEDIO (M) es el balance ideal.";
+    // Actualizar Totales
+    if(document.getElementById('fuel-total')) document.getElementById('fuel-total').innerText = totalFuel.toFixed(2) + " L";
+    if(document.getElementById('stint-laps-total')) document.getElementById('stint-laps-total').innerText = totalLaps;
 
-    // Detección de palabras clave
-    if (notes.includes("lluvia") || notes.includes("agua")) {
-        strategyNote = "ALERTA CLIMÁTICA: Detectada humedad. Preparar INTER/WET.";
-        statusColor = "#00ffff";
-    } else if (notes.includes("sc") || notes.includes("safety")) {
-        strategyNote = "MODO SAFETY CAR: Cambiar a MIX 1 (-0.007).";
-        statusColor = "#ffff00";
+    // Lógica IA
+    const target = parseInt(document.getElementById('v-count').innerText) || 0;
+    const notes = document.getElementById('notes').value.toLowerCase();
+    const diff = target - totalLaps;
+    const aiConsole = document.getElementById('ai-console');
+
+    // Recomendación de gomas basada en iGP
+    let tireAdvice = (temp > 30) ? "DURO (H)" : (temp < 18 ? "BLANDO (S)" : "MEDIO (M)");
+    
+    let statusColor = "#C0C0C0";
+    let updateMsg = "Telemetría nominal. Ritmo estable.";
+
+    if (notes.includes("lluvia")) {
+        updateMsg = "ALERTA: Pista mojada. Cambiar a WET/INTER.";
+        statusColor = "#3498db";
+    } else if (notes.includes("ataque")) {
+        updateMsg = "MODO ATAQUE: Exprime el KERS y el compuesto.";
+        statusColor = "#e74c3c";
     }
 
-    let txt = `[ DS-CORE INTELLIGENCE v3.0 | INTERACTIVE ]\n`;
-    txt += `================================================\n`;
-    txt += `>> ANALIZANDO: ${managerName.toUpperCase()}\n`;
-    txt += `>> BALANCE: ${diff <= 0 ? 'COMPLETADO' : diff + ' VTS RESTANTES'}\n\n`;
-    txt += `[ ANÁLISIS PREDICTIVO ]\n`;
-    txt += `> Carga pend. p/ meta: ${fuelNeeded} L\n`;
-    txt += `> Neumáticos: ${tireAdvice}\n\n`;
+    let txt = `[ DS-CORE TELEMETRY | V3.0 ]\n`;
+    txt += `>> MANAGER: ${managerName.toUpperCase()}\n`;
+    txt += `>> RECOMENDACIÓN: Usar compuesto ${tireAdvice}\n\n`;
     txt += `[ Sugerencias de estrategia ]\n`;
-    txt += `------------------------------------------------\n`;
-    txt += `* EVENTOS: ${strategyNote}\n`;
-    txt += `* ESTRATEGIA: ${diff > 5 ? 'Mantener ritmo nominal.' : '¡VENTANA DE PARADA PRÓXIMA!'}\n`;
-    txt += `\n>> MODO: Sugerencias de estrategia ONLINE`;
-
-    console.innerText = txt;
-    console.style.borderLeftColor = statusColor;
+    txt += `------------------------------------------\n`;
+    txt += `> ${updateMsg}\n`;
+    txt += `> GASOLINA RESTANTE: ${(diff * fb).toFixed(2)} L\n`;
+    txt += `> STATUS: ${diff <= 0 ? 'META ALCANZADA' : 'Faltan ' + diff + ' vts'}\n`;
+    
+    if(aiConsole) {
+        aiConsole.innerText = txt;
+        aiConsole.style.borderLeft = `4px solid ${statusColor}`;
+        aiConsole.style.color = statusColor;
+    }
+    cloudSave();
 }
 
     function updateCircuit() {
