@@ -9,34 +9,35 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Syncopate:wght@400;700&family=Outfit:wght@200;400;600;900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Michroma&family=Rajdhani:wght@300;500;700&display=swap');
 
         :root { 
             --gold: #c5a059; 
             --bg: #020202; 
-            --card: #0a0a0a; 
-            --border: rgba(197, 160, 89, 0.4);
+            --card: #0d0d0d; 
             --green: #00ff9d; 
             --red: #ff3131; 
-            --orange: #ff9f43;
             --white: #ffffff;
+            --font-main: 'Rajdhani', sans-serif;
+            --font-tech: 'Michroma', sans-serif;
         }
 
+        /* RESET Y BASE */
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: #000; }
         ::-webkit-scrollbar-thumb { background: var(--gold); border-radius: 10px; }
 
         body { 
-            font-family: 'Outfit', sans-serif; 
+            font-family: var(--font-main); 
             background: var(--bg); 
             color: var(--white); 
             margin: 0; 
             min-height: 100vh;
-            background-image: radial-gradient(circle at center, #111 0%, #000 100%);
+            background-image: linear-gradient(180deg, #000 0%, #0a0a0a 100%);
         }
 
-        /* --- SISTEMA DE LOGIN Y ADMINISTRACIÓN --- */
+        /* --- LOGIN SYSTEM --- */
         #login-system { 
             position: fixed; inset: 0; background: #000; z-index: 9999; 
             display: flex; flex-direction: column; align-items: center; 
@@ -45,76 +46,104 @@
 
         .main-header { text-align: center; margin-bottom: 40px; }
         .main-header h1 { 
-            font-family: 'Syncopate'; font-size: 2.2rem; letter-spacing: 12px; 
-            color: #fff; text-shadow: 0 0 25px var(--gold); margin: 0;
+            font-family: var(--font-tech); font-size: 1.8rem; color: var(--white); 
+            letter-spacing: 8px; text-shadow: 0 0 15px var(--gold); margin: 0;
         }
         .main-header p { 
-            font-size: 0.75rem; color: var(--gold); letter-spacing: 5px; 
-            text-transform: uppercase; font-weight: 900; margin-top: 15px;
+            font-size: 0.7rem; color: var(--gold); letter-spacing: 3px; 
+            text-transform: uppercase; font-weight: 700; margin-top: 10px;
         }
 
         #admin-control-panel {
             width: 100%; max-width: 600px; background: #080808; 
             border: 1px solid #1a1a1a; border-radius: 20px; padding: 20px;
-            margin-bottom: 30px; text-align: center; transition: 0.5s;
+            margin-bottom: 30px; text-align: center;
         }
-        .admin-unlocked { border-color: var(--red) !important; background: rgba(255, 0, 0, 0.05) !important; box-shadow: 0 0 40px rgba(255, 0, 0, 0.2); }
 
         #master-reset-btn {
-            width: 100%; padding: 20px; border-radius: 12px; border: 2px solid #222;
-            background: #111; color: #444; font-family: 'Syncopate'; font-weight: 900;
-            font-size: 0.8rem; cursor: not-allowed; text-transform: uppercase;
+            width: 100%; padding: 18px; border-radius: 12px; border: 2px solid #222;
+            background: #111; color: #444; font-family: var(--font-tech);
+            font-size: 0.6rem; cursor: not-allowed; text-transform: uppercase;
             transition: all 0.3s ease;
         }
-        #master-reset-btn.danger-ready {
-            background: linear-gradient(45deg, #ff0000, #800000);
-            color: white; border: 2px solid white; cursor: pointer;
-            box-shadow: 0 0 30px rgba(255,0,0,0.6); animation: pulse-red 2s infinite;
+
+        .manager-grid { 
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); 
+            gap: 20px; width: 100%; max-width: 1200px; 
+        }
+        .slot-card { 
+            background: #0a0a0a; border: 1px solid #1a1a1a; border-top: 4px solid var(--gold);
+            border-radius: 15px; padding: 15px; 
+        }
+        .slot-card h3 { 
+            font-family: var(--font-tech); font-size: 0.6rem; color: var(--gold); 
+            text-align: center; margin-bottom: 12px; 
+        }
+        .m-btn { 
+            width: 100%; padding: 12px; margin: 4px 0; background: #000; border: 1px solid #222;
+            color: #444; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 0.8rem;
+            transition: 0.3s;
+        }
+        .m-btn.occupied { 
+            color: #fff; border-color: var(--gold); 
+            background: rgba(197,160,89,0.1);
         }
 
-        @keyframes pulse-red { 0% { transform: scale(1); } 50% { transform: scale(1.02); } 100% { transform: scale(1); } }
-
-        .manager-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 20px; width: 100%; max-width: 1200px; }
-        .slot-card { background: #0a0a0a; border: 1px solid var(--border); border-top: 5px solid var(--gold); border-radius: 15px; padding: 15px; }
-        .slot-card h3 { font-family: 'Syncopate'; font-size: 0.8rem; color: var(--gold); text-align: center; margin: 0 0 12px 0; }
-        .m-btn { width: 100%; padding: 12px; margin: 4px 0; background: #000; border: 1px solid #1a1a1a; color: #444; border-radius: 8px; font-weight: 900; cursor: pointer; font-size: 0.7rem; text-transform: uppercase; }
-        .m-btn.occupied { color: #fff; border-left: 5px solid var(--gold); background: rgba(197,160,89,0.1); border-right: 1px solid var(--gold); }
-
-        /* --- INTERFAZ PRINCIPAL --- */
-        .master-app { display: none; grid-template-columns: 1fr; gap: 20px; padding: 20px; max-width: 1800px; margin: auto; }
+        /* --- APP INTERFACE --- */
+        .master-app { 
+            display: none; grid-template-columns: 1fr; gap: 20px; padding: 20px; 
+            max-width: 1800px; margin: auto; 
+        }
         @media (min-width: 1200px) { .master-app { grid-template-columns: 350px 1fr 400px; } }
 
-        .panel { background: var(--card); border: 1px solid #1a1a1a; border-radius: 25px; position: relative; overflow: hidden; display: flex; flex-direction: column; }
-        .panel::after { content: ""; position: absolute; top: 0; width: 100%; height: 4px; background: var(--gold); }
-        .panel-header { padding: 20px; background: #000; font-family: 'Syncopate'; font-size: 0.7rem; color: var(--gold); border-bottom: 1px solid #151515; letter-spacing: 2px; }
+        .panel { 
+            background: var(--card); border: 1px solid #1a1a1a; border-radius: 20px; 
+            position: relative; overflow: hidden; display: flex; flex-direction: column;
+        }
+        .panel-header { 
+            padding: 18px; background: #000; font-family: var(--font-tech); 
+            font-size: 0.6rem; color: var(--gold); border-bottom: 1px solid #151515; 
+        }
         .panel-body { padding: 20px; flex-grow: 1; }
 
-        .v-target-box { background: #000; border-radius: 20px; padding: 20px; text-align: center; border: 1px solid #1a1a1a; margin-bottom: 20px; }
-        .v-target-box span { font-family: 'Syncopate'; font-size: 5rem; color: var(--gold); display: block; line-height: 1; }
+        .v-target-box { background: #000; border-radius: 15px; padding: 15px; text-align: center; border: 1px solid #1a1a1a; margin-bottom: 20px; }
+        .v-target-box span { font-family: var(--font-tech); font-size: 4rem; color: var(--gold); display: block; }
         
-        .stint-card { background: #050505; border-radius: 15px; padding: 20px; margin-bottom: 20px; border-left: 6px solid var(--gold); border: 1px solid #1a1a1a; border-left: 6px solid var(--gold); }
-        .fuel-result { font-family: 'Syncopate'; font-size: 3.5rem; color: var(--green); text-align: center; margin: 10px 0; }
+        .stint-card { 
+            background: #050505; border-radius: 12px; padding: 18px; margin-bottom: 15px;
+            border-left: 6px solid var(--gold); border: 1px solid #1a1a1a; border-left: 6px solid var(--gold);
+        }
+        .fuel-result { font-family: var(--font-tech); font-size: 2.8rem; color: var(--green); text-align: center; }
         
-        .wear-bg { background: #111; height: 10px; border-radius: 5px; margin-top: 15px; overflow: hidden; }
+        .wear-bg { background: #111; height: 8px; border-radius: 4px; margin-top: 15px; overflow: hidden; }
         .wear-fill { height: 100%; background: var(--green); width: 100%; transition: 0.5s; }
 
-        label { font-size: 0.65rem; font-family: 'Syncopate'; color: #666; display: block; margin: 0 0 8px 5px; }
-        input, select, textarea { width: 100%; background: #000; border: 1px solid #222; color: #fff; padding: 15px; border-radius: 12px; margin-bottom: 20px; font-family: 'Outfit'; }
-        
-        .action-btn { width: 100%; padding: 18px; border-radius: 12px; border: none; font-family: 'Syncopate'; font-weight: 900; cursor: pointer; text-transform: uppercase; transition: 0.3s; }
+        label { font-size: 0.6rem; font-family: var(--font-tech); color: #666; display: block; margin-bottom: 8px; margin-left: 5px; }
+        input, select, textarea { 
+            width: 100%; background: #000; border: 1px solid #222; color: #fff; padding: 14px;
+            border-radius: 10px; margin-bottom: 20px; font-family: var(--font-main); font-size: 1.1rem;
+        }
+
+        .action-btn { 
+            width: 100%; padding: 16px; border-radius: 10px; border: none; font-family: var(--font-tech);
+            font-weight: 700; font-size: 0.7rem; cursor: pointer; text-transform: uppercase;
+        }
         .btn-gold { background: var(--gold); color: #000; }
-        .btn-dark { background: #111; color: #444; margin-top: 10px; }
 
         /* RANKING */
-        .ranking-table { width: 100%; border-collapse: collapse; margin-top: 15px; }
-        .ranking-table th { font-family: 'Syncopate'; font-size: 0.55rem; color: var(--gold); padding: 10px; border-bottom: 2px solid var(--gold); }
-        .ranking-table td { padding: 12px 5px; text-align: center; border-bottom: 1px solid #111; font-weight: 600; }
+        .ranking-table { width: 100%; border-collapse: collapse; }
+        .ranking-table th { font-family: var(--font-tech); font-size: 0.5rem; color: var(--gold); padding: 10px; border-bottom: 1px solid var(--gold); }
+        .ranking-table td { padding: 10px; text-align: center; border-bottom: 1px solid #111; font-family: var(--font-main); font-weight: 500; }
 
         /* CONSOLA IA */
-        #ai-console { background: #000; border-radius: 10px; padding: 15px; font-family: 'Courier New', monospace; color: #E0E0E0; font-size: 0.85rem; min-height: 180px; border-left: 4px solid var(--gold); line-height: 1.4; white-space: pre-wrap; }
-        
-        /* SYNC LED */
-        #sync-led { width: 8px; height: 8px; background: #333; border-radius: 50%; display: inline-block; margin-left: 10px; transition: 0.3s; }
+        #ai-console { 
+            background: #000; border-radius: 10px; padding: 15px; 
+            font-family: 'Courier New', monospace; color: var(--green); font-size: 0.8rem; 
+            min-height: 180px; border: 1px solid #1a1a1a; line-height: 1.4;
+            white-space: pre-wrap;
+        }
+
+        #sync-led { width: 10px; height: 10px; background: #222; border-radius: 50%; display: inline-block; margin-left: 10px; transition: 0.3s; }
         .led-active { background: var(--green) !important; box-shadow: 0 0 10px var(--green); }
     </style>
 </head>
@@ -125,20 +154,22 @@
         <h1>DS AUTOMOBILES</h1>
         <p>Sugerencias de estrategia | ELITE ENGINEERING</p>
     </div>
+
     <div id="admin-control-panel">
-        <p id="lock-label" style="font-family:'Syncopate'; font-size:0.6rem; color:#444; margin-bottom:12px;">SISTEMA GLOBAL PROTEGIDO</p>
-        <button id="master-reset-btn" onclick="executeSeasonReset()">⚠️ RESET TEMPORADA: BORRAR TODO</button>
+        <button id="master-reset-btn" onclick="executeSeasonReset()">RESET TEMPORADA BLOQUEADO</button>
     </div>
+
     <div class="manager-grid" id="m-grid"></div>
-    <button onclick="requestAdmin()" style="background:none; border:none; color:#1a1a1a; margin-top:80px; cursor:pointer; font-family:'Syncopate'; font-size:0.6rem;">[ AUTHENTICATION_REQUIRED ]</button>
+
+    <button onclick="requestAdmin()" style="background:none; border:none; color:#1a1a1a; margin-top:80px; cursor:pointer; font-family:var(--font-tech); font-size:0.5rem;">[ AUTH_REQUIRED ]</button>
 </div>
 
 <div class="master-app" id="app-interface">
     
     <div class="panel">
-        <div class="panel-header">CIRCUITO Y TELEMETRÍA</div>
+        <div class="panel-header">DATOS DE CIRCUITO</div>
         <div class="panel-body">
-            <label>SELECCIÓN DE GP</label>
+            <label>GP SELECCIONADO</label>
             <select id="gp-select" onchange="updateCircuit()">
                 <option value="31">España (31v)</option>
                 <option value="21">Bélgica (21v)</option>
@@ -166,49 +197,50 @@
                 <option value="36">Abu Dhabi (36v)</option>
                 <option value="35">Sudáfrica (35v)</option>
             </select>
+
             <div class="v-target-box">
                 <label>VUELTAS TOTALES</label>
                 <span id="v-count">0</span>
             </div>
-            <label>CONSUMO BASE (FB L/VTA)</label>
+
+            <label>CONSUMO BASE (FB)</label>
             <input type="number" id="fb-base" value="2.700" step="0.001" oninput="calculate()">
+
             <label>NOTAS DEL MANAGER <div id="sync-led"></div></label>
-            <textarea id="notes" rows="8" placeholder="Setups, climas..." oninput="calculate()"></textarea>
-            <button class="action-btn btn-dark" onclick="location.reload()">CERRAR SESIÓN</button>
+            <textarea id="notes" rows="6" oninput="calculate()"></textarea>
+
+            <button class="action-btn" style="background:#111; color:#444;" onclick="location.reload()">CERRAR SESIÓN</button>
         </div>
     </div>
 
     <div class="panel">
-        <div class="panel-header">ESTRATEGIA ACTIVA</div>
+        <div class="panel-header">ESTRATEGIA TÁCTICA</div>
         <div class="panel-body">
             <div id="stint-container"></div>
-            <button class="action-btn btn-gold" onclick="addNewStint()">+ AÑADIR NUEVO STINT</button>
+            <button class="action-btn btn-gold" onclick="addNewStint()" style="margin-bottom: 30px;">+ AÑADIR STINT</button>
 
-            <div style="margin-top:30px;">
-                <div style="background:rgba(10,10,10,0.9); border-radius:12px; padding:15px; border:1px solid #1a1a1a; border-left: 4px solid var(--gold);">
-                    <div style="font-family:'Syncopate'; font-size:0.7rem; color:var(--gold); margin-bottom:10px; display:flex; justify-content:space-between;">
-                        <span>ASISTENTE TÁCTICO DS-CORE</span>
-                        <span style="font-size:8px; color:#666;">ONLINE</span>
-                    </div>
-                    <div id="ai-console">>> ESPERANDO TELEMETRÍA...</div>
-                    <div style="margin-top:10px; display:flex; gap:5px;">
-                        <input type="text" id="ai-prompt" placeholder="Habla con la IA..." style="flex-grow:1; background:#050505; color:var(--gold); border:1px solid #333; padding:12px; border-radius:6px; font-size:9px; margin-bottom:0;">
-                        <button onclick="interactuarIA()" style="background:var(--gold); border:none; padding:0 15px; border-radius:6px; cursor:pointer; font-weight:bold;">ENVIAR</button>
-                    </div>
+            <div style="margin-bottom:30px;">
+                <div id="ai-console">>> CARGANDO SISTEMA...</div>
+                <div style="display:flex; gap:10px; margin-top:10px;">
+                    <input type="text" id="ai-prompt" placeholder="Habla con la IA..." style="margin-bottom:0; flex-grow:1;">
+                    <button onclick="interactuarIA()" style="background:var(--green); border:none; color:#000; padding:10px 20px; border-radius:10px; font-weight:bold; font-family:var(--font-tech); font-size:0.6rem;">ENVIAR</button>
                 </div>
             </div>
 
-            <div style="margin-top:30px; border-top: 1px solid #111; padding-top:20px;">
-                <h3 style="font-family:'Syncopate'; font-size:0.7rem; color:var(--gold); text-align:center;">RANKING GLOBAL DS</h3>
-                <table class="ranking-table"><tbody id="ranking-body"></tbody></table>
+            <div style="border-top: 1px solid #1a1a1a; padding-top:20px;">
+                <h3 style="font-family:var(--font-tech); font-size:0.6rem; color:var(--gold); text-align:center; margin-bottom:15px;">RANKING TEMPORADA</h3>
+                <table class="ranking-table">
+                    <thead><tr><th>MANAGER</th><th>PUNTOS</th><th>GP</th></tr></thead>
+                    <tbody id="ranking-body"></tbody>
+                </table>
             </div>
 
-            <div id="admin-points" style="display:none; margin-top:20px; background:#0a0a00; padding:15px; border:1px solid var(--gold); border-radius:15px;">
-                <label style="font-size:10px;">INYECTOR DE PUNTOS</label>
+            <div id="admin-points" style="display:none; margin-top:25px; background:rgba(197,160,89,0.05); padding:15px; border:1px solid var(--gold); border-radius:15px;">
+                <label style="color:var(--gold)">INYECTOR DE PUNTOS</label>
                 <div style="display:flex; gap:5px;">
-                    <input type="text" id="adm-name" placeholder="MANAGER" style="margin-bottom:0;">
-                    <input type="number" id="adm-pts" placeholder="PTS" style="margin-bottom:0;">
-                    <button onclick="injectPoints()" style="background:var(--gold); border:none; padding:5px; font-weight:bold;">INYECTAR</button>
+                    <input type="text" id="adm-name" placeholder="NOMBRE" style="margin:0; font-size:0.8rem;">
+                    <input type="number" id="adm-pts" placeholder="PTS" style="margin:0; font-size:0.8rem; width:80px;">
+                    <button onclick="injectPoints()" style="background:var(--gold); border:none; padding:10px; font-weight:bold;">ADD</button>
                 </div>
             </div>
         </div>
@@ -216,33 +248,33 @@
 </div>
 
 <script>
-    // --- 1. CONFIGURACIÓN FIREBASE ---
+    // 1. INICIO FIREBASE
     const firebaseConfig = { databaseURL: "https://ds-automobiles-f0a17-default-rtdb.firebaseio.com/" };
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
     let sessionID = ""; 
-    let managerName = ""; 
     let stunts = []; 
     let isAdmin = false;
-    let iaMem = { q: "...", a: "Esperando...", c: 0 };
+    let iaLastResponse = "Sistema listo para el análisis.";
 
-    // --- 2. GESTIÓN DE USUARIOS Y ADMIN ---
+    // 2. CARGA DE MANAGERS Y RANKING
     db.ref('perfiles').on('value', (snap) => {
-        const container = document.getElementById('m-grid');
-        if(!container) return;
-        container.innerHTML = '';
+        const grid = document.getElementById('m-grid');
+        if(!grid) return;
+        grid.innerHTML = '';
         const data = snap.val() || {};
-        ["F1", "F2", "F3", "F4", "F5", "K6"].forEach(cat => {
-            let html = `<div class="slot-card"><h3>${cat}</h3>`;
+        const cats = ["F1", "F2", "F3", "F4", "F5", "K6"];
+        cats.forEach(c => {
+            let html = `<div class="slot-card"><h3>${c}</h3>`;
             for(let i=1; i<=4; i++) {
-                let id = `${cat}_M${i}`;
+                let id = `${c}_M${i}`;
                 let entry = data[id];
                 let isOcc = entry ? 'occupied' : '';
                 let name = entry ? entry.name.toUpperCase() : 'VACANTE';
                 html += `<button class="m-btn ${isOcc}" onclick="handleLogin('${id}')">${name}</button>`;
             }
-            container.innerHTML += html + `</div>`;
+            grid.innerHTML += html + `</div>`;
         });
     });
 
@@ -254,6 +286,7 @@
         document.getElementById('ranking-body').innerHTML = rows;
     });
 
+    // 3. LOGIN Y SEGURIDAD
     function handleLogin(id) {
         db.ref('perfiles/'+id).once('value').then(s => {
             let data = s.val();
@@ -265,7 +298,7 @@
             } else if(!isAdmin) {
                 if(prompt("PIN DE SEGURIDAD:") !== data.pin) return alert("PIN INCORRECTO");
             }
-            sessionID = id; managerName = data.name;
+            sessionID = id;
             document.getElementById('login-system').style.display = 'none';
             document.getElementById('app-interface').style.display = 'grid';
             document.getElementById('fb-base').value = data.fb;
@@ -276,42 +309,44 @@
     }
 
     function requestAdmin() {
-        if(prompt("PASSWORD DE COMANDANTE:") === "DS2026") {
+        if(prompt("PASS COMANDANTE:") === "DS2026") {
             isAdmin = true;
-            document.getElementById('admin-control-panel').classList.add('admin-unlocked');
-            document.getElementById('lock-label').innerText = "SISTEMA DESBLOQUEADO - MODO ROOT";
-            document.getElementById('lock-label').style.color = "yellow";
-            document.getElementById('master-reset-btn').classList.add('danger-ready');
-            alert("ADMIN ACTIVADO.");
+            let btn = document.getElementById('master-reset-btn');
+            btn.innerText = "⚠️ RESET MAESTRO ACTIVADO";
+            btn.style.background = "var(--red)";
+            btn.style.color = "white";
+            btn.style.cursor = "pointer";
+            alert("MODO ROOT ACTIVADO");
         }
     }
 
     function executeSeasonReset() {
         if(!isAdmin) return;
-        if(confirm("🚨 ¡ADVERTENCIA CRÍTICA!\nVas a borrar todos los managers, sus notas y el ranking de la liga.\n¿Confirmas el reset de temporada?")) {
+        if(confirm("🚨 ¡ADVERTENCIA CRÍTICA!\n¿Borrar toda la base de datos de la temporada?")) {
             db.ref('/').remove().then(() => { location.reload(); });
         }
     }
 
-    // --- 3. GESTIÓN DE STINTS ---
+    // 4. ESTRATEGIA: STINTS
     function addNewStint() {
         let id = Date.now();
         stunts.push({ id: id, laps: 10, push: 0, wear: 8.0 });
         let div = document.createElement('div');
-        div.className = 'stint-card'; div.id = `st-${id}`;
+        div.className = 'stint-card';
+        div.id = `st-${id}`;
         div.innerHTML = `
             <div style="display:flex; justify-content:space-between; align-items:center;">
-                <b style="color:var(--gold); font-size:0.7rem;">STINT #${stunts.length}</b>
-                <span onclick="removeStint(${id})" style="color:var(--red); cursor:pointer; font-weight:900; font-size:0.7rem;">[BORRAR]</span>
+                <b style="color:var(--gold); font-family:var(--font-tech); font-size:0.6rem;">STINT #${stunts.length}</b>
+                <span onclick="removeStint(${id})" style="color:var(--red); cursor:pointer; font-weight:bold;">[BORRAR]</span>
             </div>
             <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px; margin-top:15px;">
                 <div><label>VUELTAS</label><input type="number" value="10" oninput="updStint(${id},'laps',this.value)"></div>
-                <div><label>MAPA MOTOR (MIX)</label><select onchange="updStint(${id},'push',this.value)">
-                    <option value="0.02">MIX 5: ▲▲ (+0.02)</option>
-                    <option value="0.01">MIX 4: ▲ (+0.01)</option>
-                    <option value="0" selected>MIX 3: ● (0)</option>
-                    <option value="-0.004">MIX 2: ▼ (-0.004)</option>
-                    <option value="-0.007">MIX 1: ▼▼ (-0.007)</option>
+                <div><label>MIX MOTOR</label><select onchange="updStint(${id},'push',this.value)">
+                    <option value="0.02">MIX 5 (+0.02)</option>
+                    <option value="0.01">MIX 4 (+0.01)</option>
+                    <option value="0" selected>MIX 3 (0)</option>
+                    <option value="-0.004">MIX 2 (-0.004)</option>
+                    <option value="-0.007">MIX 1 (-0.007)</option>
                 </select></div>
                 <div style="grid-column: span 2;"><label>DESGASTE %/VTA</label><input type="number" value="8.0" step="0.1" oninput="updStint(${id},'wear',this.value)">
                 <div class="wear-bg"><div class="wear-fill" id="bar-${id}"></div></div></div>
@@ -332,29 +367,28 @@
         calculate();
     }
 
-    // --- 4. EL CEREBRO: CALCULATE + IA ---
+    // 5. CÁLCULOS E IA DINÁMICA
     function calculate() {
         let fb = parseFloat(document.getElementById('fb-base').value) || 0;
         let totalLaps = 0; let totalFuel = 0;
         stunts.forEach((s, index) => {
-            let fuelPerStint = (s.laps * (fb + parseFloat(s.push))) + 0.3;
-            totalLaps += s.laps; totalFuel += fuelPerStint;
-            document.getElementById(`fuel-${s.id}`).innerText = fuelPerStint.toFixed(2) + "L";
-            let footerEl = document.getElementById(`footer-${s.id}`);
-            footerEl.innerHTML = ""; 
+            let stintFuel = (s.laps * (fb + parseFloat(s.push))) + 0.3;
+            totalLaps += s.laps; totalFuel += stintFuel;
+            document.getElementById(`fuel-${s.id}`).innerText = stintFuel.toFixed(2) + "L";
+            let foot = document.getElementById(`footer-${s.id}`);
+            foot.innerHTML = "";
             if (index === stunts.length - 1) {
-                footerEl.innerHTML = `<div style="margin-top:15px; padding-top:15px; border-top:1px dashed #444; display:flex; justify-content:space-between; align-items:center;">
-                <div style="text-align:left"><span style="color:#888; font-size:9px;">VUELTAS TOTALES</span><span style="color:#fff; font-size:1.3rem; font-weight:bold; display:block;">${totalLaps}</span></div>
-                <div style="text-align:right"><span style="color:#888; font-size:9px;">TOTAL ACUMULADO</span><span style="color:var(--gold); font-size:1.3rem; font-weight:bold; display:block;">${totalFuel.toFixed(2)} L</span></div></div>`;
+                foot.innerHTML = `<div style="margin-top:15px; border-top:1px dashed #444; padding-top:10px; display:flex; justify-content:space-between;">
+                <span>VTS: ${totalLaps}</span><span style="color:var(--gold)">TOTAL: ${totalFuel.toFixed(2)} L</span></div>`;
             }
             let wear = 100 - (s.laps * s.wear);
             let b = document.getElementById(`bar-${s.id}`);
             if(b) {
                 b.style.width = Math.max(0, Math.min(100, wear)) + "%";
-                b.style.background = wear < 20 ? 'var(--red)' : wear < 45 ? 'var(--orange)' : 'var(--green)';
+                b.style.background = wear < 20 ? 'var(--red)' : wear < 45 ? '#ff9f43' : 'var(--green)';
             }
         });
-        actualizarIAProfesional(totalLaps, totalFuel);
+        actualizarConsolaIA(totalLaps, totalFuel);
         cloudSave();
     }
 
@@ -362,48 +396,46 @@
         const p = document.getElementById('ai-prompt');
         const m = p.value.toLowerCase();
         if(!m) return;
-        iaMem.c++; iaMem.q = m;
-        if(m.includes("lluvia")) iaMem.a = "Radar detecta humedad. Activar MIX 1-2.";
-        else if(m.includes("líder")) iaMem.a = "Analizando ranking... Objetivo localizado.";
-        else iaMem.a = "Comando táctico recibido.";
+        if(m.includes("lluvia")) iaLastResponse = "ALERTA: CLIMA HÚMEDO. AJUSTAR A MIX 1 PARA AHORRO.";
+        else if(m.includes("hola")) iaLastResponse = "MANAGER IDENTIFICADO. ESPERANDO ÓRDENES.";
+        else if(m.includes("líder")) iaLastResponse = "LOCALIZANDO LÍDER EN RANKING PARA CÁLCULO DE OVERCUT.";
+        else iaLastResponse = "COMANDO PROCESADO: " + m.toUpperCase();
         calculate(); p.value = "";
     }
 
-    function actualizarIAProfesional(v, l) {
-        const aiConsole = document.getElementById('ai-console');
+    function actualizarConsolaIA(v, l) {
+        const console = document.getElementById('ai-console');
         const notes = document.getElementById('notes').value.toLowerCase();
-        if(aiConsole) {
-            let estado = notes.includes("lluvia") ? "ALERTA CLIMÁTICA" : "NOMINAL";
-            let txt = `[ DS-CORE TELEMETRY | V3.0 ]\n>> STATUS: ${estado}\n>> TOTAL PLAN: ${v} VTS | ${l.toFixed(2)} L\n`;
-            txt += `------------------------------------------\nSugerencias de estrategia:\n"${iaMem.a.toUpperCase()}"\n`;
-            txt += `------------------------------------------\n>> CONSULTA #${iaMem.c}: ${iaMem.q.toUpperCase()}`;
-            aiConsole.innerText = txt;
-        }
+        if(!console) return;
+        let status = notes.includes("lluvia") ? "!! PRECAUCIÓN: LLUVIA !!" : "SISTEMA NOMINAL";
+        console.innerText = `[ DS-CORE TELEMETRY V2.6 ]\nSTATUS: ${status}\nCARGA: ${v} VTS / ${l.toFixed(2)} L\n--------------------------\nSugerencias de estrategia:\n"${iaLastResponse.toUpperCase()}"`;
     }
 
-    function updateCircuit() { document.getElementById('v-count').innerText = document.getElementById('gp-select').value; calculate(); }
+    function updateCircuit() { 
+        document.getElementById('v-count').innerText = document.getElementById('gp-select').value; 
+        calculate(); 
+    }
 
     function injectPoints() {
-        let name = document.getElementById('adm-name').value.toUpperCase();
+        let n = document.getElementById('adm-name').value.toUpperCase();
         let pts = parseInt(document.getElementById('adm-pts').value);
-        db.ref('ranking/'+name).once('value').then(s => {
-            let cur = s.val() || { name: name, pts: 0, gp: 0 };
-            db.ref('ranking/'+name).set({ name: name, pts: Number(cur.pts) + pts, gp: Number(cur.gp) + 1 });
-            alert("PUNTOS AÑADIDOS.");
+        db.ref('ranking/'+n).once('value').then(s => {
+            let cur = s.val() || { name: n, pts: 0, gp: 0 };
+            db.ref('ranking/'+n).set({ name: n, pts: Number(cur.pts) + pts, gp: Number(cur.gp) + 1 });
+            alert("PUNTOS INYECTADOS.");
         });
     }
 
     function cloudSave() {
-        if (sessionID) {
-            const led = document.getElementById('sync-led');
-            led.classList.add('led-active');
-            db.ref('perfiles/' + sessionID).update({
-                fb: document.getElementById('fb-base').value,
-                notes: document.getElementById('notes').value
-            }).then(() => {
-                setTimeout(() => led.classList.remove('led-active'), 400);
-            });
-        }
+        if (!sessionID) return;
+        const led = document.getElementById('sync-led');
+        led.classList.add('led-active');
+        db.ref('perfiles/' + sessionID).update({
+            fb: document.getElementById('fb-base').value,
+            notes: document.getElementById('notes').value
+        }).then(() => {
+            setTimeout(() => led.classList.remove('led-active'), 400);
+        });
     }
 </script>
 </body>
