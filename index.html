@@ -17,6 +17,7 @@
             --card: #0d0d0d; 
             --green: #00ff9d; 
             --red: #ff3131; 
+            --orange: #ff9f43;
             --white: #ffffff;
             --font-main: 'Rajdhani', sans-serif;
             --font-tech: 'Michroma', sans-serif;
@@ -48,10 +49,7 @@
             font-family: var(--font-tech); font-size: 1.8rem; color: var(--white); 
             letter-spacing: 8px; text-shadow: 0 0 15px var(--gold); margin: 0;
         }
-        .main-header p { 
-            font-size: 0.7rem; color: var(--gold); letter-spacing: 3px; 
-            text-transform: uppercase; font-weight: 700; margin-top: 10px;
-        }
+        .main-header p { font-size: 0.7rem; color: var(--gold); letter-spacing: 3px; text-transform: uppercase; margin-top: 10px; }
 
         #admin-control-panel {
             width: 100%; max-width: 600px; background: #080808; 
@@ -62,74 +60,50 @@
         #master-reset-btn {
             width: 100%; padding: 18px; border-radius: 12px; border: 2px solid #222;
             background: #111; color: #444; font-family: var(--font-tech);
-            font-size: 0.6rem; cursor: not-allowed; text-transform: uppercase;
-            transition: all 0.3s ease;
+            font-size: 0.6rem; text-transform: uppercase;
         }
 
-        .manager-grid { 
-            display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); 
-            gap: 20px; width: 100%; max-width: 1200px; 
-        }
-        .slot-card { 
-            background: #0a0a0a; border: 1px solid #1a1a1a; border-top: 4px solid var(--gold);
-            border-radius: 15px; padding: 15px; 
-        }
-        .slot-card h3 { 
-            font-family: var(--font-tech); font-size: 0.6rem; color: var(--gold); 
-            text-align: center; margin-bottom: 12px; 
-        }
+        .manager-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 20px; width: 100%; max-width: 1200px; }
+        .slot-card { background: #0a0a0a; border: 1px solid #1a1a1a; border-top: 4px solid var(--gold); border-radius: 15px; padding: 15px; }
+        .slot-card h3 { font-family: var(--font-tech); font-size: 0.6rem; color: var(--gold); text-align: center; margin-bottom: 12px; }
+        
         .m-btn { 
             width: 100%; padding: 12px; margin: 4px 0; background: #000; border: 1px solid #222;
             color: #444; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 0.8rem;
-            transition: 0.3s;
         }
         .m-btn.occupied { color: #fff; border-color: var(--gold); background: rgba(197,160,89,0.1); }
 
         /* --- APP INTERFACE --- */
-        .master-app { 
-            display: none; grid-template-columns: 1fr; gap: 20px; padding: 20px; 
-            max-width: 1800px; margin: auto; 
-        }
+        .master-app { display: none; grid-template-columns: 1fr; gap: 20px; padding: 20px; max-width: 1800px; margin: auto; }
         @media (min-width: 1200px) { .master-app { grid-template-columns: 350px 1fr 400px; } }
 
-        .panel { 
-            background: var(--card); border: 1px solid #1a1a1a; border-radius: 20px; 
-            position: relative; overflow: hidden; display: flex; flex-direction: column;
-        }
-        .panel-header { 
-            padding: 18px; background: #000; font-family: var(--font-tech); 
-            font-size: 0.6rem; color: var(--gold); border-bottom: 1px solid #151515; 
-        }
-        .panel-body { padding: 20px; flex-grow: 1; }
+        .panel { background: var(--card); border: 1px solid #1a1a1a; border-radius: 20px; overflow: hidden; display: flex; flex-direction: column; }
+        .panel-header { padding: 18px; background: #000; font-family: var(--font-tech); font-size: 0.6rem; color: var(--gold); border-bottom: 1px solid #151515; }
+        .panel-body { padding: 20px; }
 
         .v-target-box { background: #000; border-radius: 15px; padding: 15px; text-align: center; border: 1px solid #1a1a1a; margin-bottom: 20px; }
         .v-target-box span { font-family: var(--font-tech); font-size: 4rem; color: var(--gold); display: block; }
         
-        .stint-card { 
-            background: #050505; border-radius: 12px; padding: 18px; margin-bottom: 15px;
-            border-left: 6px solid var(--gold); border: 1px solid #1a1a1a;
-        }
-        .fuel-result { font-family: var(--font-tech); font-size: 2.8rem; color: var(--green); text-align: center; }
+        /* DESGASTE REINSTALADO */
+        .stint-card { background: #050505; border-radius: 12px; padding: 18px; margin-bottom: 15px; border: 1px solid #1a1a1a; border-left: 6px solid var(--gold); }
+        .wear-container { margin-top: 15px; }
+        .wear-bg { background: #111; height: 10px; border-radius: 5px; overflow: hidden; margin-top: 5px; border: 1px solid #222; }
+        .wear-fill { height: 100%; width: 100%; background: var(--green); transition: 0.6s cubic-bezier(0.17, 0.67, 0.83, 0.67); }
+
+        .fuel-result { font-family: var(--font-tech); font-size: 2.8rem; color: var(--green); text-align: center; margin: 10px 0; }
         
         label { font-size: 0.6rem; font-family: var(--font-tech); color: #666; display: block; margin-bottom: 8px; }
-        input, select, textarea { 
-            width: 100%; background: #000; border: 1px solid #222; color: #fff; padding: 14px;
-            border-radius: 10px; margin-bottom: 20px; font-family: var(--font-main); font-size: 1.1rem;
-        }
+        input, select, textarea { width: 100%; background: #000; border: 1px solid #222; color: #fff; padding: 14px; border-radius: 10px; margin-bottom: 20px; font-family: var(--font-main); font-size: 1.1rem; }
 
-        .action-btn { 
-            width: 100%; padding: 16px; border-radius: 10px; border: none; font-family: var(--font-tech);
-            font-weight: 700; font-size: 0.7rem; cursor: pointer; text-transform: uppercase;
-        }
+        .action-btn { width: 100%; padding: 16px; border-radius: 10px; border: none; font-family: var(--font-tech); font-size: 0.7rem; cursor: pointer; text-transform: uppercase; }
         .btn-gold { background: var(--gold); color: #000; }
 
-        /* CONSOLA IA - REPARADA */
+        /* CONSOLA IA REPARADA */
         #ai-console { 
-            background: #000; border-radius: 10px; padding: 15px; 
+            background: #000; border-radius: 12px; padding: 20px; 
             font-family: 'Courier New', monospace; color: var(--green); font-size: 0.85rem; 
-            min-height: 200px; border: 1px solid #333; line-height: 1.5;
-            white-space: pre-wrap; overflow-y: auto;
-            border-left: 4px solid var(--green);
+            min-height: 220px; border: 1px solid #333; line-height: 1.6;
+            white-space: pre-wrap; overflow-y: auto; border-left: 4px solid var(--green);
         }
 
         #sync-led { width: 10px; height: 10px; background: #222; border-radius: 50%; display: inline-block; margin-left: 10px; }
@@ -137,7 +111,7 @@
         
         .ranking-table { width: 100%; border-collapse: collapse; }
         .ranking-table th { font-family: var(--font-tech); font-size: 0.5rem; color: var(--gold); border-bottom: 1px solid var(--gold); padding: 10px; }
-        .ranking-table td { padding: 10px; text-align: center; border-bottom: 1px solid #111; }
+        .ranking-table td { padding: 12px; text-align: center; border-bottom: 1px solid #111; font-size: 1rem; }
     </style>
 </head>
 <body>
@@ -191,9 +165,9 @@
                 <label>VUELTAS</label>
                 <span id="v-count">0</span>
             </div>
-            <label>CONSUMO BASE</label>
+            <label>CONSUMO BASE (FB)</label>
             <input type="number" id="fb-base" value="2.700" step="0.001" oninput="calculate()">
-            <label>NOTAS <div id="sync-led"></div></label>
+            <label>NOTAS DEL MANAGER <div id="sync-led"></div></label>
             <textarea id="notes" rows="6" oninput="calculate()"></textarea>
             <button class="action-btn" style="background:#111; color:#444;" onclick="location.reload()">LOGOUT</button>
         </div>
@@ -203,27 +177,27 @@
         <div class="panel-header">ESTRATEGIA TÁCTICA</div>
         <div class="panel-body">
             <div id="stint-container"></div>
-            <button class="action-btn btn-gold" onclick="addNewStint()" style="margin-bottom: 20px;">+ AÑADIR STINT</button>
+            <button class="action-btn btn-gold" onclick="addNewStint()" style="margin-bottom: 25px;">+ AÑADIR STINT</button>
 
             <div style="background:#000; padding:10px; border-radius:15px; border:1px solid #222;">
-                <div id="ai-console">>> DS-CORE SISTEMA INICIALIZADO...</div>
+                <div id="ai-console">>> DS-CORE ONLINE. ESPERANDO MANAGER...</div>
                 <div style="display:flex; gap:10px; margin-top:10px;">
-                    <input type="text" id="ai-prompt" placeholder="Escribe a la IA..." style="margin:0; flex-grow:1;">
-                    <button id="ai-send-btn" onclick="interactuarIA()" style="background:var(--green); border:none; color:#000; padding:10px 15px; border-radius:8px; font-weight:bold; font-family:var(--font-tech); cursor:pointer;">ENVIAR</button>
+                    <input type="text" id="ai-prompt" placeholder="Habla con la IA..." style="margin:0; flex-grow:1;">
+                    <button onclick="interactuarIA()" style="background:var(--green); border:none; color:#000; padding:10px 20px; border-radius:10px; font-weight:bold; font-family:var(--font-tech); cursor:pointer;">ENVIAR</button>
                 </div>
             </div>
 
             <div style="margin-top:30px; border-top:1px solid #222; padding-top:20px;">
-                <h3 style="font-family:var(--font-tech); font-size:0.5rem; color:var(--gold); text-align:center;">RANKING</h3>
+                <h3 style="font-family:var(--font-tech); font-size:0.5rem; color:var(--gold); text-align:center; margin-bottom:15px;">RANKING TEMPORADA</h3>
                 <table class="ranking-table"><tbody id="ranking-body"></tbody></table>
             </div>
 
-            <div id="admin-points" style="display:none; margin-top:20px; border:1px solid var(--gold); padding:10px; border-radius:10px;">
-                <label>INYECTOR</label>
+            <div id="admin-points" style="display:none; margin-top:25px; border:1px solid var(--gold); padding:15px; border-radius:15px;">
+                <label style="color:var(--gold)">INYECTOR ADMIN</label>
                 <div style="display:flex; gap:5px;">
                     <input type="text" id="adm-name" placeholder="MANAGER" style="margin:0;">
-                    <input type="number" id="adm-pts" placeholder="PTS" style="margin:0; width:70px;">
-                    <button onclick="injectPoints()" style="background:var(--gold); border:none; padding:10px;">ADD</button>
+                    <input type="number" id="adm-pts" placeholder="PTS" style="margin:0; width:80px;">
+                    <button onclick="injectPoints()" style="background:var(--gold); border:none; padding:10px; font-weight:bold;">ADD</button>
                 </div>
             </div>
         </div>
@@ -236,9 +210,9 @@
     const db = firebase.database();
 
     let sessionID = ""; let stunts = []; let isAdmin = false;
-    let iaResponse = "ANALIZANDO PARÁMETROS DE CARRERA...";
+    let iaResponse = "IDENTIFICACIÓN REQUERIDA PARA ACCESO A TELEMETRÍA.";
 
-    // DATA SYNC
+    // SYNC DATA
     db.ref('perfiles').on('value', (s) => {
         const grid = document.getElementById('m-grid'); if(!grid) return; grid.innerHTML = '';
         const data = s.val() || {};
@@ -274,30 +248,43 @@
             document.getElementById('fb-base').value = d.fb;
             document.getElementById('notes').value = d.notes;
             if(isAdmin) document.getElementById('admin-points').style.display='block';
-            updateCircuit(); refreshIA();
+            iaResponse = "BIENVENIDO MANAGER. SISTEMA DS-CORE V2.6 LISTO.";
+            updateCircuit();
         });
     }
 
     function requestAdmin() {
         if(prompt("PASS:") === "DS2026") {
             isAdmin = true; let btn = document.getElementById('master-reset-btn');
-            btn.innerText = "⚠️ RESET TOTAL ACTIVADO"; btn.style.background = "var(--red)"; btn.style.color="white"; btn.style.cursor="pointer";
+            btn.innerText = "⚠️ RESET MAESTRO DESBLOQUEADO"; btn.style.background = "var(--red)"; btn.style.color="white";
         }
     }
 
     function executeSeasonReset() {
-        if(isAdmin && confirm("¿BORRAR TODO?")) db.ref('/').remove().then(()=>location.reload());
+        if(isAdmin && confirm("¿BORRAR TEMPORADA?")) db.ref('/').remove().then(()=>location.reload());
     }
 
-    // CALCULOS
+    // STINTS Y DESGASTE
     function addNewStint() {
         let id = Date.now(); stunts.push({id: id, laps: 10, push: 0, wear: 8.0});
         let div = document.createElement('div'); div.className = 'stint-card'; div.id = `st-${id}`;
         div.innerHTML = `
-            <div style="display:flex; justify-content:space-between;"><b style="color:var(--gold); font-size:0.6rem;">STINT #${stunts.length}</b><span onclick="removeStint(${id})" style="color:var(--red); cursor:pointer;">[X]</span></div>
-            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-top:10px;">
-                <div><label>VTS</label><input type="number" value="10" oninput="updStint(${id},'laps',this.value)"></div>
-                <div><label>MIX</label><select onchange="updStint(${id},'push',this.value)"><option value="0.02">MIX 5</option><option value="0.01">MIX 4</option><option value="0" selected>MIX 3</option><option value="-0.004">MIX 2</option><option value="-0.007">MIX 1</option></select></div>
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <b style="color:var(--gold); font-family:var(--font-tech); font-size:0.6rem;">STINT #${stunts.length}</b>
+                <span onclick="removeStint(${id})" style="color:var(--red); cursor:pointer; font-weight:bold;">[X]</span>
+            </div>
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px; margin-top:15px;">
+                <div><label>VUELTAS</label><input type="number" value="10" oninput="updStint(${id},'laps',this.value)"></div>
+                <div><label>MIX MOTOR</label><select onchange="updStint(${id},'push',this.value)">
+                    <option value="0.02">MIX 5</option><option value="0.01">MIX 4</option>
+                    <option value="0" selected>MIX 3</option><option value="-0.004">MIX 2</option>
+                    <option value="-0.007">MIX 1</option>
+                </select></div>
+                <div style="grid-column: span 2;" class="wear-container">
+                    <label>DESGASTE %/VTA</label>
+                    <input type="number" value="8.0" step="0.1" oninput="updStint(${id},'wear',this.value)">
+                    <div class="wear-bg"><div class="wear-fill" id="bar-${id}"></div></div>
+                </div>
             </div>
             <div class="fuel-result" id="fuel-${id}">0.00L</div><div id="footer-${id}"></div>`;
         document.getElementById('stint-container').appendChild(div); calculate();
@@ -313,56 +300,63 @@
             let f = (s.laps * (fb + parseFloat(s.push))) + 0.3;
             tL += s.laps; tF += f;
             document.getElementById(`fuel-${s.id}`).innerText = f.toFixed(2) + "L";
+            
+            // Lógica de Desgaste
+            let w = 100 - (s.laps * s.wear); 
+            let b = document.getElementById(`bar-${s.id}`);
+            if(b) {
+                b.style.width = Math.max(0, Math.min(100, w)) + "%";
+                b.style.background = w < 20 ? 'var(--red)' : w < 45 ? 'var(--orange)' : 'var(--green)';
+            }
+
             let foot = document.getElementById(`footer-${s.id}`); foot.innerHTML = "";
-            if(i === stunts.length - 1) foot.innerHTML = `<div style="display:flex; justify-content:space-between; border-top:1px dashed #444; padding-top:10px;"><span>VTS: ${tL}</span><span>TOTAL: ${tF.toFixed(2)}L</span></div>`;
+            if(i === stunts.length - 1) foot.innerHTML = `<div style="display:flex; justify-content:space-between; border-top:1px dashed #444; padding-top:10px; font-size:0.9rem;"><span>VTS: ${tL}</span><span style="color:var(--gold)">SUMA: ${tF.toFixed(2)}L</span></div>`;
         });
         refreshIA(tL, tF); cloudSave();
     }
 
-    // --- MOTOR DE IA REPARADO ---
+    // IA DINÁMICA
     function interactuarIA() {
         const input = document.getElementById('ai-prompt');
         const msg = input.value.toLowerCase().trim();
         if(!msg) return;
 
-        // Lógica de respuesta
-        if(msg.includes("lluvia")) iaResponse = "ALERTA CLIMÁTICA: CAMBIAR A MIX 1 Y AUMENTAR MARGEN DE COMBUSTIBLE.";
-        else if(msg.includes("hola")) iaResponse = "MANAGER DETECTADO. SISTEMA DS-CORE A SU DISPOSICIÓN.";
-        else if(msg.includes("limpio")) iaResponse = "ESTRATEGIA RECOMENDADA: AIRE LIMPIO. MANTENER MIX 3.";
-        else if(msg.includes("puntos")) iaResponse = "RANKING ACTUALIZADO. CONSULTE LA TABLA DE POSICIONES.";
-        else iaResponse = "COMANDO RECIBIDO: " + msg.toUpperCase() + ". PROCESANDO DATOS...";
+        if(msg.includes("lluvia")) iaResponse = "DETECTADA PRECIPITACIÓN. CAMBIAR A MIX 1 Y MONITORIZAR DESGASTE.";
+        else if(msg.includes("hola")) iaResponse = "MANAGER IDENTIFICADO. TELEMETRÍA ESTABLE. ¿ORDENES?";
+        else if(msg.includes("desgaste")) iaResponse = "NEUMÁTICOS EN RANGO. RECUERDA: MENOS DEL 20% ES CRÍTICO.";
+        else if(msg.includes("ganar")) iaResponse = "ESTRATEGIA ÓPTIMA: MANTENER AIRE LIMPIO Y MIX 3. BOX EN VUELTA PROGRAMADA.";
+        else iaResponse = "COMANDO PROCESADO: " + msg.toUpperCase() + ". AJUSTANDO CÁLCULOS.";
 
-        // Limpiar y Refrescar
-        input.value = "";
-        refreshIA();
+        input.value = ""; refreshIA();
     }
 
     function refreshIA(v = 0, l = 0) {
         const consoleEl = document.getElementById('ai-console');
         if(!consoleEl) return;
         
-        // Si no hay stints, buscar los valores actuales si existen
-        if(v === 0) {
+        if(v === 0 && stunts.length > 0) {
             let fb = parseFloat(document.getElementById('fb-base').value) || 0;
-            let tL = 0; let tF = 0;
-            stunts.forEach(s => { tL += s.laps; tF += (s.laps * (fb + parseFloat(s.push))) + 0.3; });
-            v = tL; l = tF;
+            stunts.forEach(s => { v += s.laps; l += (s.laps * (fb + parseFloat(s.push))) + 0.3; });
         }
 
         const notes = document.getElementById('notes').value.toLowerCase();
-        let status = notes.includes("lluvia") ? "!! MODO LLUVIA !!" : "SISTEMA NOMINAL";
+        let status = notes.includes("lluvia") ? "!! ALERTA CLIMÁTICA !!" : "SISTEMA NOMINAL";
         
-        consoleEl.innerText = `[ DS-CORE TELEMETRY V2.6 ]\nSTATUS: ${status}\nTELEMETRÍA: ${v} VTS / ${l.toFixed(2)} L\n--------------------------\nSugerencias de estrategia:\n"${iaResponse}"`;
+        consoleEl.innerText = `[ DS-CORE TELEMETRY V2.6 ]\nSTATUS: ${status}\nDATOS: ${v} VTS / ${l.toFixed(2)} L\n--------------------------\nSugerencias de estrategia:\n"${iaResponse}"`;
     }
 
-    function updateCircuit() { document.getElementById('v-count').innerText = document.getElementById('gp-select').value; calculate(); }
+    function updateCircuit() { 
+        document.getElementById('v-count').innerText = document.getElementById('gp-select').value; 
+        calculate(); 
+    }
     
     function injectPoints() {
         let n = document.getElementById('adm-name').value.toUpperCase(); let p = parseInt(document.getElementById('adm-pts').value);
+        if(!n || isNaN(p)) return;
         db.ref('ranking/'+n).once('value').then(s => {
             let cur = s.val() || { name: n, pts: 0, gp: 0 };
             db.ref('ranking/'+n).set({ name: n, pts: Number(cur.pts) + p, gp: Number(cur.gp) + 1 });
-            alert("PUNTOS OK");
+            alert("PUNTOS INYECTADOS");
         });
     }
 
