@@ -12,112 +12,333 @@
         @import url('https://fonts.googleapis.com/css2?family=Syncopate:wght@400;700&family=Outfit:wght@200;400;600;900&display=swap');
 
         :root { 
-            --gold: #c5a059; --bg: #020202; --card: #0a0a0a; --border: rgba(197, 160, 89, 0.5);
-            --green: #00ff9d; --red: #ff3131; --ai: #a020f0; --orange: #ff9f43; --white: #ffffff;
+            --gold: #c5a059; 
+            --bg: #020202; 
+            --card: #0a0a0a; 
+            --border: rgba(197, 160, 89, 0.5);
+            --green: #00ff9d; 
+            --red: #ff3131; 
+            --ai: #a020f0; 
+            --orange: #ff9f43; 
+            --white: #ffffff;
         }
 
         /* RESET Y BASE DE ALTO RENDIMIENTO */
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
+        * { 
+            box-sizing: border-box; 
+            -webkit-tap-highlight-color: transparent; 
+            outline: none; 
+        }
+
         body { 
-            font-family: 'Outfit', sans-serif; background: var(--bg); color: var(--white); margin: 0; padding: 5px;
+            font-family: 'Outfit', sans-serif; 
+            background: var(--bg); 
+            color: var(--white); 
+            margin: 0; 
+            padding: 5px;
             background-image: radial-gradient(circle at center, #151515 0%, #000 100%);
-            min-height: 100vh; overflow-x: hidden;
+            min-height: 100vh; 
+            overflow-x: hidden;
         }
         
         /* SISTEMA DE ACCESO CENTRAL */
         #login-system { 
-            position: fixed; inset: 0; background: #000; z-index: 9999; 
-            display: flex; flex-direction: column; align-items: center; 
-            padding: 20px; overflow-y: auto; 
+            position: fixed; 
+            inset: 0; 
+            background: #000; 
+            z-index: 9999; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            padding: 20px; 
+            overflow-y: auto; 
         }
-        .header-title { text-align: center; padding: 30px 0; width: 100%; }
-        .header-title h1 { font-family: 'Syncopate'; font-size: 2.5rem; letter-spacing: 12px; color: #fff; text-shadow: 0 0 30px var(--gold); margin: 0; }
-        .header-title p { font-size: 0.8rem; color: var(--gold); letter-spacing: 5px; font-weight: 900; margin-top: 10px; text-transform: uppercase; }
+
+        .header-title { 
+            text-align: center; 
+            padding: 30px 0; 
+            width: 100%; 
+        }
+
+        .header-title h1 { 
+            font-family: 'Syncopate'; 
+            font-size: 2.5rem; 
+            letter-spacing: 12px; 
+            color: #fff; 
+            text-shadow: 0 0 30px var(--gold); 
+            margin: 0; 
+        }
+
+        .header-title p { 
+            font-size: 0.8rem; 
+            color: var(--gold); 
+            letter-spacing: 5px; 
+            font-weight: 900; 
+            margin-top: 10px; 
+            text-transform: uppercase; 
+        }
 
         /* GRID DE CATEGORÍAS */
         .category-grid { 
-            display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); 
-            gap: 20px; width: 100%; max-width: 1400px; margin-top: 30px; padding-bottom: 100px;
+            display: grid; 
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); 
+            gap: 20px; 
+            width: 100%; 
+            max-width: 1400px; 
+            margin-top: 30px; 
+            padding-bottom: 100px;
         }
+
         .cat-box { 
-            background: #080808; border: 1px solid var(--border); border-radius: 18px; 
-            padding: 15px; border-top: 6px solid var(--gold); box-shadow: 0 15px 35px rgba(0,0,0,0.6);
+            background: #080808; 
+            border: 1px solid var(--border); 
+            border-radius: 18px; 
+            padding: 15px; 
+            border-top: 6px solid var(--gold); 
+            box-shadow: 0 15px 35px rgba(0,0,0,0.6);
             transition: transform 0.3s;
         }
+
         .cat-box:hover { transform: translateY(-5px); }
-        .cat-box h3 { text-align: center; color: var(--gold); font-family: 'Syncopate'; font-size: 0.9rem; margin: 10px 0; letter-spacing: 3px; }
+
+        .cat-box h3 { 
+            text-align: center; 
+            color: var(--gold); 
+            font-family: 'Syncopate'; 
+            font-size: 0.9rem; 
+            margin: 10px 0; 
+            letter-spacing: 3px; 
+        }
         
         .slot-btn { 
-            width: 100%; padding: 15px 10px; margin: 6px 0; background: #000; border: 1px solid #1a1a1a; 
-            color: #444; border-radius: 12px; cursor: pointer; text-align: center; font-weight: 900; 
-            text-transform: uppercase; font-size: 0.75rem; transition: all 0.3s;
+            width: 100%; 
+            padding: 15px 10px; 
+            margin: 6px 0; 
+            background: #000; 
+            border: 1px solid #1a1a1a; 
+            color: #444; 
+            border-radius: 12px; 
+            cursor: pointer; 
+            text-align: center; 
+            font-weight: 900; 
+            text-transform: uppercase; 
+            font-size: 0.75rem; 
+            transition: all 0.3s;
         }
+
         .slot-btn.occupied { 
-            color: #fff; border-left: 6px solid var(--gold); 
-            background: rgba(197, 160, 89, 0.15); border-right: 1px solid var(--gold);
+            color: #fff; 
+            border-left: 6px solid var(--gold); 
+            background: rgba(197, 160, 89, 0.15); 
+            border-right: 1px solid var(--gold);
         }
 
         /* DASHBOARD PRINCIPAL */
-        .master-container { display: none; grid-template-columns: 1fr; gap: 25px; max-width: 100%; margin: 10px auto; padding: 15px; }
-        @media (min-width: 1200px) { .master-container { grid-template-columns: repeat(3, 1fr); } }
+        .master-container { 
+            display: none; 
+            grid-template-columns: 1fr; 
+            gap: 25px; 
+            max-width: 100%; 
+            margin: 10px auto; 
+            padding: 15px; 
+        }
 
-        .card { background: var(--card); border: 1px solid #1a1a1a; border-radius: 25px; overflow: hidden; box-shadow: 0 25px 50px rgba(0,0,0,0.9); position: relative; }
-        .card::before { content: ""; position: absolute; top: 0; left: 0; width: 100%; height: 5px; background: var(--gold); }
-        .card-head { padding: 20px; background: #000; font-family: 'Syncopate'; font-size: 0.75rem; color: var(--gold); border-bottom: 1px solid #1a1a1a; letter-spacing: 3px; }
+        @media (min-width: 1200px) { 
+            .master-container { grid-template-columns: repeat(3, 1fr); } 
+        }
+
+        .card { 
+            background: var(--card); 
+            border: 1px solid #1a1a1a; 
+            border-radius: 25px; 
+            overflow: hidden; 
+            box-shadow: 0 25px 50px rgba(0,0,0,0.9); 
+            position: relative; 
+        }
+
+        .card::before { 
+            content: ""; 
+            position: absolute; 
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 5px; 
+            background: var(--gold); 
+        }
+
+        .card-head { 
+            padding: 20px; 
+            background: #000; 
+            font-family: 'Syncopate'; 
+            font-size: 0.75rem; 
+            color: var(--gold); 
+            border-bottom: 1px solid #1a1a1a; 
+            letter-spacing: 3px; 
+        }
+
         .content { padding: 25px; }
 
-        /* WIDGETS DE TELEMETRÍA */
+        /* WIDGETS Y STINTS */
         .total-laps-widget { 
             background: linear-gradient(180deg, #000 0%, #050505 100%); 
-            border: 2px solid var(--green); border-radius: 20px; padding: 25px; 
-            text-align: center; margin-bottom: 30px; box-shadow: 0 0 30px rgba(0,255,157,0.2);
+            border: 2px solid var(--green); 
+            border-radius: 20px; 
+            padding: 25px; 
+            text-align: center; 
+            margin-bottom: 30px; 
+            box-shadow: 0 0 30px rgba(0,255,157,0.2);
         }
-        .total-laps-widget .label { font-family: 'Syncopate'; color: var(--green); font-size: 0.65rem; margin-bottom: 10px; display: block; letter-spacing: 2px;}
-        .total-laps-widget .count { font-family: 'Syncopate'; font-size: 4.5rem; font-weight: 900; color: #fff; line-height: 1; }
+
+        .total-laps-widget .label { 
+            font-family: 'Syncopate'; 
+            color: var(--green); 
+            font-size: 0.65rem; 
+            margin-bottom: 10px; 
+            display: block; 
+            letter-spacing: 2px;
+        }
+
+        .total-laps-widget .count { 
+            font-family: 'Syncopate'; 
+            font-size: 4.5rem; 
+            font-weight: 900; 
+            color: #fff; 
+            line-height: 1; 
+        }
 
         .stint-block { 
-            background: #030303; border: 1px solid #151515; padding: 20px; border-radius: 18px; 
-            margin-bottom: 25px; border-left: 10px solid var(--gold);
+            background: #030303; 
+            border: 1px solid #151515; 
+            padding: 20px; 
+            border-radius: 18px; 
+            margin-bottom: 25px; 
+            border-left: 10px solid var(--gold);
         }
-        .fuel-calc { font-size: 4rem; font-weight: 900; color: var(--green); text-align: center; font-family: 'Syncopate'; letter-spacing: -3px; margin: 15px 0; }
+
+        .fuel-calc { 
+            font-size: 4rem; 
+            font-weight: 900; 
+            color: var(--green); 
+            text-align: center; 
+            font-family: 'Syncopate'; 
+            letter-spacing: -3px; 
+            margin: 15px 0; 
+        }
         
-        .wear-container { background: #111; height: 16px; border-radius: 8px; overflow: hidden; margin-top: 15px; border: 1px solid #222; }
-        .wear-bar { height: 100%; width: 100%; background: var(--green); transition: 0.8s cubic-bezier(0.18, 0.89, 0.32, 1.28); }
+        .wear-container { 
+            background: #111; 
+            height: 16px; 
+            border-radius: 8px; 
+            overflow: hidden; 
+            margin-top: 15px; 
+            border: 1px solid #222; 
+        }
+
+        .wear-bar { 
+            height: 100%; 
+            width: 100%; 
+            background: var(--green); 
+            transition: 0.8s cubic-bezier(0.18, 0.89, 0.32, 1.28); 
+        }
 
         /* RANKING Y TABLAS */
-        .ranking-table { width: 100%; border-collapse: collapse; }
-        .ranking-table th { background: #000; color: var(--gold); font-family: 'Syncopate'; font-size: 0.6rem; padding: 18px 5px; border-bottom: 3px solid var(--gold); }
-        .ranking-table td { padding: 18px 5px; text-align: center; border-bottom: 1px solid #111; font-size: 1.15rem; }
-        .row-highlight { background: rgba(197, 160, 89, 0.25) !important; font-weight: 900; }
+        .ranking-table { 
+            width: 100%; 
+            border-collapse: collapse; 
+        }
 
-        /* TERMINAL IA REPOTENCIADO */
+        .ranking-table th { 
+            background: #000; 
+            color: var(--gold); 
+            font-family: 'Syncopate'; 
+            font-size: 0.6rem; 
+            padding: 18px 5px; 
+            border-bottom: 3px solid var(--gold); 
+        }
+
+        .ranking-table td { 
+            padding: 18px 5px; 
+            text-align: center; 
+            border-bottom: 1px solid #111; 
+            font-size: 1.15rem; 
+        }
+
+        .row-highlight { 
+            background: rgba(197, 160, 89, 0.25) !important; 
+            font-weight: 900; 
+        }
+
+        /* TERMINAL IA */
         #ai-terminal { 
-            background: #000; padding: 25px; border-radius: 18px; font-family: 'Courier New', monospace; 
-            min-height: 520px; color: var(--green); border-left: 6px solid var(--ai); 
-            line-height: 1.6; font-size: 0.9rem; overflow-y: auto; box-shadow: inset 0 0 20px rgba(160,32,240,0.1);
+            background: #000; 
+            padding: 25px; 
+            border-radius: 18px; 
+            font-family: 'Courier New', monospace; 
+            min-height: 520px; 
+            color: var(--green); 
+            border-left: 6px solid var(--ai); 
+            line-height: 1.6; 
+            font-size: 0.9rem; 
+            overflow-y: auto; 
         }
-        .ai-pulse { color: var(--ai); font-weight: bold; animation: pulse 1.5s infinite; }
-        @keyframes pulse { 0% { opacity: 0.4; } 50% { opacity: 1; } 100% { opacity: 0.4; } }
 
-        /* INTERFAZ DE CONTROL */
-        .btn-master { 
-            background: var(--gold); color: #000; border: none; padding: 20px; width: 100%; 
-            border-radius: 15px; font-weight: 900; font-family: 'Syncopate'; cursor: pointer; 
-            text-transform: uppercase; font-size: 0.9rem; letter-spacing: 3px;
+        .ai-pulse { 
+            color: var(--ai); 
+            font-weight: bold; 
+            animation: pulse 1.5s infinite; 
         }
-        .btn-master:hover { filter: brightness(1.2); }
+
+        @keyframes pulse { 
+            0% { opacity: 0.4; } 
+            50% { opacity: 1; } 
+            100% { opacity: 0.4; } 
+        }
+
+        /* BOTONES Y CONTROLES */
+        .btn-master { 
+            background: var(--gold); 
+            color: #000; 
+            border: none; 
+            padding: 20px; 
+            width: 100%; 
+            border-radius: 15px; 
+            font-weight: 900; 
+            font-family: 'Syncopate'; 
+            cursor: pointer; 
+            text-transform: uppercase; 
+            font-size: 0.9rem; 
+            letter-spacing: 3px;
+        }
 
         #commander-panel { 
-            background: #0a0900; border: 2px solid var(--gold); border-radius: 20px; 
-            padding: 25px; margin-top: 30px; display: none; 
+            background: #0a0900; 
+            border: 2px solid var(--gold); 
+            border-radius: 20px; 
+            padding: 25px; 
+            margin-top: 30px; 
+            display: none; 
         }
         
-        label { font-size: 0.75rem; color: #888; font-weight: 900; text-transform: uppercase; margin-bottom: 8px; display: block; letter-spacing: 1px; }
-        input, select, textarea { 
-            background: #000; border: 1px solid #222; color: #fff; width: 100%; padding: 16px; 
-            border-radius: 14px; margin-bottom: 20px; font-family: 'Outfit'; font-size: 1.1rem;
+        label { 
+            font-size: 0.75rem; 
+            color: #888; 
+            font-weight: 900; 
+            text-transform: uppercase; 
+            margin-bottom: 8px; 
+            display: block; 
         }
-        textarea { resize: none; border-left: 4px solid var(--gold); }
+
+        input, select, textarea { 
+            background: #000; 
+            border: 1px solid #222; 
+            color: #fff; 
+            width: 100%; 
+            padding: 16px; 
+            border-radius: 14px; 
+            margin-bottom: 20px; 
+            font-family: 'Outfit'; 
+            font-size: 1.1rem;
+        }
     </style>
 </head>
 <body>
@@ -132,6 +353,7 @@
 </div>
 
 <div class="master-container" id="app">
+    
     <div class="card">
         <div class="card-head">CIRCUITO Y PARÁMETROS | <span id="display-id" style="color:#fff;"></span></div>
         <div class="content">
@@ -172,10 +394,10 @@
             <label>CONSUMO BASE (FB) L/VTA</label>
             <input type="number" id="fb-main" value="2.700" step="0.001" oninput="runMasterLogic()">
 
-            <label>NOTAS DEL MANAGER (PERSISTENCIA CLOUD)</label>
-            <textarea id="notes-main" rows="9" oninput="persistDataCloud()" placeholder="Anota incidentes de carrera, setups o estrategias de rivales aquí..."></textarea>
+            <label>NOTAS DEL MANAGER</label>
+            <textarea id="notes-main" rows="9" oninput="persistDataCloud()" placeholder="Anota setups aquí..."></textarea>
             
-            <button class="btn-master" style="background:#111; color:#444;" onclick="location.reload()">CERRAR SESIÓN / SALIR</button>
+            <button class="btn-master" style="background:#111; color:#444;" onclick="location.reload()">CERRAR SESIÓN</button>
         </div>
     </div>
 
@@ -190,52 +412,53 @@
             <div id="stint-container"></div>
             <button class="btn-master" onclick="createStint()">+ AÑADIR NUEVO STINT</button>
 
-            <h3 style="font-family:'Syncopate'; font-size:0.7rem; color:var(--gold); margin-top:45px; text-align:center; letter-spacing:4px; border-bottom:1px solid #222; padding-bottom:15px;">RANKING EN TIEMPO REAL</h3>
+            <h3 style="font-family:'Syncopate'; font-size:0.7rem; color:var(--gold); margin-top:45px; text-align:center;">RANKING EN TIEMPO REAL</h3>
             <div style="background:#000; border-radius:20px; border:1px solid #111; max-height: 400px; overflow-y: auto;">
                 <table class="ranking-table">
-                    <thead><tr><th>MANAGER</th><th>PUNTOS</th><th>GP</th></tr></thead>
+                    <thead>
+                        <tr>
+                            <th>MANAGER</th>
+                            <th>PUNTOS</th>
+                            <th>GP</th>
+                        </tr>
+                    </thead>
                     <tbody id="ranking-body"></tbody>
-        </table>
-        </div>
+                </table>
+            </div>
 
-        <div id="commander-panel" style="display:none; background: rgba(0,0,0,0.9); border: 2px solid var(--gold); padding: 20px; margin-top: 20px; border-radius: 10px;">
-            <div style="color:var(--gold); font-family:'Syncopate'; font-size:0.8rem; text-align:center; margin-bottom:20px;">CENTRO DE MANDO</div>
-            
-            <label>Nombre del Manager</label>
-            <input type="text" id="adm-pilot-name" placeholder="Ej: MANAGER X" style="width:100%; margin-bottom:10px; padding:8px; background:#222; color:white; border:1px solid var(--gold);">
-            
-            <label>Puntos Obtenidos</label>
-            <input type="number" id="adm-pilot-pts" placeholder="0" style="width:100%; margin-bottom:10px; padding:8px; background:#222; color:white; border:1px solid var(--gold);">
-            
-            <button onclick="injectLeaguePoints()" style="width:100%; background:var(--gold); color:black; padding:12px; font-weight:bold; margin-bottom:10px; cursor:pointer; border:none; border-radius:5px;">ACTUALIZAR PUNTOS</button>
-            
-            <button onclick="resetMasterLeague()" style="width:100%; background: linear-gradient(45deg, #600, #b00); color:white; padding:12px; font-weight:bold; border: 1px solid #f00; border-radius:5px; cursor:pointer;">⚠️ RESETEAR TODA LA LIGA</button>
+            <div id="commander-panel">
+                <div style="color:var(--gold); font-family:'Syncopate'; font-size:0.65rem; text-align:center; margin-bottom:20px;">CENTRO DE MANDO</div>
+                <input type="text" id="adm-pilot-name" placeholder="MANAGER">
+                <input type="number" id="adm-pilot-pts" placeholder="PUNTOS">
+                <button class="btn-master" onclick="injectLeaguePoints()" style="margin-bottom:10px;">INYECTAR PUNTOS</button>
+                <button class="btn-master" onclick="resetMasterLeague()" style="background:var(--red); color:white;">⚠️ RESETEAR LIGA</button>
+            </div>
         </div>
     </div>
-</div>
+
     <div class="card" style="border-top: 6px solid var(--ai)">
         <div class="card-head">Sugerencias de estrategia | DS-CORE IA</div>
         <div class="content">
             <label>TEMPERATURA DE PISTA (°C)</label>
             <input type="number" id="pista-temp" value="25" oninput="runMasterLogic()">
             
-            <div id="ai-terminal">Estableciendo conexión con el servidor central... Analizando protocolos de telemetría...</div>
+            <div id="ai-terminal">Estableciendo conexión con el núcleo...</div>
             
             <button class="btn-master" style="margin-top:25px; background:var(--ai); color:#fff;" onclick="simulateAIScan()">EJECUTAR ESCANEO PROFUNDO</button>
         </div>
     </div>
+
 </div>
 
 <script>
-    // --- CONFIGURACIÓN FIREBASE (PEGAR TU URL EN LAS COMILLAS) ---
+    // --- CONFIGURACIÓN FIREBASE ---
     const firebaseConfig = { 
         databaseURL: "https://ds-automobiles-f0a17-default-rtdb.firebaseio.com/" 
     };
-    
-    // Inicializar Firebase
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
+    // --- VARIABLES DE ESTADO ---
     const PASS_ROOT = "DS2026";
     const SECTIONS = ["F1", "F2", "F3", "F4", "F5", "K6"];
     let currentId = ""; 
@@ -243,7 +466,7 @@
     let stints = []; 
     let isRoot = false;
 
-    // --- ESCUCHA DE PERFILES EN TIEMPO REAL (CLOUD HUB) ---
+    // --- CARGA DE PERFILES (GRILLA INICIAL) ---
     db.ref('perfiles').on('value', (snapshot) => {
         const grid = document.getElementById('cat-grid');
         grid.innerHTML = '';
@@ -283,6 +506,7 @@
     function handleLogin(id) {
         db.ref('perfiles/' + id).once('value').then((snapshot) => {
             let data = snapshot.val();
+            
             if(!data) {
                 let n = prompt("Nombre del nuevo Manager:"); 
                 if(!n) return;
@@ -298,9 +522,13 @@
 
             currentId = id; 
             pilotName = data.name;
+            
             document.getElementById('login-system').style.display = 'none';
             document.getElementById('app').style.display = 'grid';
-            if(isRoot) document.getElementById('commander-panel').style.display = 'block';
+            
+            if(isRoot) {
+                document.getElementById('commander-panel').style.display = 'block';
+            }
 
             document.getElementById('display-id').innerText = id;
             document.getElementById('fb-main').value = data.fb;
