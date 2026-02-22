@@ -12,139 +12,81 @@
         @import url('https://fonts.googleapis.com/css2?family=Michroma&family=Rajdhani:wght@300;500;700&display=swap');
 
         :root { 
-            --gold: #c5a059; 
-            --bg: #020202; 
-            --card: #0d0d0d; 
-            --green: #00ff9d; 
-            --red: #ff3131; 
-            --orange: #ff9f43;
-            --white: #ffffff;
-            --font-main: 'Rajdhani', sans-serif;
-            --font-tech: 'Michroma', sans-serif;
+            --gold: #c5a059; --bg: #020202; --card: #0d0d0d; --green: #00ff9d; 
+            --red: #ff3131; --orange: #ff9f43; --white: #ffffff;
+            --font-main: 'Rajdhani', sans-serif; --font-tech: 'Michroma', sans-serif;
         }
 
-        /* --- RESET Y SCROLL --- */
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: #000; }
         ::-webkit-scrollbar-thumb { background: var(--gold); border-radius: 10px; }
 
         body { 
-            font-family: var(--font-main); 
-            background: var(--bg); 
-            color: var(--white); 
-            margin: 0; 
-            min-height: 100vh;
-            background-image: linear-gradient(180deg, #000 0%, #0a0a0a 100%);
+            font-family: var(--font-main); background: var(--bg); color: var(--white); margin: 0; 
+            min-height: 100vh; background-image: linear-gradient(180deg, #000 0%, #0a0a0a 100%);
         }
 
-        /* --- SISTEMA DE ACCESO --- */
-        #login-system { 
-            position: fixed; inset: 0; background: #000; z-index: 9999; 
-            display: flex; flex-direction: column; align-items: center; 
-            padding: 30px 20px; overflow-y: auto; 
-        }
-
+        /* --- LOGIN SYSTEM --- */
+        #login-system { position: fixed; inset: 0; background: #000; z-index: 9999; display: flex; flex-direction: column; align-items: center; padding: 30px 20px; overflow-y: auto; }
         .main-header { text-align: center; margin-bottom: 40px; }
-        .main-header h1 { 
-            font-family: var(--font-tech); font-size: 1.8rem; color: var(--white); 
-            letter-spacing: 8px; text-shadow: 0 0 15px var(--gold); margin: 0;
-        }
-        .main-header p { 
-            font-size: 0.7rem; color: var(--gold); letter-spacing: 3px; 
-            text-transform: uppercase; font-weight: 700; margin-top: 10px;
-        }
+        .main-header h1 { font-family: var(--font-tech); font-size: 1.8rem; letter-spacing: 8px; text-shadow: 0 0 15px var(--gold); margin: 0; }
+        .main-header p { font-size: 0.7rem; color: var(--gold); letter-spacing: 3px; text-transform: uppercase; font-weight: 700; margin-top: 10px; }
+        
+        #admin-control-panel { width: 100%; max-width: 600px; background: #080808; border: 1px solid #1a1a1a; border-radius: 20px; padding: 20px; margin-bottom: 30px; text-align: center; }
+        #master-reset-btn { width: 100%; padding: 18px; border-radius: 12px; border: 2px solid #222; background: #111; color: #444; font-family: var(--font-tech); font-size: 0.6rem; text-transform: uppercase; }
 
-        #admin-control-panel {
-            width: 100%; max-width: 600px; background: #080808; 
-            border: 1px solid #1a1a1a; border-radius: 20px; padding: 20px;
-            margin-bottom: 30px; text-align: center;
-        }
-
-        #master-reset-btn {
-            width: 100%; padding: 18px; border-radius: 12px; border: 2px solid #222;
-            background: #111; color: #444; font-family: var(--font-tech);
-            font-size: 0.6rem; cursor: not-allowed; text-transform: uppercase;
-            transition: all 0.3s ease;
-        }
-
-        .manager-grid { 
-            display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); 
-            gap: 20px; width: 100%; max-width: 1200px; 
-        }
-        .slot-card { 
-            background: #0a0a0a; border: 1px solid #1a1a1a; border-top: 4px solid var(--gold);
-            border-radius: 15px; padding: 15px; 
-        }
-        .slot-card h3 { 
-            font-family: var(--font-tech); font-size: 0.6rem; color: var(--gold); 
-            text-align: center; margin-bottom: 12px; 
-        }
-        .m-btn { 
-            width: 100%; padding: 12px; margin: 4px 0; background: #000; border: 1px solid #222;
-            color: #444; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 0.8rem;
-            transition: 0.3s;
-        }
+        .manager-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 20px; width: 100%; max-width: 1200px; }
+        .slot-card { background: #0a0a0a; border: 1px solid #1a1a1a; border-top: 4px solid var(--gold); border-radius: 15px; padding: 15px; }
+        .slot-card h3 { font-family: var(--font-tech); font-size: 0.6rem; color: var(--gold); text-align: center; margin-bottom: 12px; }
+        .m-btn { width: 100%; padding: 12px; margin: 4px 0; background: #000; border: 1px solid #222; color: #444; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 0.8rem; }
         .m-btn.occupied { color: #fff; border-color: var(--gold); background: rgba(197,160,89,0.1); }
 
-        /* --- INTERFAZ DE INGENIERÍA --- */
-        .master-app { 
-            display: none; grid-template-columns: 1fr; gap: 20px; padding: 20px; 
-            max-width: 1800px; margin: auto; 
-        }
+        /* --- APP INTERFACE --- */
+        .master-app { display: none; grid-template-columns: 1fr; gap: 20px; padding: 20px; max-width: 1800px; margin: auto; }
         @media (min-width: 1200px) { .master-app { grid-template-columns: 350px 1fr 400px; } }
 
-        .panel { 
-            background: var(--card); border: 1px solid #1a1a1a; border-radius: 20px; 
-            position: relative; overflow: hidden; display: flex; flex-direction: column;
+        .panel { background: var(--card); border: 1px solid #1a1a1a; border-radius: 20px; overflow: hidden; display: flex; flex-direction: column; }
+        .panel-header { padding: 18px; background: #000; font-family: var(--font-tech); font-size: 0.6rem; color: var(--gold); border-bottom: 1px solid #151515; }
+        .panel-body { padding: 20px; }
+
+        /* MINIMAPA */
+        .map-display { 
+            background: radial-gradient(circle, #1a1a1a 0%, #000 100%); 
+            border: 1px solid #222; border-radius: 15px; padding: 15px; 
+            margin-bottom: 20px; text-align: center; min-height: 200px;
+            display: flex; align-items: center; justify-content: center;
         }
-        .panel-header { 
-            padding: 18px; background: #000; font-family: var(--font-tech); 
-            font-size: 0.6rem; color: var(--gold); border-bottom: 1px solid #151515; 
-        }
-        .panel-body { padding: 20px; flex-grow: 1; }
+        .circuit-svg { max-width: 100%; max-height: 170px; filter: drop-shadow(0 0 8px var(--gold)); transition: 0.5s ease; }
 
         .v-target-box { background: #000; border-radius: 15px; padding: 15px; text-align: center; border: 1px solid #1a1a1a; margin-bottom: 20px; }
         .v-target-box span { font-family: var(--font-tech); font-size: 4rem; color: var(--gold); display: block; }
         
-        /* BLOQUE DE NEUMÁTICOS REINSTALADO */
-        .stint-card { 
-            background: #050505; border-radius: 12px; padding: 18px; margin-bottom: 15px;
-            border: 1px solid #1a1a1a; border-left: 6px solid var(--gold);
-        }
-        .wear-indicator { margin-top: 15px; }
+        /* STINTS Y DESGASTE */
+        .stint-card { background: #050505; border-radius: 12px; padding: 18px; margin-bottom: 15px; border-left: 6px solid var(--gold); border: 1px solid #1a1a1a; }
+        .wear-container { margin-top: 15px; }
         .wear-bar-bg { background: #111; height: 10px; border-radius: 5px; overflow: hidden; border: 1px solid #222; margin-top: 5px; }
-        .wear-bar-fill { height: 100%; width: 100%; background: var(--green); transition: 0.8s ease-out; }
+        .wear-bar-fill { height: 100%; width: 100%; background: var(--green); transition: 0.8s; }
 
-        .fuel-result { font-family: var(--font-tech); font-size: 2.8rem; color: var(--green); text-align: center; margin: 10px 0; }
-        
-        label { font-size: 0.6rem; font-family: var(--font-tech); color: #666; display: block; margin-bottom: 8px; margin-left: 5px; }
-        input, select, textarea { 
-            width: 100%; background: #000; border: 1px solid #222; color: #fff; padding: 14px;
-            border-radius: 10px; margin-bottom: 20px; font-family: var(--font-main); font-size: 1.1rem;
-        }
+        .fuel-result { font-family: var(--font-tech); font-size: 2.8rem; color: var(--green); text-align: center; }
+        label { font-size: 0.6rem; font-family: var(--font-tech); color: #666; display: block; margin-bottom: 8px; }
+        input, select, textarea { width: 100%; background: #000; border: 1px solid #222; color: #fff; padding: 14px; border-radius: 10px; margin-bottom: 20px; font-family: var(--font-main); font-size: 1.1rem; }
 
-        .action-btn { 
-            width: 100%; padding: 16px; border-radius: 10px; border: none; font-family: var(--font-tech);
-            font-weight: 700; font-size: 0.7rem; cursor: pointer; text-transform: uppercase;
-        }
+        .action-btn { width: 100%; padding: 16px; border-radius: 10px; border: none; font-family: var(--font-tech); font-weight: 700; cursor: pointer; text-transform: uppercase; font-size: 0.7rem; }
         .btn-gold { background: var(--gold); color: #000; }
 
-        /* CONSOLA IA - SISTEMA DE ALTA RESPUESTA */
+        /* IA CONSOLA BLINDADA */
         #ai-console { 
-            background: #000; border-radius: 12px; padding: 20px; 
-            font-family: 'Courier New', monospace; color: var(--green); font-size: 0.85rem; 
-            min-height: 220px; border: 1px solid #333; line-height: 1.6;
-            white-space: pre-wrap; overflow-y: auto; border-left: 4px solid var(--green);
-            box-shadow: inset 0 0 20px rgba(0, 255, 157, 0.02);
+            background: #000; border-radius: 12px; padding: 20px; font-family: 'Courier New', monospace; 
+            color: var(--green); font-size: 0.85rem; min-height: 220px; border: 1px solid #333; 
+            line-height: 1.6; white-space: pre-wrap; border-left: 4px solid var(--green);
         }
-
         #sync-led { width: 10px; height: 10px; background: #222; border-radius: 50%; display: inline-block; margin-left: 10px; }
         .led-active { background: var(--green) !important; box-shadow: 0 0 10px var(--green); }
-
-        .ranking-table { width: 100%; border-collapse: collapse; }
+        
+        .ranking-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
         .ranking-table th { font-family: var(--font-tech); font-size: 0.5rem; color: var(--gold); border-bottom: 1px solid var(--gold); padding: 10px; }
-        .ranking-table td { padding: 12px; text-align: center; border-bottom: 1px solid #111; font-weight: 500; }
+        .ranking-table td { padding: 12px; text-align: center; border-bottom: 1px solid #111; }
     </style>
 </head>
 <body>
@@ -158,50 +100,45 @@
         <button id="master-reset-btn" onclick="executeSeasonReset()">RESET TEMPORADA BLOQUEADO</button>
     </div>
     <div class="manager-grid" id="m-grid"></div>
-    <button onclick="requestAdmin()" style="background:none; border:none; color:#1a1a1a; margin-top:80px; cursor:pointer; font-family:var(--font-tech); font-size:0.5rem;">[ AUTH_REQUIRED ]</button>
+    <button onclick="requestAdmin()" style="background:none; border:none; color:#1a1a1a; margin-top:80px; cursor:pointer; font-family:var(--font-tech); font-size:0.5rem;">[ AUTH ]</button>
 </div>
 
 <div class="master-app" id="app-interface">
+    
     <div class="panel">
-        <div class="panel-header">DATOS DE CIRCUITO</div>
+        <div class="panel-header">DATA ESTRATÉGICA</div>
         <div class="panel-body">
+            <div class="map-display">
+                <img id="map-img" src="" class="circuit-svg" alt="Seleccione GP">
+            </div>
             <label>GP SELECCIONADO</label>
             <select id="gp-select" onchange="updateCircuit()">
-                <option value="31">España (31v)</option>
-                <option value="21">Bélgica (21v)</option>
-                <option value="25">Italia (25v)</option>
-                <option value="29">Mónaco (29v)</option>
-                <option value="39">Hungría (39v)</option>
-                <option value="30">Singapur (30v)</option>
-                <option value="34">Austria (34v)</option>
-                <option value="29">Bahréin (29v)</option>
-                <option value="34">Brasil (34v)</option>
-                <option value="28">Australia (28v)</option>
-                <option value="31">Canadá (31v)</option>
-                <option value="27">China (27v)</option>
-                <option value="30">USA (30v)</option>
-                <option value="24">Francia (24v)</option>
-                <option value="24">G. Bretaña (24v)</option>
-                <option value="27">Japón (27v)</option>
-                <option value="35">México (35v)</option>
-                <option value="23">Rusia (23v)</option>
-                <option value="27">Turquía (27v)</option>
-                <option value="23">Azerbaiyán (23v)</option>
-                <option value="27">Malasia (27v)</option>
-                <option value="25">Europa (25v)</option>
-                <option value="35">Holanda (35v)</option>
-                <option value="36">Abu Dhabi (36v)</option>
-                <option value="35">Sudáfrica (35v)</option>
+                <option value="31" data-map="spain">España (31v)</option>
+                <option value="21" data-map="belgium">Bélgica (21v)</option>
+                <option value="25" data-map="italy">Italia (25v)</option>
+                <option value="29" data-map="monaco">Mónaco (29v)</option>
+                <option value="39" data-map="hungary">Hungría (39v)</option>
+                <option value="30" data-map="singapore">Singapur (30v)</option>
+                <option value="34" data-map="austria">Austria (34v)</option>
+                <option value="29" data-map="bahrain">Bahréin (29v)</option>
+                <option value="34" data-map="brazil">Brasil (34v)</option>
+                <option value="28" data-map="australia">Australia (28v)</option>
+                <option value="31" data-map="canada">Canadá (31v)</option>
+                <option value="27" data-map="china">China (27v)</option>
+                <option value="30" data-map="usa">USA (30v)</option>
+                <option value="24" data-map="silverstone">G. Bretaña (24v)</option>
+                <option value="35" data-map="mexico">México (35v)</option>
+                <option value="36" data-map="abudhabi">Abu Dhabi (36v)</option>
             </select>
             <div class="v-target-box">
-                <label>VUELTAS TOTALES</label>
+                <label>VUELTAS GP</label>
                 <span id="v-count">0</span>
             </div>
             <label>CONSUMO BASE (FB)</label>
             <input type="number" id="fb-base" value="2.700" step="0.001" oninput="calculate()">
-            <label>NOTAS DEL MANAGER <div id="sync-led"></div></label>
-            <textarea id="notes" rows="6" oninput="calculate()"></textarea>
-            <button class="action-btn" style="background:#111; color:#444;" onclick="location.reload()">CERRAR SESIÓN</button>
+            <label>NOTAS <div id="sync-led"></div></label>
+            <textarea id="notes" rows="4" oninput="calculate()"></textarea>
+            <button class="action-btn" style="background:#111; color:#444;" onclick="location.reload()">LOGOUT</button>
         </div>
     </div>
 
@@ -212,20 +149,20 @@
             <button class="action-btn btn-gold" onclick="addNewStint()" style="margin-bottom: 25px;">+ AÑADIR STINT</button>
 
             <div style="background:#000; padding:15px; border-radius:15px; border:1px solid #222;">
-                <div id="ai-console">>> DS-CORE V2.6 ONLINE. ANALIZANDO...</div>
+                <div id="ai-console">>> ESPERANDO MANAGER...</div>
                 <div style="display:flex; gap:10px; margin-top:10px;">
                     <input type="text" id="ai-prompt" placeholder="Habla con la IA..." style="margin:0; flex-grow:1;">
-                    <button id="btn-ia-send" style="background:var(--green); border:none; color:#000; padding:10px 20px; border-radius:10px; font-weight:bold; font-family:var(--font-tech); cursor:pointer;">ENVIAR</button>
+                    <button id="btn-ia-send" style="background:var(--green); border:none; color:#000; padding:10px 20px; border-radius:10px; font-weight:bold; cursor:pointer;">ENVIAR</button>
                 </div>
             </div>
 
             <div style="margin-top:30px; border-top:1px solid #222; padding-top:20px;">
-                <h3 style="font-family:var(--font-tech); font-size:0.5rem; color:var(--gold); text-align:center; margin-bottom:15px;">RANKING TEMPORADA</h3>
+                <h3 style="font-family:var(--font-tech); font-size:0.5rem; color:var(--gold); text-align:center;">RANKING TEMPORADA</h3>
                 <table class="ranking-table"><tbody id="ranking-body"></tbody></table>
             </div>
 
             <div id="admin-points" style="display:none; margin-top:25px; border:1px solid var(--gold); padding:15px; border-radius:15px;">
-                <label style="color:var(--gold)">INYECTOR ADMIN</label>
+                <label>INYECTOR PUNTOS</label>
                 <div style="display:flex; gap:5px;">
                     <input type="text" id="adm-name" placeholder="MANAGER" style="margin:0;">
                     <input type="number" id="adm-pts" placeholder="PTS" style="margin:0; width:80px;">
@@ -237,15 +174,26 @@
 </div>
 
 <script>
-    // 1. FIREBASE
     const firebaseConfig = { databaseURL: "https://ds-automobiles-f0a17-default-rtdb.firebaseio.com/" };
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
     let sessionID = ""; let stunts = []; let isAdmin = false;
-    let iaResponse = "IDENTIFICACIÓN COMPLETA. ESPERANDO DATOS DE TELEMETRÍA.";
+    let iaResponse = "IDENTIFICACIÓN REQUERIDA.";
 
-    // 2. CARGA DE DATOS
+    // RECURSOS MAPAS
+    const mapUrls = {
+        "spain": "https://www.formula1.com/content/dam/fom-website/2018-redesign-assets/circuit-maps-16-9/Spain_Circuit.png",
+        "belgium": "https://www.formula1.com/content/dam/fom-website/2018-redesign-assets/circuit-maps-16-9/Belgium_Circuit.png",
+        "italy": "https://www.formula1.com/content/dam/fom-website/2018-redesign-assets/circuit-maps-16-9/Italy_Circuit.png",
+        "monaco": "https://www.formula1.com/content/dam/fom-website/2018-redesign-assets/circuit-maps-16-9/Monaco_Circuit.png",
+        "mexico": "https://www.formula1.com/content/dam/fom-website/2018-redesign-assets/circuit-maps-16-9/Mexico_Circuit.png",
+        "silverstone": "https://www.formula1.com/content/dam/fom-website/2018-redesign-assets/circuit-maps-16-9/Great_Britain_Circuit.png",
+        "abudhabi": "https://www.formula1.com/content/dam/fom-website/2018-redesign-assets/circuit-maps-16-9/Abu_Dhabi_Circuit.png",
+        "usa": "https://www.formula1.com/content/dam/fom-website/2018-redesign-assets/circuit-maps-16-9/USA_Circuit.png"
+    };
+
+    // SYNC DATABASE
     db.ref('perfiles').on('value', (s) => {
         const grid = document.getElementById('m-grid'); if(!grid) return; grid.innerHTML = '';
         const data = s.val() || {};
@@ -255,8 +203,7 @@
                 let id = `${c}_M${i}`; let e = data[id];
                 let isOcc = e ? 'occupied' : ''; let name = e ? e.name.toUpperCase() : 'VACANTE';
                 html += `<button class="m-btn ${isOcc}" onclick="handleLogin('${id}')">${name}</button>`;
-            }
-            grid.innerHTML += html + `</div>`;
+            } grid.innerHTML += html + `</div>`;
         });
     });
 
@@ -267,21 +214,18 @@
         document.getElementById('ranking-body').innerHTML = rows;
     });
 
-    // 3. LOGIN Y ADMIN
     function handleLogin(id) {
         db.ref('perfiles/'+id).once('value').then(s => {
             let d = s.val();
             if(!d) {
-                let n = prompt("Nombre Manager:"); let p = prompt("PIN:"); if(!n || !p) return;
+                let n = prompt("Nombre:"); let p = prompt("PIN:"); if(!n || !p) return;
                 d = { name: n, pin: p, fb: 2.7, notes: "" }; db.ref('perfiles/'+id).set(d);
-            } else if(!isAdmin) {
-                if(prompt("PIN:") !== d.pin) return alert("PIN INCORRECTO");
-            }
+            } else if(!isAdmin) { if(prompt("PIN:") !== d.pin) return alert("ERROR"); }
             sessionID = id; document.getElementById('login-system').style.display='none';
             document.getElementById('app-interface').style.display='grid';
-            document.getElementById('fb-base').value = d.fb;
-            document.getElementById('notes').value = d.notes;
+            document.getElementById('fb-base').value = d.fb; document.getElementById('notes').value = d.notes;
             if(isAdmin) document.getElementById('admin-points').style.display='block';
+            iaResponse = "MANAGER " + d.name.toUpperCase() + " CONECTADO.";
             updateCircuit();
         });
     }
@@ -289,15 +233,13 @@
     function requestAdmin() {
         if(prompt("PASS:") === "DS2026") {
             isAdmin = true; let btn = document.getElementById('master-reset-btn');
-            btn.innerText = "⚠️ MODO MAESTRO ACTIVADO"; btn.style.background = "var(--red)"; btn.style.color="white"; btn.style.cursor="pointer";
+            btn.innerText = "⚠️ RESET MAESTRO ACTIVADO"; btn.style.background = "var(--red)"; btn.style.color="white";
         }
     }
 
-    function executeSeasonReset() {
-        if(isAdmin && confirm("¿BORRAR TODA LA TEMPORADA?")) db.ref('/').remove().then(()=>location.reload());
-    }
+    function executeSeasonReset() { if(isAdmin && confirm("¿BORRAR TODO?")) db.ref('/').remove().then(()=>location.reload()); }
 
-    // 4. LÓGICA DE STINTS Y NEUMÁTICOS
+    // ESTRATEGIA Y NEUMÁTICOS
     function addNewStint() {
         let id = Date.now(); stunts.push({id: id, laps: 10, push: 0, wear: 8.0});
         let div = document.createElement('div'); div.className = 'stint-card'; div.id = `st-${id}`;
@@ -308,12 +250,10 @@
             </div>
             <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px; margin-top:15px;">
                 <div><label>VUELTAS</label><input type="number" value="10" oninput="updStint(${id},'laps',this.value)"></div>
-                <div><label>MIX MOTOR</label><select onchange="updStint(${id},'push',this.value)">
-                    <option value="0.02">MIX 5</option><option value="0.01">MIX 4</option>
-                    <option value="0" selected>MIX 3</option><option value="-0.004">MIX 2</option>
-                    <option value="-0.007">MIX 1</option>
+                <div><label>MIX</label><select onchange="updStint(${id},'push',this.value)">
+                    <option value="0.02">MIX 5</option><option value="0" selected>MIX 3</option><option value="-0.007">MIX 1</option>
                 </select></div>
-                <div style="grid-column: span 2;" class="wear-indicator">
+                <div style="grid-column: span 2;" class="wear-container">
                     <label>DESGASTE %/VTA</label>
                     <input type="number" value="8.0" step="0.1" oninput="updStint(${id},'wear',this.value)">
                     <div class="wear-bar-bg"><div class="wear-bar-fill" id="bar-${id}"></div></div>
@@ -333,61 +273,53 @@
             let f = (s.laps * (fb + parseFloat(s.push))) + 0.3;
             tL += s.laps; tF += f;
             document.getElementById(`fuel-${s.id}`).innerText = f.toFixed(2) + "L";
-            
-            // CÁLCULO DE DESGASTE
             let w = 100 - (s.laps * s.wear); 
             let b = document.getElementById(`bar-${s.id}`);
             if(b) {
                 b.style.width = Math.max(0, Math.min(100, w)) + "%";
-                b.style.background = w < 20 ? 'var(--red)' : w < 45 ? 'var(--orange)' : 'var(--green)';
+                b.style.background = w < 25 ? 'var(--red)' : w < 50 ? 'var(--orange)' : 'var(--green)';
             }
-
             let foot = document.getElementById(`footer-${s.id}`); foot.innerHTML = "";
-            if(i === stunts.length - 1) foot.innerHTML = `<div style="display:flex; justify-content:space-between; border-top:1px dashed #444; padding-top:10px;"><span>VTS: ${tL}</span><span style="color:var(--gold)">TOTAL: ${tF.toFixed(2)}L</span></div>`;
+            if(i === stunts.length - 1) foot.innerHTML = `<div style="display:flex; justify-content:space-between; border-top:1px dashed #444; padding-top:10px;"><span>VTS: ${tL}</span><span>TOTAL: ${tF.toFixed(2)}L</span></div>`;
         });
         refreshIA(tL, tF); cloudSave();
     }
 
-    // 5. MOTOR DE IA - REPARADO CON EVENT LISTENER
+    // IA SISTEMA RESPONSIVO
     document.getElementById('btn-ia-send').addEventListener('click', function() {
         const input = document.getElementById('ai-prompt');
         const msg = input.value.toLowerCase().trim();
         if(!msg) return;
-
-        if(msg.includes("lluvia")) iaResponse = "ALERTA: PISTA HÚMEDA. RECOMENDADO MIX 1 Y VIGILAR TRACCIÓN.";
-        else if(msg.includes("hola")) iaResponse = "MANAGER IDENTIFICADO. TODOS LOS SISTEMAS NOMINALES.";
-        else if(msg.includes("neumat")) iaResponse = "ANALIZANDO DESGASTE. SI LA BARRA ESTÁ EN ROJO, ENTRA A BOX.";
-        else if(msg.includes("estrategia")) iaResponse = "Sugerencias de estrategia: MANTENER AIRE LIMPIO. OVERCUT DISPONIBLE.";
-        else iaResponse = "COMANDO RECIBIDO: " + msg.toUpperCase() + ". PROCESANDO EN NUBE...";
-
-        input.value = ""; 
-        refreshIA();
+        if(msg.includes("lluvia")) iaResponse = "ESTRATEGIA MOJADA: RECOMIENDO MIX 1 Y AUMENTAR MARGEN.";
+        else if(msg.includes("hola")) iaResponse = "SISTEMA ONLINE. TELEMETRÍA LISTA.";
+        else if(msg.includes("neumat")) iaResponse = "REVISIÓN DE NEUMÁTICOS: SI LA BARRA ESTÁ EN ROJO, ENTRA A BOX.";
+        else iaResponse = "COMANDO: " + msg.toUpperCase() + " PROCESADO CORRECTAMENTE.";
+        input.value = ""; refreshIA();
     });
 
-    function refreshIA(v = 0, l = 0) {
+    function refreshIA(v=0, l=0) {
         const consoleEl = document.getElementById('ai-console');
         if(!consoleEl) return;
-        
-        if(v === 0 && stunts.length > 0) {
-            let fb = parseFloat(document.getElementById('fb-base').value) || 0;
-            stunts.forEach(s => { v += s.laps; l += (s.laps * (fb + parseFloat(s.push))) + 0.3; });
-        }
-
         const notes = document.getElementById('notes').value.toLowerCase();
-        let status = notes.includes("lluvia") ? "!! ALERTA CLIMÁTICA !!" : "SISTEMA NOMINAL";
-        
-        consoleEl.innerText = `[ DS-CORE TELEMETRY V2.6 ]\nSTATUS: ${status}\nTELEMETRÍA: ${v} VTS / ${l.toFixed(2)} L\n--------------------------\nSugerencias de estrategia:\n"${iaResponse}"`;
+        let status = notes.includes("lluvia") ? "!! MODO LLUVIA !!" : "SISTEMA NOMINAL";
+        consoleEl.innerText = `[ DS-CORE TELEMETRY V2.6 ]\nSTATUS: ${status}\nDATOS: ${v} VTS / ${l.toFixed(2)} L\n--------------------------\nSugerencias de estrategia:\n"${iaResponse}"`;
     }
 
-    function updateCircuit() { document.getElementById('v-count').innerText = document.getElementById('gp-select').value; calculate(); }
-    
+    function updateCircuit() {
+        const sel = document.getElementById('gp-select');
+        const mapKey = sel.options[sel.selectedIndex].getAttribute('data-map');
+        document.getElementById('v-count').innerText = sel.value;
+        document.getElementById('map-img').src = mapUrls[mapKey] || mapUrls["usa"];
+        calculate();
+    }
+
     function injectPoints() {
         let n = document.getElementById('adm-name').value.toUpperCase(); let p = parseInt(document.getElementById('adm-pts').value);
         if(!n || isNaN(p)) return;
         db.ref('ranking/'+n).once('value').then(s => {
             let cur = s.val() || { name: n, pts: 0, gp: 0 };
             db.ref('ranking/'+n).set({ name: n, pts: Number(cur.pts) + p, gp: Number(cur.gp) + 1 });
-            alert("PUNTOS OK");
+            alert("PUNTOS INYECTADOS");
         });
     }
 
