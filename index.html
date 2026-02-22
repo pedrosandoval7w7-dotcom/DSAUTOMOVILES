@@ -3,424 +3,136 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>DS AUTOMOBILES | COMMAND CENTER ULTIMATE V260 CLOUD</title>
+    <title>DS AUTOMOBILES | COMMAND CENTER V260</title>
     
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Syncopate:wght@400;700&family=Outfit:wght@200;400;600;900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Syncopate:wght@700&family=Outfit:wght@300;400;900&display=swap');
 
         :root { 
-            --gold: #c5a059; 
-            --bg: #020202; 
-            --card: #0a0a0a; 
-            --border: rgba(197, 160, 89, 0.5);
-            --green: #00ff9d; 
-            --red: #ff3131; 
-            --ai: #a020f0; 
-            --orange: #ff9f43; 
-            --white: #ffffff;
-        }
-
-        /* RESET Y BASE DE ALTO RENDIMIENTO */
-        * { 
-            box-sizing: border-box; 
-            -webkit-tap-highlight-color: transparent; 
-            outline: none; 
+            --gold: #c5a059; --bg: #020202; --card: #0a0a0a; 
+            --green: #00ff9d; --red: #ff3131; --white: #ffffff;
         }
 
         body { 
-            font-family: 'Outfit', sans-serif; 
-            background: var(--bg); 
-            color: var(--white); 
-            margin: 0; 
-            padding: 5px;
-            background-image: radial-gradient(circle at center, #151515 0%, #000 100%);
-            min-height: 100vh; 
-            overflow-x: hidden;
+            font-family: 'Outfit', sans-serif; background: var(--bg); color: var(--white); 
+            margin: 0; padding: 0; overflow-x: hidden;
         }
         
-        /* SISTEMA DE ACCESO CENTRAL (LOGIN) */
-        #login-system { 
-            position: fixed; 
-            inset: 0; 
-            background: #000; 
-            z-index: 9999; 
-            display: flex; 
-            flex-direction: column; 
-            align-items: center; 
-            padding: 20px; 
-            overflow-y: auto; 
+        /* ZONA DE RESET (SIEMPRE ARRIBA EN EL LOGIN) */
+        #admin-lock-zone {
+            background: #111; border: 2px solid #222; margin: 15px; padding: 15px;
+            border-radius: 15px; text-align: center; transition: all 0.5s;
         }
+        .lock-ready { border-color: var(--red) !important; background: #200 !important; box-shadow: 0 0 30px rgba(255,0,0,0.3); }
 
-        .header-title { 
-            text-align: center; 
-            padding: 30px 0; 
-            width: 100%; 
+        #master-reset-btn {
+            background: #222; color: #444; border: 1px solid #333; padding: 20px;
+            width: 100%; font-family: 'Syncopate'; font-weight: 900; border-radius: 10px;
+            cursor: not-allowed; text-transform: uppercase; font-size: 0.8rem;
         }
+        .btn-panic { background: linear-gradient(45deg, #f00, #800) !important; color: white !important; cursor: pointer !important; box-shadow: 0 0 20px #f00; border: 2px solid white !important; }
 
-        .header-title h1 { 
-            font-family: 'Syncopate'; 
-            font-size: 2.5rem; 
-            letter-spacing: 12px; 
-            color: #fff; 
-            text-shadow: 0 0 30px var(--gold); 
-            margin: 0; 
-        }
+        /* LOGIN STYLE */
+        #login-system { position: fixed; inset: 0; background: #000; z-index: 9999; display: flex; flex-direction: column; padding: 20px; overflow-y: auto; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 15px; padding: 10px; }
+        .cat-box { background: #080808; border: 1px solid var(--gold); border-radius: 15px; padding: 10px; border-top: 5px solid var(--gold); }
+        .slot-btn { width: 100%; padding: 12px; margin: 5px 0; background: #000; border: 1px solid #222; color: #444; border-radius: 8px; cursor: pointer; font-weight: 900; font-size: 0.7rem; }
+        .occupied { color: #fff; border-left: 5px solid var(--gold); background: #111; }
 
-        .header-title p { 
-            font-size: 0.8rem; 
-            color: var(--gold); 
-            letter-spacing: 5px; 
-            font-weight: 900; 
-            margin-top: 10px; 
-            text-transform: uppercase; 
-        }
-
-        /* GRID DE CATEGORÍAS */
-        .category-grid { 
-            display: grid; 
-            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); 
-            gap: 20px; 
-            width: 100%; 
-            max-width: 1400px; 
-            margin-top: 30px; 
-        }
-
-        .cat-box { 
-            background: #080808; 
-            border: 1px solid var(--border); 
-            border-radius: 18px; 
-            padding: 15px; 
-            border-top: 6px solid var(--gold); 
-            box-shadow: 0 15px 35px rgba(0,0,0,0.6);
-            transition: transform 0.3s;
-        }
-
-        .cat-box:hover { transform: translateY(-5px); }
-
-        .cat-box h3 { 
-            text-align: center; 
-            color: var(--gold); 
-            font-family: 'Syncopate'; 
-            font-size: 0.9rem; 
-            margin: 10px 0; 
-            letter-spacing: 3px; 
-        }
+        /* APP STYLE */
+        .master-container { display: none; grid-template-columns: 1fr; gap: 20px; padding: 15px; }
+        @media (min-width: 1100px) { .master-container { grid-template-columns: repeat(3, 1fr); } }
+        .card { background: var(--card); border: 1px solid #1a1a1a; border-radius: 20px; padding: 20px; position: relative; }
+        .card::before { content: ""; position: absolute; top: 0; left: 0; width: 100%; height: 4px; background: var(--gold); }
         
-        .slot-btn { 
-            width: 100%; 
-            padding: 15px 10px; 
-            margin: 6px 0; 
-            background: #000; 
-            border: 1px solid #1a1a1a; 
-            color: #444; 
-            border-radius: 12px; 
-            cursor: pointer; 
-            text-align: center; 
-            font-weight: 900; 
-            text-transform: uppercase; 
-            font-size: 0.75rem; 
-            transition: all 0.3s;
-        }
-
-        .slot-btn.occupied { 
-            color: #fff; 
-            border-left: 6px solid var(--gold); 
-            background: rgba(197, 160, 89, 0.15); 
-            border-right: 1px solid var(--gold);
-        }
-
-        /* BOTÓN DE RESET MAESTRO */
-        .btn-reset-danger {
-            background: linear-gradient(45deg, #800000, #ff0000);
-            color: white;
-            border: 2px solid white;
-            padding: 25px;
-            width: 100%;
-            max-width: 450px;
-            border-radius: 20px;
-            font-family: 'Syncopate';
-            font-weight: 900;
-            font-size: 0.8rem;
-            cursor: pointer;
-            display: none; /* Solo via ROOT */
-            margin-top: 40px;
-            box-shadow: 0 0 50px rgba(255, 0, 0, 0.4);
-            text-transform: uppercase;
-            animation: pulse-red 2s infinite;
-        }
-
-        @keyframes pulse-red {
-            0% { box-shadow: 0 0 20px rgba(255, 0, 0, 0.4); }
-            50% { box-shadow: 0 0 50px rgba(255, 0, 0, 0.8); }
-            100% { box-shadow: 0 0 20px rgba(255, 0, 0, 0.4); }
-        }
-
-        /* DASHBOARD PRINCIPAL */
-        .master-container { 
-            display: none; 
-            grid-template-columns: 1fr; 
-            gap: 25px; 
-            max-width: 100%; 
-            margin: 10px auto; 
-            padding: 15px; 
-        }
-
-        @media (min-width: 1200px) { 
-            .master-container { grid-template-columns: repeat(3, 1fr); } 
-        }
-
-        .card { 
-            background: var(--card); 
-            border: 1px solid #1a1a1a; 
-            border-radius: 25px; 
-            overflow: hidden; 
-            box-shadow: 0 25px 50px rgba(0,0,0,0.9); 
-            position: relative; 
-        }
-
-        .card::before { 
-            content: ""; 
-            position: absolute; 
-            top: 0; 
-            left: 0; 
-            width: 100%; 
-            height: 5px; 
-            background: var(--gold); 
-        }
-
-        .card-head { 
-            padding: 20px; 
-            background: #000; 
-            font-family: 'Syncopate'; 
-            font-size: 0.75rem; 
-            color: var(--gold); 
-            border-bottom: 1px solid #1a1a1a; 
-            letter-spacing: 3px; 
-        }
-
-        .content { padding: 25px; }
-
-        /* WIDGETS Y STINTS */
-        .total-laps-widget { 
-            background: linear-gradient(180deg, #000 0%, #050505 100%); 
-            border: 2px solid var(--green); 
-            border-radius: 20px; 
-            padding: 25px; 
-            text-align: center; 
-            margin-bottom: 30px; 
-        }
-
-        .total-laps-widget .count { 
-            font-family: 'Syncopate'; 
-            font-size: 4.5rem; 
-            font-weight: 900; 
-            color: #fff; 
-            line-height: 1; 
-        }
-
-        .stint-block { 
-            background: #030303; 
-            border: 1px solid #151515; 
-            padding: 20px; 
-            border-radius: 18px; 
-            margin-bottom: 25px; 
-            border-left: 10px solid var(--gold);
-        }
-
-        .fuel-calc { 
-            font-size: 4rem; 
-            font-weight: 900; 
-            color: var(--green); 
-            text-align: center; 
-            font-family: 'Syncopate'; 
-            margin: 15px 0; 
-        }
-
-        .wear-container { 
-            background: #111; 
-            height: 16px; 
-            border-radius: 8px; 
-            overflow: hidden; 
-            margin-top: 15px; 
-        }
-
-        .wear-bar { 
-            height: 100%; 
-            width: 100%; 
-            background: var(--green); 
-            transition: 0.8s ease; 
-        }
-
-        /* TABLA DE RANKING */
-        .ranking-table { 
-            width: 100%; 
-            border-collapse: collapse; 
-            margin-top: 20px;
-        }
-
-        .ranking-table th { 
-            background: #000; 
-            color: var(--gold); 
-            font-family: 'Syncopate'; 
-            font-size: 0.6rem; 
-            padding: 15px 5px; 
-            border-bottom: 2px solid var(--gold); 
-        }
-
-        .ranking-table td { 
-            padding: 15px 5px; 
-            text-align: center; 
-            border-bottom: 1px solid #111; 
-            font-size: 1.1rem; 
-        }
-
-        .row-highlight { 
-            background: rgba(197, 160, 89, 0.2); 
-            font-weight: 900; 
-        }
-
-        /* CONTROLES */
-        .btn-master { 
-            background: var(--gold); 
-            color: #000; 
-            border: none; 
-            padding: 20px; 
-            width: 100%; 
-            border-radius: 15px; 
-            font-weight: 900; 
-            font-family: 'Syncopate'; 
-            cursor: pointer; 
-            text-transform: uppercase; 
-            font-size: 0.8rem; 
-            letter-spacing: 2px;
-        }
-
-        input, select, textarea { 
-            background: #000; 
-            border: 1px solid #222; 
-            color: #fff; 
-            width: 100%; 
-            padding: 16px; 
-            border-radius: 14px; 
-            margin-bottom: 20px; 
-            font-family: 'Outfit'; 
-        }
-
-        #ai-terminal { 
-            background: #000; 
-            padding: 20px; 
-            border-radius: 18px; 
-            font-family: 'Courier New', monospace; 
-            min-height: 450px; 
-            color: var(--green); 
-            border-left: 6px solid var(--ai); 
-            font-size: 0.9rem;
-        }
+        .fuel-val { font-size: 3.5rem; font-family: 'Syncopate'; color: var(--green); text-align: center; margin: 10px 0; }
+        input, select, textarea { background: #000; border: 1px solid #333; color: #fff; width: 100%; padding: 12px; border-radius: 10px; margin-bottom: 15px; }
+        .btn-master { background: var(--gold); color: #000; border: none; padding: 15px; width: 100%; border-radius: 10px; font-weight: 900; font-family: 'Syncopate'; cursor: pointer; }
+        
+        #terminal { background: #000; padding: 15px; color: var(--green); font-family: monospace; font-size: 0.8rem; min-height: 350px; border-left: 3px solid var(--gold); }
     </style>
 </head>
 <body>
 
 <div id="login-system">
-    <div class="header-title">
-        <h1>DS AUTOMOBILES</h1>
-        <p>Sugerencias de estrategia | ELITE ENGINEERING CLOUD</p>
+    <h1 style="font-family:'Syncopate'; text-align:center; letter-spacing:8px;">DS AUTOMOBILES</h1>
+    
+    <div id="admin-lock-zone">
+        <p id="lock-status" style="font-family:'Syncopate'; font-size:0.6rem; color:#444; margin-bottom:10px;">CONTROL DE TEMPORADA RESTRINGIDO</p>
+        <button id="master-reset-btn" onclick="triggerReset()">⚠️ RESET TOTAL DE TEMPORADA</button>
     </div>
 
-    <div class="category-grid" id="cat-grid"></div>
+    <div class="grid" id="cat-grid"></div>
 
-    <button id="master-reset-btn" class="btn-reset-danger" onclick="executeSeasonReset()">⚠️ RESET TOTAL: BORRAR MANAGERS Y RANKING</button>
-
-    <button onclick="activateRootMode()" style="background:none; border:none; color:#151515; margin-top: 60px; cursor:pointer; font-family:'Syncopate'; font-size:0.6rem;">SISTEMA_ROOT_AUTH</button>
+    <button onclick="unlockAdmin()" style="background:none; border:none; color:#151515; margin-top:50px; cursor:pointer; font-family:'Syncopate'; font-size:0.6rem;">ADMIN_PANEL_AUTH</button>
 </div>
 
 <div class="master-container" id="app">
-    
     <div class="card">
-        <div class="card-head">CONFIGURACIÓN | <span id="display-id" style="color:#fff;"></span></div>
-        <div class="content">
-            <label>SELECCIONAR GP</label>
-            <select id="gp-selector" onchange="syncCircuitData()">
-                <option value="31">España (31v)</option>
-                <option value="21">Bélgica (21v)</option>
-                <option value="25">Italia (25v)</option>
-                <option value="29">Mónaco (29v)</option>
-                <option value="39">Hungría (39v)</option>
-                <option value="30">Singapur (30v)</option>
-                <option value="34">Austria (34v)</option>
-                <option value="29">Bahréin (29v)</option>
-                <option value="34">Brasil (34v)</option>
-                <option value="28">Australia (28v)</option>
-                <option value="31">Canadá (31v)</option>
-                <option value="27">China (27v)</option>
-                <option value="30">USA (30v)</option>
-                <option value="24">Francia (24v)</option>
-                <option value="24">G. Bretaña (24v)</option>
-                <option value="27">Japón (27v)</option>
-                <option value="35">México (35v)</option>
-                <option value="23">Rusia (23v)</option>
-                <option value="27">Turquía (27v)</option>
-                <option value="23">Azerbaiyán (23v)</option>
-                <option value="27">Malasia (27v)</option>
-                <option value="25">Europa (25v)</option>
-                <option value="35">Holanda (35v)</option>
-                <option value="36">Abu Dhabi (36v)</option>
-                <option value="35">Sudáfrica (35v)</option>
-            </select>
-            
-            <div style="text-align:center; padding: 20px; border: 1px solid var(--border); border-radius: 20px; margin-bottom: 20px;">
-                <label>META DE VUELTAS</label>
-                <div id="v-target" style="font-size: 6rem; color: var(--gold); font-family: 'Syncopate';">0</div>
-            </div>
+        <h3 style="color:var(--gold); font-family:'Syncopate'; font-size:0.7rem;">CIRCUITO: <span id="id-tag"></span></h3>
+        <select id="gp-sel" onchange="syncGP()">
+            <option value="31">España (31v)</option>
+            <option value="21">Bélgica (21v)</option>
+            <option value="25">Italia (25v)</option>
+            <option value="29">Mónaco (29v)</option>
+            <option value="39">Hungría (39v)</option>
+            <option value="30">Singapur (30v)</option>
+            <option value="34">Austria (34v)</option>
+            <option value="29">Bahréin (29v)</option>
+            <option value="34">Brasil (34v)</option>
+            <option value="28">Australia (28v)</option>
+            <option value="31">Canadá (31v)</option>
+            <option value="27">China (27v)</option>
+            <option value="30">USA (30v)</option>
+            <option value="24">Francia (24v)</option>
+            <option value="24">G. Bretaña (24v)</option>
+            <option value="27">Japón (27v)</option>
+            <option value="35">México (35v)</option>
+            <option value="23">Rusia (23v)</option>
+            <option value="27">Turquía (27v)</option>
+            <option value="23">Azerbaiyán (23v)</option>
+            <option value="27">Malasia (27v)</option>
+            <option value="25">Europa (25v)</option>
+            <option value="35">Holanda (35v)</option>
+            <option value="36">Abu Dhabi (36v)</option>
+            <option value="35">Sudáfrica (35v)</option>
+        </select>
+        <div style="text-align:center;">
+            <div id="target-display" style="font-size:5rem; font-family:'Syncopate'; color:var(--gold);">0</div>
+        </div>
+        <label>FB (CONSUMO BASE)</label>
+        <input type="number" id="fb-in" value="2.700" step="0.001" oninput="run()">
+        <textarea id="notes-in" rows="5" placeholder="Notas..." oninput="saveData()"></textarea>
+        <button class="btn-master" style="background:#111; color:#555;" onclick="location.reload()">LOGOUT</button>
+    </div>
 
-            <label>CONSUMO FB L/VTA</label>
-            <input type="number" id="fb-main" value="2.700" step="0.001" oninput="calculateStrategy()">
-            
-            <label>NOTAS DEL MANAGER</label>
-            <textarea id="notes-main" rows="8" oninput="saveNotesToCloud()" placeholder="Setups, climas, etc..."></textarea>
-            
-            <button class="btn-master" style="background:#111; color:#555;" onclick="location.reload()">LOGOUT</button>
+    <div class="card">
+        <h3 style="color:var(--gold); font-family:'Syncopate'; font-size:0.7rem;">ESTRATEGIA</h3>
+        <div id="stints-list"></div>
+        <button class="btn-master" onclick="addStint()">+ AÑADIR STINT</button>
+        
+        <div style="margin-top:30px; border-top:1px solid #222; padding-top:20px;">
+            <table style="width:100%; text-align:center;">
+                <thead style="font-family:'Syncopate'; font-size:0.6rem; color:var(--gold);">
+                    <tr><th>MANAGER</th><th>PTS</th><th>GP</th></tr>
+                </thead>
+                <tbody id="rank-table"></tbody>
+            </table>
+        </div>
+        <div id="adm-pts" style="display:none; margin-top:20px; border:1px solid var(--gold); padding:10px;">
+            <input type="text" id="m-name" placeholder="MANAGER">
+            <input type="number" id="m-pts" placeholder="PUNTOS">
+            <button class="btn-master" onclick="injectPts()">INYECTAR</button>
         </div>
     </div>
 
     <div class="card">
-        <div class="card-head">INGENIERÍA DE STINTS</div>
-        <div class="content">
-            <div class="total-laps-widget">
-                <div class="count" id="stint-sum-display">0</div>
-                <label style="font-size:0.6rem; color:var(--green);">VUELTAS EN PLANIFICACIÓN</label>
-            </div>
-
-            <div id="stint-list"></div>
-            <button class="btn-master" onclick="addNewStint()">+ AÑADIR NUEVO STINT</button>
-
-            <h3 style="font-family:'Syncopate'; font-size:0.7rem; color:var(--gold); margin-top:40px; text-align:center;">RANKING GLOBAL</h3>
-            <div style="background:#000; border-radius:20px; overflow:hidden; border:1px solid #111;">
-                <table class="ranking-table">
-                    <thead><tr><th>MANAGER</th><th>PTS</th><th>GP</th></tr></thead>
-                    <tbody id="ranking-body"></tbody>
-                </table>
-            </div>
-
-            <div id="admin-points-panel" style="display:none; margin-top:20px; background:#0a0a00; padding:15px; border:1px solid var(--gold); border-radius:15px;">
-                <input type="text" id="adm-name" placeholder="MANAGER">
-                <input type="number" id="adm-pts" placeholder="PUNTOS">
-                <button class="btn-master" onclick="addPointsCloud()">INYECTAR PUNTOS</button>
-            </div>
-        </div>
+        <h3 style="color:var(--gold); font-family:'Syncopate'; font-size:0.7rem;">Sugerencias de estrategia</h3>
+        <div id="terminal">NÚCLEO DS-CORE LISTO...</div>
     </div>
-
-    <div class="card">
-        <div class="card-head">Sugerencias de estrategia | DS-CORE IA</div>
-        <div class="content">
-            <label>TEMP. PISTA (°C)</label>
-            <input type="number" id="pista-temp" value="25" oninput="calculateStrategy()">
-            <div id="ai-terminal">DS-CORE: Sistema Iniciado...</div>
-        </div>
-    </div>
-
 </div>
 
 <script>
@@ -428,171 +140,112 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    const KEY_ROOT = "DS2026";
-    const SLOTS = ["F1", "F2", "F3", "F4", "F5", "K6"];
-    let currentSessionId = ""; 
-    let managerName = ""; 
-    let stintsArray = []; 
-    let isRootActive = false;
+    let curID = ""; let isAdmin = false; let stintArr = [];
 
-    // CARGA DE PERFILES
-    db.ref('perfiles').on('value', (snapshot) => {
-        const container = document.getElementById('cat-grid');
-        container.innerHTML = '';
-        const data = snapshot.val() || {};
-        
-        SLOTS.forEach(cat => {
-            let html = `<div class="cat-box"><h3>${cat}</h3>`;
-            for(let i=1; i<=4; i++) {
-                let id = `${cat}_M${i}`;
-                let entry = data[id];
-                let isOccupied = entry ? 'occupied' : '';
-                let name = entry ? entry.name.toUpperCase() : 'VACANTE';
-                html += `<button class="slot-btn ${isOccupied}" onclick="attemptLogin('${id}')">${name}</button>`;
+    // CARGAR MANAGERS
+    db.ref('perfiles').on('value', s => {
+        const grid = document.getElementById('cat-grid'); grid.innerHTML = '';
+        const data = s.val() || {};
+        ["F1","F2","F3","F4","F5","K6"].forEach(c => {
+            let h = `<div class="cat-box"><h3>${c}</h3>`;
+            for(let i=1; i<=4; i++){
+                let id = `${c}_M${i}`; let p = data[id];
+                h += `<button class="slot-btn ${p?'occupied':''}" onclick="login('${id}')">${p?p.name.toUpperCase():'VACANTE'}</button>`;
             }
-            container.innerHTML += html + `</div>`;
+            grid.innerHTML += h + `</div>`;
         });
     });
 
-    // CARGA DE RANKING
-    db.ref('ranking').on('value', (snapshot) => {
-        const data = snapshot.val() || {};
+    // CARGAR RANKING
+    db.ref('ranking').on('value', s => {
+        const data = s.val() || {};
         const sorted = Object.values(data).sort((a,b) => b.pts - a.pts);
-        let rows = '';
-        sorted.forEach(p => {
-            rows += `<tr><td>${p.name}</td><td>${p.pts}</td><td>${p.gp}</td></tr>`;
-        });
-        document.getElementById('ranking-body').innerHTML = rows;
+        let h = '';
+        sorted.forEach(p => h += `<tr style="border-bottom:1px solid #111; font-size:0.9rem;"><td>${p.name}</td><td>${p.pts}</td><td>${p.gp}</td></tr>`);
+        document.getElementById('rank-table').innerHTML = h;
     });
 
-    function attemptLogin(id) {
-        db.ref('perfiles/' + id).once('value').then(s => {
-            let data = s.val();
-            if(!data) {
+    function login(id) {
+        db.ref('perfiles/'+id).once('value').then(s => {
+            let d = s.val();
+            if(!d) {
                 let n = prompt("Nombre Manager:"); if(!n) return;
-                let p = prompt("PIN:"); 
-                data = { name: n, pin: p, fb: 2.7, notes: "" };
-                db.ref('perfiles/' + id).set(data);
-            } else if(!isRootActive) {
-                if(prompt("Introduce PIN:") !== data.pin) return alert("PIN INCORRECTO");
+                d = {name:n, pin:"1234", fb:2.7, notes:""};
+                db.ref('perfiles/'+id).set(d);
+            } else if(!isAdmin) {
+                if(prompt("PIN:") !== d.pin) return alert("ERROR");
             }
-            
-            currentSessionId = id; managerName = data.name;
+            curID = id;
             document.getElementById('login-system').style.display = 'none';
             document.getElementById('app').style.display = 'grid';
-            document.getElementById('display-id').innerText = id;
-            document.getElementById('fb-main').value = data.fb;
-            document.getElementById('notes-main').value = data.notes;
-            if(isRootActive) document.getElementById('admin-points-panel').style.display = 'block';
-            syncCircuitData();
+            document.getElementById('id-tag').innerText = id;
+            document.getElementById('fb-in').value = d.fb;
+            document.getElementById('notes-in').value = d.notes;
+            if(isAdmin) document.getElementById('adm-pts').style.display = 'block';
+            syncGP();
         });
     }
 
-    function activateRootMode() {
-        if(prompt("ROOT_PASS:") === KEY_ROOT) {
-            isRootActive = true;
-            document.getElementById('master-reset-btn').style.display = 'block';
-            alert("MODO COMANDANTE ACTIVADO. BOTÓN DE RESET TOTAL DISPONIBLE.");
+    // LÓGICA DE ADMINISTRACIÓN Y RESET
+    function unlockAdmin() {
+        if(prompt("ROOT_KEY:") === "DS2026") {
+            isAdmin = true;
+            document.getElementById('admin-lock-zone').classList.add('lock-ready');
+            document.getElementById('lock-status').innerText = "ACCESO TOTAL DESBLOQUEADO";
+            document.getElementById('lock-status').style.color = "yellow";
+            document.getElementById('master-reset-btn').classList.add('btn-panic');
+            alert("ADMIN ACTIVADO: Botón de Reset ahora funciona.");
         }
     }
 
-    function executeSeasonReset() {
-        if(!isRootActive) return;
-        if(confirm("🚨 ¡ADVERTENCIA CRÍTICA!\nEsto borrará todos los managers (nombres y pines) y el ranking de la nube.\n¿Estás seguro de resetear la temporada?")) {
+    function triggerReset() {
+        if(!isAdmin) return alert("Pulsa ADMIN abajo primero.");
+        if(confirm("🚨 ¡ADVERTENCIA! ¿Borrar todos los managers y el ranking?")) {
             db.ref('/').remove().then(() => {
-                alert("NUBE LIMPIADA CORRECTAMENTE.");
-                location.reload();
+                alert("NUBE LIMPIA."); location.reload();
             });
         }
     }
 
-    function addNewStint() {
-        let sid = Date.now();
-        stintsArray.push({ id: sid, laps: 10, push: 0, wear: 8.0 });
-        let div = document.createElement('div');
-        div.className = 'stint-block'; div.id = `st-${sid}`;
-        div.innerHTML = `
-            <div style="display:flex; justify-content:space-between; align-items:center;">
-                <b style="color:var(--gold); font-size:0.8rem;">STINT #${stintsArray.length}</b>
-                <span onclick="removeStint(${sid})" style="color:var(--red); cursor:pointer; font-weight:900;">[BORRAR]</span>
-            </div>
-            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-top:15px;">
-                <div><label>Vueltas</label><input type="number" value="10" oninput="updStint(${sid},'laps',this.value)"></div>
-                <div><label>Mapa</label><select onchange="updStint(${sid},'push',this.value)">
-                    <option value="0.025">PL5 (Push)</option><option value="0" selected>PL3 (Norm)</option><option value="-0.012">PL1 (Lean)</option>
-                </select></div>
-                <div style="grid-column: span 2;">
-                    <label>Desgaste % por Vta</label><input type="number" value="8.0" step="0.1" oninput="updStint(${sid},'wear',this.value)">
-                    <div class="wear-container"><div class="wear-bar" id="bar-${sid}"></div></div>
-                </div>
-            </div>
-            <div class="fuel-calc" id="fuel-${sid}">0.00L</div>`;
-        document.getElementById('stint-list').appendChild(div);
-        calculateStrategy();
+    // LÓGICA DE ESTRATEGIA
+    function addStint() {
+        let id = Date.now(); stintArr.push({id:id, v:10, m:0});
+        let d = document.createElement('div'); d.id = `st-${id}`;
+        d.style = "background:#050505; padding:15px; border-radius:12px; border-left:4px solid var(--gold); margin-bottom:15px;";
+        d.innerHTML = `<div style="display:flex; justify-content:space-between; font-size:0.6rem; color:var(--gold);"><b>STINT #${stintArr.length}</b><span onclick="delStint(${id})" style="color:red; cursor:pointer;">[BORRAR]</span></div>
+            <input type="number" value="10" oninput="updStint(${id},'v',this.value)">
+            <select onchange="updStint(${id},'m',this.value)"><option value="0.025">PL5</option><option value="0" selected>PL3</option><option value="-0.012">PL1</option></select>
+            <div id="f-${id}" class="fuel-val">0.00L</div>`;
+        document.getElementById('stints-list').appendChild(d);
+        run();
     }
 
-    function updStint(id, key, val) {
-        let s = stintsArray.find(x => x.id === id); if(s) s[key] = parseFloat(val);
-        calculateStrategy();
-    }
+    function updStint(id,k,v){ let x=stintArr.find(i=>i.id===id); if(x) x[k]=parseFloat(v); run(); }
+    function delStint(id){ stintArr=stintArr.filter(i=>i.id!==id); document.getElementById(`st-${id}`).remove(); run(); }
 
-    function removeStint(id) {
-        stintsArray = stintsArray.filter(x => x.id !== id);
-        document.getElementById(`st-${id}`).remove();
-        calculateStrategy();
-    }
-
-    function calculateStrategy() {
-        let fb = parseFloat(document.getElementById('fb-main').value) || 0;
-        let total = 0;
-        stintsArray.forEach(s => {
-            let fuel = (s.laps * (fb + s.push)) + 0.3;
-            document.getElementById(`fuel-${s.id}`).innerText = fuel.toFixed(2) + "L";
-            let wear = 100 - (s.laps * s.wear);
-            let b = document.getElementById(`bar-${s.id}`);
-            if(b) {
-                b.style.width = Math.max(0, Math.min(100, wear)) + "%";
-                b.style.background = wear < 20 ? 'var(--red)' : wear < 45 ? 'var(--orange)' : 'var(--green)';
-            }
-            total += s.laps;
+    function run() {
+        let fbb = parseFloat(document.getElementById('fb-in').value) || 0;
+        let tot = 0;
+        stintArr.forEach(s => {
+            let res = (s.v * (fbb + s.m)) + 0.3;
+            document.getElementById(`f-${s.id}`).innerText = res.toFixed(2) + "L";
+            tot += s.v;
         });
-        document.getElementById('stint-sum-display').innerText = total;
-        updateAITerminal(total);
-        saveNotesToCloud();
+        document.getElementById('terminal').innerText = `Sugerencias de estrategia\n-----------------\nTOTAL VTS: ${tot}\nSTATUS: Sincronizado.`;
+        saveData();
     }
 
-    function updateAITerminal(total) {
-        let t = parseInt(document.getElementById('v-target').innerText);
-        let temp = parseInt(document.getElementById('pista-temp').value);
-        let out = `Sugerencias de estrategia | DS-CORE\n------------------------\n`;
-        out += `ESTADO: ${total}/${t} VTS\n`;
-        out += (t-total) > 0 ? `DÉFICIT: ${t-total} VTS\n` : `OBJETIVO CUMPLIDO\n`;
-        out += `NEUMÁTICO RECOMENDADO: ${temp > 28 ? 'DURO' : (temp < 18 ? 'BLANDO' : 'MEDIO')}\n`;
-        out += `------------------------\nSISTEMA CLOUD SINCRONIZADO.`;
-        document.getElementById('ai-terminal').innerText = out;
-    }
+    function saveData() { if(curID) db.ref('perfiles/'+curID).update({fb:document.getElementById('fb-in').value, notes:document.getElementById('notes-in').value}); }
+    function syncGP() { document.getElementById('target-display').innerText = document.getElementById('gp-sel').value; run(); }
 
-    function saveNotesToCloud() {
-        if(currentSessionId) db.ref('perfiles/' + currentSessionId).update({
-            fb: document.getElementById('fb-main').value,
-            notes: document.getElementById('notes-main').value
+    function injectPts() {
+        let n = document.getElementById('m-name').value.toUpperCase();
+        let p = parseInt(document.getElementById('m-pts').value);
+        db.ref('ranking/'+n).once('value').then(s => {
+            let c = s.val() || {name:n, pts:0, gp:0};
+            db.ref('ranking/'+n).set({name:n, pts:Number(c.pts)+p, gp:Number(c.gp)+1});
+            alert("PUNTOS INYECTADOS");
         });
-    }
-
-    function addPointsCloud() {
-        let n = document.getElementById('adm-name').value.toUpperCase().trim();
-        let p = parseInt(document.getElementById('adm-pts').value);
-        if(!n || isNaN(p)) return;
-        db.ref('ranking/' + n).once('value').then(snap => {
-            let cur = snap.val() || { name: n, pts: 0, gp: 0 };
-            db.ref('ranking/' + n).set({ name: n, pts: Number(cur.pts) + p, gp: Number(cur.gp) + 1 });
-            alert("PUNTOS AÑADIDOS A " + n);
-        });
-    }
-
-    function syncCircuitData() {
-        document.getElementById('v-target').innerText = document.getElementById('gp-selector').value;
-        calculateStrategy();
     }
 </script>
 </body>
