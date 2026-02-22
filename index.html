@@ -22,7 +22,6 @@
             --font-tech: 'Michroma', sans-serif;
         }
 
-        /* RESET Y BASE */
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: #000; }
@@ -111,7 +110,7 @@
         
         .stint-card { 
             background: #050505; border-radius: 12px; padding: 18px; margin-bottom: 15px;
-            border-left: 6px solid var(--gold); border: 1px solid #1a1a1a; border-left: 6px solid var(--gold);
+            border-left: 6px solid var(--gold); border: 1px solid #1a1a1a;
         }
         .fuel-result { font-family: var(--font-tech); font-size: 2.8rem; color: var(--green); text-align: center; }
         
@@ -140,7 +139,8 @@
             background: #000; border-radius: 10px; padding: 15px; 
             font-family: 'Courier New', monospace; color: var(--green); font-size: 0.8rem; 
             min-height: 180px; border: 1px solid #1a1a1a; line-height: 1.4;
-            white-space: pre-wrap;
+            white-space: pre-wrap; overflow-y: auto;
+            box-shadow: inset 0 0 15px rgba(0, 255, 157, 0.05);
         }
 
         #sync-led { width: 10px; height: 10px; background: #222; border-radius: 50%; display: inline-block; margin-left: 10px; transition: 0.3s; }
@@ -154,13 +154,10 @@
         <h1>DS AUTOMOBILES</h1>
         <p>Sugerencias de estrategia | ELITE ENGINEERING</p>
     </div>
-
     <div id="admin-control-panel">
         <button id="master-reset-btn" onclick="executeSeasonReset()">RESET TEMPORADA BLOQUEADO</button>
     </div>
-
     <div class="manager-grid" id="m-grid"></div>
-
     <button onclick="requestAdmin()" style="background:none; border:none; color:#1a1a1a; margin-top:80px; cursor:pointer; font-family:var(--font-tech); font-size:0.5rem;">[ AUTH_REQUIRED ]</button>
 </div>
 
@@ -197,19 +194,15 @@
                 <option value="36">Abu Dhabi (36v)</option>
                 <option value="35">Sudáfrica (35v)</option>
             </select>
-
             <div class="v-target-box">
                 <label>VUELTAS TOTALES</label>
                 <span id="v-count">0</span>
             </div>
-
             <label>CONSUMO BASE (FB)</label>
             <input type="number" id="fb-base" value="2.700" step="0.001" oninput="calculate()">
-
             <label>NOTAS DEL MANAGER <div id="sync-led"></div></label>
             <textarea id="notes" rows="6" oninput="calculate()"></textarea>
-
-            <button class="action-btn" style="background:#111; color:#444;" onclick="location.reload()">CERRAR SESIÓN</button>
+            <button class="action-btn" style="background:#111; color:#444;" onclick="location.reload()">LOGOUT</button>
         </div>
     </div>
 
@@ -220,7 +213,7 @@
             <button class="action-btn btn-gold" onclick="addNewStint()" style="margin-bottom: 30px;">+ AÑADIR STINT</button>
 
             <div style="margin-bottom:30px;">
-                <div id="ai-console">>> CARGANDO SISTEMA...</div>
+                <div id="ai-console">>> DS-CORE ONLINE.</div>
                 <div style="display:flex; gap:10px; margin-top:10px;">
                     <input type="text" id="ai-prompt" placeholder="Habla con la IA..." style="margin-bottom:0; flex-grow:1;">
                     <button onclick="interactuarIA()" style="background:var(--green); border:none; color:#000; padding:10px 20px; border-radius:10px; font-weight:bold; font-family:var(--font-tech); font-size:0.6rem;">ENVIAR</button>
@@ -228,19 +221,16 @@
             </div>
 
             <div style="border-top: 1px solid #1a1a1a; padding-top:20px;">
-                <h3 style="font-family:var(--font-tech); font-size:0.6rem; color:var(--gold); text-align:center; margin-bottom:15px;">RANKING TEMPORADA</h3>
-                <table class="ranking-table">
-                    <thead><tr><th>MANAGER</th><th>PUNTOS</th><th>GP</th></tr></thead>
-                    <tbody id="ranking-body"></tbody>
-                </table>
+                <h3 style="font-family:var(--font-tech); font-size:0.6rem; color:var(--gold); text-align:center;">RANKING</h3>
+                <table class="ranking-table"><tbody id="ranking-body"></tbody></table>
             </div>
 
-            <div id="admin-points" style="display:none; margin-top:25px; background:rgba(197,160,89,0.05); padding:15px; border:1px solid var(--gold); border-radius:15px;">
-                <label style="color:var(--gold)">INYECTOR DE PUNTOS</label>
+            <div id="admin-points" style="display:none; margin-top:25px; border:1px solid var(--gold); padding:15px; border-radius:15px;">
+                <label>INYECTOR</label>
                 <div style="display:flex; gap:5px;">
-                    <input type="text" id="adm-name" placeholder="NOMBRE" style="margin:0; font-size:0.8rem;">
-                    <input type="number" id="adm-pts" placeholder="PTS" style="margin:0; font-size:0.8rem; width:80px;">
-                    <button onclick="injectPoints()" style="background:var(--gold); border:none; padding:10px; font-weight:bold;">ADD</button>
+                    <input type="text" id="adm-name" placeholder="MANAGER" style="margin:0;">
+                    <input type="number" id="adm-pts" placeholder="PTS" style="margin:0; width:80px;">
+                    <button onclick="injectPoints()" style="background:var(--gold); border:none; padding:10px;">ADD</button>
                 </div>
             </div>
         </div>
@@ -248,30 +238,22 @@
 </div>
 
 <script>
-    // 1. INICIO FIREBASE
     const firebaseConfig = { databaseURL: "https://ds-automobiles-f0a17-default-rtdb.firebaseio.com/" };
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    let sessionID = ""; 
-    let stunts = []; 
-    let isAdmin = false;
-    let iaLastResponse = "Sistema listo para el análisis.";
+    let sessionID = ""; let stunts = []; let isAdmin = false;
+    let iaLastResponse = "SISTEMA LISTO. ANALIZANDO EL CIRCUITO.";
 
-    // 2. CARGA DE MANAGERS Y RANKING
+    // CARGA DATOS
     db.ref('perfiles').on('value', (snap) => {
-        const grid = document.getElementById('m-grid');
-        if(!grid) return;
-        grid.innerHTML = '';
+        const grid = document.getElementById('m-grid'); if(!grid) return; grid.innerHTML = '';
         const data = snap.val() || {};
-        const cats = ["F1", "F2", "F3", "F4", "F5", "K6"];
-        cats.forEach(c => {
+        ["F1", "F2", "F3", "F4", "F5", "K6"].forEach(c => {
             let html = `<div class="slot-card"><h3>${c}</h3>`;
             for(let i=1; i<=4; i++) {
-                let id = `${c}_M${i}`;
-                let entry = data[id];
-                let isOcc = entry ? 'occupied' : '';
-                let name = entry ? entry.name.toUpperCase() : 'VACANTE';
+                let id = `${c}_M${i}`; let e = data[id];
+                let isOcc = e ? 'occupied' : ''; let name = e ? e.name.toUpperCase() : 'VACANTE';
                 html += `<button class="m-btn ${isOcc}" onclick="handleLogin('${id}')">${name}</button>`;
             }
             grid.innerHTML += html + `</div>`;
@@ -281,25 +263,20 @@
     db.ref('ranking').on('value', (snap) => {
         const data = snap.val() || {};
         const sorted = Object.values(data).sort((a,b) => b.pts - a.pts);
-        let rows = '';
-        sorted.forEach(p => { rows += `<tr><td>${p.name}</td><td>${p.pts}</td><td>${p.gp}</td></tr>`; });
+        let rows = ''; sorted.forEach(p => { rows += `<tr><td>${p.name}</td><td>${p.pts}</td><td>${p.gp}</td></tr>`; });
         document.getElementById('ranking-body').innerHTML = rows;
     });
 
-    // 3. LOGIN Y SEGURIDAD
     function handleLogin(id) {
         db.ref('perfiles/'+id).once('value').then(s => {
             let data = s.val();
             if(!data) {
-                let n = prompt("Nombre Manager:"); if(!n) return;
-                let p = prompt("PIN Acceso:"); if(!p) return;
-                data = { name: n, pin: p, fb: 2.7, notes: "" };
-                db.ref('perfiles/'+id).set(data);
+                let n = prompt("Nombre:"); let p = prompt("PIN:"); if(!n || !p) return;
+                data = { name: n, pin: p, fb: 2.7, notes: "" }; db.ref('perfiles/'+id).set(data);
             } else if(!isAdmin) {
-                if(prompt("PIN DE SEGURIDAD:") !== data.pin) return alert("PIN INCORRECTO");
+                if(prompt("PIN:") !== data.pin) return alert("PIN INCORRECTO");
             }
-            sessionID = id;
-            document.getElementById('login-system').style.display = 'none';
+            sessionID = id; document.getElementById('login-system').style.display = 'none';
             document.getElementById('app-interface').style.display = 'grid';
             document.getElementById('fb-base').value = data.fb;
             document.getElementById('notes').value = data.notes;
@@ -309,133 +286,95 @@
     }
 
     function requestAdmin() {
-        if(prompt("PASS COMANDANTE:") === "DS2026") {
-            isAdmin = true;
-            let btn = document.getElementById('master-reset-btn');
-            btn.innerText = "⚠️ RESET MAESTRO ACTIVADO";
-            btn.style.background = "var(--red)";
-            btn.style.color = "white";
-            btn.style.cursor = "pointer";
-            alert("MODO ROOT ACTIVADO");
+        if(prompt("PASS:") === "DS2026") {
+            isAdmin = true; let btn = document.getElementById('master-reset-btn');
+            btn.innerText = "⚠️ RESET TOTAL ACTIVADO"; btn.style.background = "var(--red)";
+            btn.style.color = "white"; btn.style.cursor = "pointer";
         }
     }
 
     function executeSeasonReset() {
-        if(!isAdmin) return;
-        if(confirm("🚨 ¡ADVERTENCIA CRÍTICA!\n¿Borrar toda la base de datos de la temporada?")) {
-            db.ref('/').remove().then(() => { location.reload(); });
-        }
+        if(isAdmin && confirm("🚨 ¿BORRAR TODO?")) db.ref('/').remove().then(() => location.reload());
     }
 
-    // 4. ESTRATEGIA: STINTS
+    // STINTS
     function addNewStint() {
-        let id = Date.now();
-        stunts.push({ id: id, laps: 10, push: 0, wear: 8.0 });
-        let div = document.createElement('div');
-        div.className = 'stint-card';
-        div.id = `st-${id}`;
+        let id = Date.now(); stunts.push({ id: id, laps: 10, push: 0, wear: 8.0 });
+        let div = document.createElement('div'); div.className = 'stint-card'; div.id = `st-${id}`;
         div.innerHTML = `
-            <div style="display:flex; justify-content:space-between; align-items:center;">
-                <b style="color:var(--gold); font-family:var(--font-tech); font-size:0.6rem;">STINT #${stunts.length}</b>
-                <span onclick="removeStint(${id})" style="color:var(--red); cursor:pointer; font-weight:bold;">[BORRAR]</span>
-            </div>
-            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px; margin-top:15px;">
+            <div style="display:flex; justify-content:space-between;"><b style="color:var(--gold); font-size:0.6rem;">STINT #${stunts.length}</b><span onclick="removeStint(${id})" style="color:var(--red); cursor:pointer;">[X]</span></div>
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-top:10px;">
                 <div><label>VUELTAS</label><input type="number" value="10" oninput="updStint(${id},'laps',this.value)"></div>
-                <div><label>MIX MOTOR</label><select onchange="updStint(${id},'push',this.value)">
-                    <option value="0.02">MIX 5 (+0.02)</option>
-                    <option value="0.01">MIX 4 (+0.01)</option>
-                    <option value="0" selected>MIX 3 (0)</option>
-                    <option value="-0.004">MIX 2 (-0.004)</option>
-                    <option value="-0.007">MIX 1 (-0.007)</option>
-                </select></div>
-                <div style="grid-column: span 2;"><label>DESGASTE %/VTA</label><input type="number" value="8.0" step="0.1" oninput="updStint(${id},'wear',this.value)">
-                <div class="wear-bg"><div class="wear-fill" id="bar-${id}"></div></div></div>
+                <div><label>MIX</label><select onchange="updStint(${id},'push',this.value)"><option value="0.02">MIX 5</option><option value="0.01">MIX 4</option><option value="0" selected>MIX 3</option><option value="-0.004">MIX 2</option><option value="-0.007">MIX 1</option></select></div>
+                <div style="grid-column: span 2;"><label>DESGASTE %</label><input type="number" value="8.0" step="0.1" oninput="updStint(${id},'wear',this.value)"><div class="wear-bg"><div class="wear-fill" id="bar-${id}"></div></div></div>
             </div>
             <div class="fuel-result" id="fuel-${id}">0.00L</div><div id="footer-${id}"></div>`;
-        document.getElementById('stint-container').appendChild(div);
-        calculate();
+        document.getElementById('stint-container').appendChild(div); calculate();
     }
 
-    function updStint(id, key, val) {
-        let s = stunts.find(x => x.id === id); if(s) s[key] = parseFloat(val);
-        calculate();
-    }
+    function updStint(id, k, v) { let s = stunts.find(x => x.id === id); if(s) s[k] = parseFloat(v); calculate(); }
+    function removeStint(id) { stunts = stunts.filter(x => x.id !== id); document.getElementById(`st-${id}`).remove(); calculate(); }
 
-    function removeStint(id) {
-        stunts = stunts.filter(x => x.id !== id);
-        document.getElementById(`st-${id}`).remove();
-        calculate();
-    }
-
-    // 5. CÁLCULOS E IA DINÁMICA
+    // IA Y CÁLCULOS
     function calculate() {
         let fb = parseFloat(document.getElementById('fb-base').value) || 0;
         let totalLaps = 0; let totalFuel = 0;
+        
+        // PASO 1: CÁLCULOS DE TELEMETRÍA
         stunts.forEach((s, index) => {
-            let stintFuel = (s.laps * (fb + parseFloat(s.push))) + 0.3;
-            totalLaps += s.laps; totalFuel += stintFuel;
-            document.getElementById(`fuel-${s.id}`).innerText = stintFuel.toFixed(2) + "L";
-            let foot = document.getElementById(`footer-${s.id}`);
-            foot.innerHTML = "";
+            let fuel = (s.laps * (fb + parseFloat(s.push))) + 0.3;
+            totalLaps += s.laps; totalFuel += fuel;
+            document.getElementById(`fuel-${s.id}`).innerText = fuel.toFixed(2) + "L";
+            let f = document.getElementById(`footer-${s.id}`); f.innerHTML = "";
             if (index === stunts.length - 1) {
-                foot.innerHTML = `<div style="margin-top:15px; border-top:1px dashed #444; padding-top:10px; display:flex; justify-content:space-between;">
-                <span>VTS: ${totalLaps}</span><span style="color:var(--gold)">TOTAL: ${totalFuel.toFixed(2)} L</span></div>`;
+                f.innerHTML = `<div style="display:flex; justify-content:space-between; border-top:1px dashed #444; padding-top:10px;"><span>VTS: ${totalLaps}</span><span style="color:var(--gold)">SUMA: ${totalFuel.toFixed(2)}L</span></div>`;
             }
-            let wear = 100 - (s.laps * s.wear);
-            let b = document.getElementById(`bar-${s.id}`);
-            if(b) {
-                b.style.width = Math.max(0, Math.min(100, wear)) + "%";
-                b.style.background = wear < 20 ? 'var(--red)' : wear < 45 ? '#ff9f43' : 'var(--green)';
-            }
+            let w = 100 - (s.laps * s.wear); let b = document.getElementById(`bar-${s.id}`);
+            if(b) { b.style.width = Math.max(0, Math.min(100, w)) + "%"; b.style.background = w < 20 ? 'var(--red)' : 'var(--green)'; }
         });
+
+        // PASO 2: ACTUALIZAR IA (FUERA DEL LOOP)
         actualizarConsolaIA(totalLaps, totalFuel);
         cloudSave();
     }
 
     function interactuarIA() {
-        const p = document.getElementById('ai-prompt');
-        const m = p.value.toLowerCase();
-        if(!m) return;
-        if(m.includes("lluvia")) iaLastResponse = "ALERTA: CLIMA HÚMEDO. AJUSTAR A MIX 1 PARA AHORRO.";
-        else if(m.includes("hola")) iaLastResponse = "MANAGER IDENTIFICADO. ESPERANDO ÓRDENES.";
-        else if(m.includes("líder")) iaLastResponse = "LOCALIZANDO LÍDER EN RANKING PARA CÁLCULO DE OVERCUT.";
-        else iaLastResponse = "COMANDO PROCESADO: " + m.toUpperCase();
+        const p = document.getElementById('ai-prompt'); const m = p.value.toLowerCase(); if(!m) return;
+        if(m.includes("lluvia")) iaLastResponse = "DETECTADO: CLIMA HÚMEDO. CAMBIAR A MIX 1 INMEDIATAMENTE.";
+        else if(m.includes("líder")) iaLastResponse = "ANALIZANDO RIVALES... PREPARANDO VENTANA DE PARADA.";
+        else if(m.includes("hola")) iaLastResponse = "SISTEMA DS-CORE LISTO. ¿CUÁL ES EL ESTADO DEL GP?";
+        else iaLastResponse = "PROCESADO: " + m.toUpperCase();
+        
+        // FORZAR ACTUALIZACIÓN
         calculate(); p.value = "";
     }
 
     function actualizarConsolaIA(v, l) {
         const console = document.getElementById('ai-console');
         const notes = document.getElementById('notes').value.toLowerCase();
-        if(!console) return;
-        let status = notes.includes("lluvia") ? "!! PRECAUCIÓN: LLUVIA !!" : "SISTEMA NOMINAL";
-        console.innerText = `[ DS-CORE TELEMETRY V2.6 ]\nSTATUS: ${status}\nCARGA: ${v} VTS / ${l.toFixed(2)} L\n--------------------------\nSugerencias de estrategia:\n"${iaLastResponse.toUpperCase()}"`;
+        let status = notes.includes("lluvia") ? "!! ALERTA CLIMA !!" : "SISTEMA NOMINAL";
+        
+        // ESTO SE EJECUTA SIEMPRE
+        console.innerText = `[ DS-CORE TELEMETRY ]\nSTATUS: ${status}\nDATOS: ${v} VTS / ${l.toFixed(2)} L\n--------------------------\nSugerencias de estrategia:\n"${iaLastResponse.toUpperCase()}"`;
     }
 
-    function updateCircuit() { 
-        document.getElementById('v-count').innerText = document.getElementById('gp-select').value; 
-        calculate(); 
-    }
+    function updateCircuit() { document.getElementById('v-count').innerText = document.getElementById('gp-select').value; calculate(); }
 
     function injectPoints() {
-        let n = document.getElementById('adm-name').value.toUpperCase();
-        let pts = parseInt(document.getElementById('adm-pts').value);
+        let n = document.getElementById('adm-name').value.toUpperCase(); let p = parseInt(document.getElementById('adm-pts').value);
         db.ref('ranking/'+n).once('value').then(s => {
             let cur = s.val() || { name: n, pts: 0, gp: 0 };
-            db.ref('ranking/'+n).set({ name: n, pts: Number(cur.pts) + pts, gp: Number(cur.gp) + 1 });
-            alert("PUNTOS INYECTADOS.");
+            db.ref('ranking/'+n).set({ name: n, pts: Number(cur.pts) + p, gp: Number(cur.gp) + 1 });
         });
     }
 
     function cloudSave() {
         if (!sessionID) return;
-        const led = document.getElementById('sync-led');
-        led.classList.add('led-active');
+        const led = document.getElementById('sync-led'); led.classList.add('led-active');
         db.ref('perfiles/' + sessionID).update({
             fb: document.getElementById('fb-base').value,
             notes: document.getElementById('notes').value
-        }).then(() => {
-            setTimeout(() => led.classList.remove('led-active'), 400);
-        });
+        }).then(() => setTimeout(() => led.classList.remove('led-active'), 400));
     }
 </script>
 </body>
