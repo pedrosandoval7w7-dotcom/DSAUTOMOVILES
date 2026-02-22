@@ -195,19 +195,22 @@
                 <table class="ranking-table">
                     <thead><tr><th>MANAGER</th><th>PUNTOS</th><th>GP</th></tr></thead>
                     <tbody id="ranking-body"></tbody>
-                </table>
-            </div>
+             </table>
+        </div>
 
-            <div id="commander-panel">
-                <div style="color:var(--gold); font-family:'Syncopate'; font-size:0.65rem; text-align:center; margin-bottom:20px;">INYECTAR RESULTADOS A LA NUBE</div>
-                <label>Nombre del Manager</label>
-                <input type="text" id="adm-pilot-name" placeholder="Ej: MANAGER X">
-                <label>Puntos Obtenidos</label>
-                <input type="number" id="adm-pilot-pts" placeholder="0">
-                <button class="btn-master" onclick="injectLeaguePoints()">ACTUALIZAR RANKING GLOBAL</button>
-            </div>
+        <div id="commander-panel">
+            <div style="color:var(--gold); font-family:'Syncopate'; font-size:0.65rem; text-align:center; margin-bottom:20px;">INYECTAR RESULTADOS A LA NUBE</div>
+            <label>Nombre del Manager</label>
+            <input type="text" id="adm-pilot-name" placeholder="Ej: MANAGER X">
+            <label>Puntos Obtenidos</label>
+            <input type="number" id="adm-pilot-pts" placeholder="0">
+            
+            <button class="btn-master" onclick="injectLeaguePoints()">ACTUALIZAR RANKING GLOBAL</button>
+            
+            <button class="btn-master" onclick="resetMasterLeague()" style="background: linear-gradient(45deg, #600, #b00); margin-top: 15px; border: 1px solid #f00;">⚠️ RESETEAR TODA LA LIGA</button>
         </div>
     </div>
+</div>
 
     <div class="card" style="border-top: 6px solid var(--ai)">
         <div class="card-head">Sugerencias de estrategia | DS-CORE IA</div>
