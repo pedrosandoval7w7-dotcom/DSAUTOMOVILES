@@ -484,6 +484,24 @@
             alert("PUNTOS AÑADIDOS A " + name);
         });
     }
+
+    function cloudSave() {
+        // 1. Obtenemos los valores actuales de los cuadros
+        let fbVal = document.getElementById('fb-base').value;
+        let notesVal = document.getElementById('notes').value;
+
+        // 2. Si el manager ya inició sesión (tenemos sessionID), guardamos
+        if (sessionID) {
+            db.ref('perfiles/' + sessionID).update({
+                fb: fbVal,
+                notes: notesVal
+            }).then(() => {
+                console.log("Datos sincronizados en la nube");
+            }).catch((error) => {
+                console.error("Error al guardar en Firebase:", error);
+            });
+        }
+    }
 </script>
 </body>
 </html>
