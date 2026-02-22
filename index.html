@@ -23,7 +23,7 @@
             --white: #ffffff;
         }
 
-        /* CONFIGURACIÓN BASE */
+        /* RESET Y BASE DE ALTO RENDIMIENTO */
         * { 
             box-sizing: border-box; 
             -webkit-tap-highlight-color: transparent; 
@@ -41,7 +41,7 @@
             overflow-x: hidden;
         }
         
-        /* SISTEMA DE ACCESO CENTRAL */
+        /* SISTEMA DE ACCESO CENTRAL (LOGIN) */
         #login-system { 
             position: fixed; 
             inset: 0; 
@@ -78,7 +78,7 @@
             text-transform: uppercase; 
         }
 
-        /* GRID DE SELECCIÓN DE MANAGER */
+        /* GRID DE CATEGORÍAS */
         .category-grid { 
             display: grid; 
             grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); 
@@ -132,7 +132,33 @@
             border-right: 1px solid var(--gold);
         }
 
-        /* DASHBOARD PRINCIPAL (DESPUÉS DEL LOGIN) */
+        /* BOTÓN DE RESET MAESTRO */
+        .btn-reset-danger {
+            background: linear-gradient(45deg, #800000, #ff0000);
+            color: white;
+            border: 2px solid white;
+            padding: 25px;
+            width: 100%;
+            max-width: 450px;
+            border-radius: 20px;
+            font-family: 'Syncopate';
+            font-weight: 900;
+            font-size: 0.8rem;
+            cursor: pointer;
+            display: none; /* Solo via ROOT */
+            margin-top: 40px;
+            box-shadow: 0 0 50px rgba(255, 0, 0, 0.4);
+            text-transform: uppercase;
+            animation: pulse-red 2s infinite;
+        }
+
+        @keyframes pulse-red {
+            0% { box-shadow: 0 0 20px rgba(255, 0, 0, 0.4); }
+            50% { box-shadow: 0 0 50px rgba(255, 0, 0, 0.8); }
+            100% { box-shadow: 0 0 20px rgba(255, 0, 0, 0.4); }
+        }
+
+        /* DASHBOARD PRINCIPAL */
         .master-container { 
             display: none; 
             grid-template-columns: 1fr; 
@@ -177,7 +203,7 @@
 
         .content { padding: 25px; }
 
-        /* WIDGETS DE DATOS */
+        /* WIDGETS Y STINTS */
         .total-laps-widget { 
             background: linear-gradient(180deg, #000 0%, #050505 100%); 
             border: 2px solid var(--green); 
@@ -185,16 +211,6 @@
             padding: 25px; 
             text-align: center; 
             margin-bottom: 30px; 
-            box-shadow: 0 0 30px rgba(0,255,157,0.2);
-        }
-
-        .total-laps-widget .label { 
-            font-family: 'Syncopate'; 
-            color: var(--green); 
-            font-size: 0.65rem; 
-            margin-bottom: 10px; 
-            display: block; 
-            letter-spacing: 2px;
         }
 
         .total-laps-widget .count { 
@@ -220,30 +236,29 @@
             color: var(--green); 
             text-align: center; 
             font-family: 'Syncopate'; 
-            letter-spacing: -3px; 
             margin: 15px 0; 
         }
-        
+
         .wear-container { 
             background: #111; 
             height: 16px; 
             border-radius: 8px; 
             overflow: hidden; 
             margin-top: 15px; 
-            border: 1px solid #222; 
         }
 
         .wear-bar { 
             height: 100%; 
             width: 100%; 
             background: var(--green); 
-            transition: 0.8s cubic-bezier(0.18, 0.89, 0.32, 1.28); 
+            transition: 0.8s ease; 
         }
 
         /* TABLA DE RANKING */
         .ranking-table { 
             width: 100%; 
             border-collapse: collapse; 
+            margin-top: 20px;
         }
 
         .ranking-table th { 
@@ -251,45 +266,23 @@
             color: var(--gold); 
             font-family: 'Syncopate'; 
             font-size: 0.6rem; 
-            padding: 18px 5px; 
-            border-bottom: 3px solid var(--gold); 
+            padding: 15px 5px; 
+            border-bottom: 2px solid var(--gold); 
         }
 
         .ranking-table td { 
-            padding: 18px 5px; 
+            padding: 15px 5px; 
             text-align: center; 
             border-bottom: 1px solid #111; 
-            font-size: 1.15rem; 
+            font-size: 1.1rem; 
         }
 
         .row-highlight { 
-            background: rgba(197, 160, 89, 0.25) !important; 
+            background: rgba(197, 160, 89, 0.2); 
             font-weight: 900; 
         }
 
-        /* TERMINAL IA */
-        #ai-terminal { 
-            background: #000; 
-            padding: 25px; 
-            border-radius: 18px; 
-            font-family: 'Courier New', monospace; 
-            min-height: 520px; 
-            color: var(--green); 
-            border-left: 6px solid var(--ai); 
-            line-height: 1.6; 
-            font-size: 0.9rem; 
-            overflow-y: auto; 
-        }
-
-        .ai-pulse { 
-            color: var(--ai); 
-            font-weight: bold; 
-            animation: pulse 1.5s infinite; 
-        }
-
-        @keyframes pulse { 0% { opacity: 0.4; } 50% { opacity: 1; } 100% { opacity: 0.4; } }
-
-        /* BOTONES Y CONTROLES */
+        /* CONTROLES */
         .btn-master { 
             background: var(--gold); 
             color: #000; 
@@ -301,43 +294,8 @@
             font-family: 'Syncopate'; 
             cursor: pointer; 
             text-transform: uppercase; 
-            font-size: 0.9rem; 
-            letter-spacing: 3px;
-        }
-
-        .btn-reset-main {
-            background: linear-gradient(45deg, #700, #f00);
-            color: white;
-            border: 2px solid white;
-            padding: 25px;
-            width: 100%;
-            max-width: 400px;
-            border-radius: 20px;
-            font-family: 'Syncopate';
-            font-weight: 900;
-            cursor: pointer;
-            display: none;
-            margin-top: 30px;
-            box-shadow: 0 0 40px rgba(255,0,0,0.5);
-            text-transform: uppercase;
-        }
-
-        #commander-panel { 
-            background: #0a0900; 
-            border: 2px solid var(--gold); 
-            border-radius: 20px; 
-            padding: 25px; 
-            margin-top: 30px; 
-            display: none; 
-        }
-        
-        label { 
-            font-size: 0.75rem; 
-            color: #888; 
-            font-weight: 900; 
-            text-transform: uppercase; 
-            margin-bottom: 8px; 
-            display: block; 
+            font-size: 0.8rem; 
+            letter-spacing: 2px;
         }
 
         input, select, textarea { 
@@ -349,7 +307,17 @@
             border-radius: 14px; 
             margin-bottom: 20px; 
             font-family: 'Outfit'; 
-            font-size: 1.1rem;
+        }
+
+        #ai-terminal { 
+            background: #000; 
+            padding: 20px; 
+            border-radius: 18px; 
+            font-family: 'Courier New', monospace; 
+            min-height: 450px; 
+            color: var(--green); 
+            border-left: 6px solid var(--ai); 
+            font-size: 0.9rem;
         }
     </style>
 </head>
@@ -358,22 +326,23 @@
 <div id="login-system">
     <div class="header-title">
         <h1>DS AUTOMOBILES</h1>
-        <p>Sugerencias de estrategia | ELITE ENGINEERING CLOUD V260</p>
+        <p>Sugerencias de estrategia | ELITE ENGINEERING CLOUD</p>
     </div>
+
     <div class="category-grid" id="cat-grid"></div>
-    
-    <button id="main-reset-trigger" class="btn-reset-main" onclick="resetMasterLeague()">⚠️ RESET TOTAL DE TEMPORADA</button>
-    
-    <button onclick="accessRoot()" style="background:none; border:none; color:#121212; cursor:pointer; font-size:0.65rem; letter-spacing:6px; font-family:'Syncopate'; margin-top: 60px; margin-bottom: 80px;">SISTEMA_ROOT_AUTH</button>
+
+    <button id="master-reset-btn" class="btn-reset-danger" onclick="executeSeasonReset()">⚠️ RESET TOTAL: BORRAR MANAGERS Y RANKING</button>
+
+    <button onclick="activateRootMode()" style="background:none; border:none; color:#151515; margin-top: 60px; cursor:pointer; font-family:'Syncopate'; font-size:0.6rem;">SISTEMA_ROOT_AUTH</button>
 </div>
 
 <div class="master-container" id="app">
     
     <div class="card">
-        <div class="card-head">CIRCUITO Y PARÁMETROS | <span id="display-id" style="color:#fff;"></span></div>
+        <div class="card-head">CONFIGURACIÓN | <span id="display-id" style="color:#fff;"></span></div>
         <div class="content">
-            <label>Seleccionar Gran Premio</label>
-            <select id="gp-selector" onchange="syncCircuit()">
+            <label>SELECCIONAR GP</label>
+            <select id="gp-selector" onchange="syncCircuitData()">
                 <option value="31">España (31v)</option>
                 <option value="21">Bélgica (21v)</option>
                 <option value="25">Italia (25v)</option>
@@ -401,56 +370,54 @@
                 <option value="35">Sudáfrica (35v)</option>
             </select>
             
-            <div style="background:#000; border:1px solid var(--border); border-radius:20px; padding:25px; text-align:center; margin-bottom:25px;">
-                <label>META TOTAL DE VUELTAS</label>
-                <div id="v-target" style="font-size: 6rem; color: var(--gold); font-family: 'Syncopate'; font-weight: 700;">0</div>
+            <div style="text-align:center; padding: 20px; border: 1px solid var(--border); border-radius: 20px; margin-bottom: 20px;">
+                <label>META DE VUELTAS</label>
+                <div id="v-target" style="font-size: 6rem; color: var(--gold); font-family: 'Syncopate';">0</div>
             </div>
 
-            <label>CONSUMO BASE (FB) L/VTA</label>
-            <input type="number" id="fb-main" value="2.700" step="0.001" oninput="runMasterLogic()">
-
-            <label>NOTAS DEL MANAGER</label>
-            <textarea id="notes-main" rows="9" oninput="persistDataCloud()" placeholder="Anota setups aquí..."></textarea>
+            <label>CONSUMO FB L/VTA</label>
+            <input type="number" id="fb-main" value="2.700" step="0.001" oninput="calculateStrategy()">
             
-            <button class="btn-master" style="background:#111; color:#444;" onclick="location.reload()">CERRAR SESIÓN</button>
+            <label>NOTAS DEL MANAGER</label>
+            <textarea id="notes-main" rows="8" oninput="saveNotesToCloud()" placeholder="Setups, climas, etc..."></textarea>
+            
+            <button class="btn-master" style="background:#111; color:#555;" onclick="location.reload()">LOGOUT</button>
         </div>
     </div>
 
     <div class="card">
-        <div class="card-head">GESTIÓN DE STINTS Y LIGA</div>
+        <div class="card-head">INGENIERÍA DE STINTS</div>
         <div class="content">
             <div class="total-laps-widget">
-                <span class="label">SUMA DE VUELTAS EN STINTS</span>
-                <div class="count" id="total-stint-laps">0</div>
+                <div class="count" id="stint-sum-display">0</div>
+                <label style="font-size:0.6rem; color:var(--green);">VUELTAS EN PLANIFICACIÓN</label>
             </div>
 
-            <div id="stint-container"></div>
-            <button class="btn-master" onclick="createStint()">+ AÑADIR NUEVO STINT</button>
+            <div id="stint-list"></div>
+            <button class="btn-master" onclick="addNewStint()">+ AÑADIR NUEVO STINT</button>
 
-            <h3 style="font-family:'Syncopate'; font-size:0.7rem; color:var(--gold); margin-top:45px; text-align:center;">RANKING EN TIEMPO REAL</h3>
-            <div style="background:#000; border-radius:20px; border:1px solid #111; max-height: 400px; overflow-y: auto;">
+            <h3 style="font-family:'Syncopate'; font-size:0.7rem; color:var(--gold); margin-top:40px; text-align:center;">RANKING GLOBAL</h3>
+            <div style="background:#000; border-radius:20px; overflow:hidden; border:1px solid #111;">
                 <table class="ranking-table">
-                    <thead><tr><th>MANAGER</th><th>PUNTOS</th><th>GP</th></tr></thead>
+                    <thead><tr><th>MANAGER</th><th>PTS</th><th>GP</th></tr></thead>
                     <tbody id="ranking-body"></tbody>
                 </table>
             </div>
 
-            <div id="commander-panel">
-                <div style="color:var(--gold); font-family:'Syncopate'; font-size:0.65rem; text-align:center; margin-bottom:20px;">CENTRO DE MANDO</div>
-                <input type="text" id="adm-pilot-name" placeholder="MANAGER">
-                <input type="number" id="adm-pilot-pts" placeholder="PUNTOS">
-                <button class="btn-master" onclick="injectLeaguePoints()">INYECTAR PUNTOS</button>
+            <div id="admin-points-panel" style="display:none; margin-top:20px; background:#0a0a00; padding:15px; border:1px solid var(--gold); border-radius:15px;">
+                <input type="text" id="adm-name" placeholder="MANAGER">
+                <input type="number" id="adm-pts" placeholder="PUNTOS">
+                <button class="btn-master" onclick="addPointsCloud()">INYECTAR PUNTOS</button>
             </div>
         </div>
     </div>
 
-    <div class="card" style="border-top: 6px solid var(--ai)">
+    <div class="card">
         <div class="card-head">Sugerencias de estrategia | DS-CORE IA</div>
         <div class="content">
-            <label>TEMPERATURA DE PISTA (°C)</label>
-            <input type="number" id="pista-temp" value="25" oninput="runMasterLogic()">
-            <div id="ai-terminal">Estableciendo conexión con el núcleo...</div>
-            <button class="btn-master" style="margin-top:25px; background:var(--ai); color:#fff;" onclick="simulateAIScan()">EJECUTAR ESCANEO PROFUNDO</button>
+            <label>TEMP. PISTA (°C)</label>
+            <input type="number" id="pista-temp" value="25" oninput="calculateStrategy()">
+            <div id="ai-terminal">DS-CORE: Sistema Iniciado...</div>
         </div>
     </div>
 
@@ -461,176 +428,171 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    const PASS_ROOT = "DS2026";
-    const SECTIONS = ["F1", "F2", "F3", "F4", "F5", "K6"];
-    let currentId = ""; let pilotName = ""; let stints = []; let isRoot = false;
+    const KEY_ROOT = "DS2026";
+    const SLOTS = ["F1", "F2", "F3", "F4", "F5", "K6"];
+    let currentSessionId = ""; 
+    let managerName = ""; 
+    let stintsArray = []; 
+    let isRootActive = false;
 
-    // ACTUALIZACIÓN DE GRILLA EN TIEMPO REAL
+    // CARGA DE PERFILES
     db.ref('perfiles').on('value', (snapshot) => {
-        const grid = document.getElementById('cat-grid');
-        grid.innerHTML = '';
-        const dataCloud = snapshot.val() || {};
-        SECTIONS.forEach(cat => {
-            let box = `<div class="cat-box"><h3>${cat}</h3>`;
+        const container = document.getElementById('cat-grid');
+        container.innerHTML = '';
+        const data = snapshot.val() || {};
+        
+        SLOTS.forEach(cat => {
+            let html = `<div class="cat-box"><h3>${cat}</h3>`;
             for(let i=1; i<=4; i++) {
                 let id = `${cat}_M${i}`;
-                let p = dataCloud[id];
-                let isOccupied = p ? 'occupied' : '';
-                let label = p ? p.name.toUpperCase() : 'VACANTE';
-                box += `<button class="slot-btn ${isOccupied}" onclick="handleLogin('${id}')">${label}</button>`;
+                let entry = data[id];
+                let isOccupied = entry ? 'occupied' : '';
+                let name = entry ? entry.name.toUpperCase() : 'VACANTE';
+                html += `<button class="slot-btn ${isOccupied}" onclick="attemptLogin('${id}')">${name}</button>`;
             }
-            grid.innerHTML += box + `</div>`;
+            container.innerHTML += html + `</div>`;
         });
     });
 
-    // ACTUALIZACIÓN DE RANKING
+    // CARGA DE RANKING
     db.ref('ranking').on('value', (snapshot) => {
-        const database = snapshot.val() || {};
-        let htmlRows = '';
-        const sortedRanking = Object.values(database).sort((a,b) => b.pts - a.pts);
-        sortedRanking.forEach(p => {
-            let isMe = (pilotName && p.name === pilotName.trim().toUpperCase());
-            htmlRows += `<tr class="${isMe?'row-highlight':''}">
-                <td style="text-align:left; padding-left:20px;">${p.name}</td>
-                <td>${p.pts}</td><td>${p.gp}</td></tr>`;
+        const data = snapshot.val() || {};
+        const sorted = Object.values(data).sort((a,b) => b.pts - a.pts);
+        let rows = '';
+        sorted.forEach(p => {
+            rows += `<tr><td>${p.name}</td><td>${p.pts}</td><td>${p.gp}</td></tr>`;
         });
-        document.getElementById('ranking-body').innerHTML = htmlRows;
+        document.getElementById('ranking-body').innerHTML = rows;
     });
 
-    function handleLogin(id) {
-        db.ref('perfiles/' + id).once('value').then((snapshot) => {
-            let data = snapshot.val();
+    function attemptLogin(id) {
+        db.ref('perfiles/' + id).once('value').then(s => {
+            let data = s.val();
             if(!data) {
-                let n = prompt("Nombre del Manager:"); if(!n) return;
-                let p = prompt("PIN:"); data = { name: n, pin: p, fb: 2.7, notes: "" };
+                let n = prompt("Nombre Manager:"); if(!n) return;
+                let p = prompt("PIN:"); 
+                data = { name: n, pin: p, fb: 2.7, notes: "" };
                 db.ref('perfiles/' + id).set(data);
-            } else if(!isRoot) {
-                let p = prompt("PIN:"); if(p !== data.pin) return alert("PIN INCORRECTO.");
+            } else if(!isRootActive) {
+                if(prompt("Introduce PIN:") !== data.pin) return alert("PIN INCORRECTO");
             }
-            currentId = id; pilotName = data.name;
+            
+            currentSessionId = id; managerName = data.name;
             document.getElementById('login-system').style.display = 'none';
             document.getElementById('app').style.display = 'grid';
-            if(isRoot) document.getElementById('commander-panel').style.display = 'block';
             document.getElementById('display-id').innerText = id;
             document.getElementById('fb-main').value = data.fb;
             document.getElementById('notes-main').value = data.notes;
-            syncCircuit();
+            if(isRootActive) document.getElementById('admin-points-panel').style.display = 'block';
+            syncCircuitData();
         });
     }
 
-    function createStint() {
+    function activateRootMode() {
+        if(prompt("ROOT_PASS:") === KEY_ROOT) {
+            isRootActive = true;
+            document.getElementById('master-reset-btn').style.display = 'block';
+            alert("MODO COMANDANTE ACTIVADO. BOTÓN DE RESET TOTAL DISPONIBLE.");
+        }
+    }
+
+    function executeSeasonReset() {
+        if(!isRootActive) return;
+        if(confirm("🚨 ¡ADVERTENCIA CRÍTICA!\nEsto borrará todos los managers (nombres y pines) y el ranking de la nube.\n¿Estás seguro de resetear la temporada?")) {
+            db.ref('/').remove().then(() => {
+                alert("NUBE LIMPIADA CORRECTAMENTE.");
+                location.reload();
+            });
+        }
+    }
+
+    function addNewStint() {
         let sid = Date.now();
-        stints.push({ id: sid, laps: 10, push: 0, wear: 8.0 });
+        stintsArray.push({ id: sid, laps: 10, push: 0, wear: 8.0 });
         let div = document.createElement('div');
-        div.className = 'stint-block'; div.id = `block-${sid}`;
+        div.className = 'stint-block'; div.id = `st-${sid}`;
         div.innerHTML = `
             <div style="display:flex; justify-content:space-between; align-items:center;">
-                <b style="color:var(--gold); letter-spacing:2px;">STINT #${stints.length}</b>
-                <span onclick="killStint(${sid})" style="color:var(--red); cursor:pointer; font-weight:900;">[X]</span>
+                <b style="color:var(--gold); font-size:0.8rem;">STINT #${stintsArray.length}</b>
+                <span onclick="removeStint(${sid})" style="color:var(--red); cursor:pointer; font-weight:900;">[BORRAR]</span>
             </div>
-            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px; margin-top:20px;">
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-top:15px;">
                 <div><label>Vueltas</label><input type="number" value="10" oninput="updStint(${sid},'laps',this.value)"></div>
-                <div><label>Mapa Motor</label>
-                    <select onchange="updStint(${sid},'push',this.value)">
-                        <option value="0.025">PL5</option><option value="0" selected>PL3</option><option value="-0.012">PL1</option>
-                    </select>
-                </div>
+                <div><label>Mapa</label><select onchange="updStint(${sid},'push',this.value)">
+                    <option value="0.025">PL5 (Push)</option><option value="0" selected>PL3 (Norm)</option><option value="-0.012">PL1 (Lean)</option>
+                </select></div>
                 <div style="grid-column: span 2;">
-                    <label>Desgaste % por vta</label><input type="number" value="8.0" step="0.1" oninput="updStint(${sid},'wear',this.value)">
+                    <label>Desgaste % por Vta</label><input type="number" value="8.0" step="0.1" oninput="updStint(${sid},'wear',this.value)">
                     <div class="wear-container"><div class="wear-bar" id="bar-${sid}"></div></div>
                 </div>
             </div>
-            <div class="fuel-calc" id="fuel-val-${sid}">0.00L</div>`;
-        document.getElementById('stint-container').appendChild(div);
-        runMasterLogic();
+            <div class="fuel-calc" id="fuel-${sid}">0.00L</div>`;
+        document.getElementById('stint-list').appendChild(div);
+        calculateStrategy();
     }
 
     function updStint(id, key, val) {
-        let s = stints.find(x => x.id === id); if(s) s[key] = parseFloat(val);
-        runMasterLogic();
+        let s = stintsArray.find(x => x.id === id); if(s) s[key] = parseFloat(val);
+        calculateStrategy();
     }
 
-    function killStint(id) {
-        stints = stints.filter(x => x.id !== id); document.getElementById(`block-${id}`).remove();
-        runMasterLogic();
+    function removeStint(id) {
+        stintsArray = stintsArray.filter(x => x.id !== id);
+        document.getElementById(`st-${id}`).remove();
+        calculateStrategy();
     }
 
-    function runMasterLogic() {
-        let fbBase = parseFloat(document.getElementById('fb-main').value) || 0;
-        let totalLaps = 0;
-        stints.forEach(s => {
-            let resFuel = (s.laps * (fbBase + s.push)) + 0.3;
-            document.getElementById(`fuel-val-${s.id}`).innerText = resFuel.toFixed(2) + "L";
-            let resWear = 100 - (s.laps * s.wear);
+    function calculateStrategy() {
+        let fb = parseFloat(document.getElementById('fb-main').value) || 0;
+        let total = 0;
+        stintsArray.forEach(s => {
+            let fuel = (s.laps * (fb + s.push)) + 0.3;
+            document.getElementById(`fuel-${s.id}`).innerText = fuel.toFixed(2) + "L";
+            let wear = 100 - (s.laps * s.wear);
             let b = document.getElementById(`bar-${s.id}`);
             if(b) {
-                b.style.width = Math.max(0, Math.min(100, resWear)) + "%";
-                b.style.background = resWear < 25 ? 'var(--red)' : resWear < 50 ? 'var(--orange)' : 'var(--green)';
+                b.style.width = Math.max(0, Math.min(100, wear)) + "%";
+                b.style.background = wear < 20 ? 'var(--red)' : wear < 45 ? 'var(--orange)' : 'var(--green)';
             }
-            totalLaps += s.laps;
+            total += s.laps;
         });
-        document.getElementById('total-stint-laps').innerText = totalLaps;
-        updateAITerminal(totalLaps);
-        persistDataCloud();
+        document.getElementById('stint-sum-display').innerText = total;
+        updateAITerminal(total);
+        saveNotesToCloud();
     }
 
-    function persistDataCloud() {
-        if(!currentId) return;
-        db.ref('perfiles/' + currentId).update({
+    function updateAITerminal(total) {
+        let t = parseInt(document.getElementById('v-target').innerText);
+        let temp = parseInt(document.getElementById('pista-temp').value);
+        let out = `Sugerencias de estrategia | DS-CORE\n------------------------\n`;
+        out += `ESTADO: ${total}/${t} VTS\n`;
+        out += (t-total) > 0 ? `DÉFICIT: ${t-total} VTS\n` : `OBJETIVO CUMPLIDO\n`;
+        out += `NEUMÁTICO RECOMENDADO: ${temp > 28 ? 'DURO' : (temp < 18 ? 'BLANDO' : 'MEDIO')}\n`;
+        out += `------------------------\nSISTEMA CLOUD SINCRONIZADO.`;
+        document.getElementById('ai-terminal').innerText = out;
+    }
+
+    function saveNotesToCloud() {
+        if(currentSessionId) db.ref('perfiles/' + currentSessionId).update({
             fb: document.getElementById('fb-main').value,
             notes: document.getElementById('notes-main').value
         });
     }
 
-    function updateAITerminal(totalLaps) {
-        const terminal = document.getElementById('ai-terminal');
-        let target = parseInt(document.getElementById('v-target').innerText);
-        let temp = parseInt(document.getElementById('pista-temp').value);
-        let report = `<span style="color:var(--ai); font-weight:900;">[Sugerencias de estrategia | V2.6]</span><br>--------------------<br>`;
-        report += `PLAN: ${totalLaps} / ${target} VTS<br>`;
-        if(target > totalLaps) report += `<span style="color:var(--red)">DÉFICIT: -${target-totalLaps} VTS</span><br>`;
-        let tyre = temp > 28 ? 'DURO' : (temp < 18 ? 'BLANDO' : 'MEDIO');
-        report += `NEUMÁTICO: ${tyre}<br>TEMPERATURA: ${temp}°C<br>--------------------<br><span class="ai-pulse">SISTEMA ONLINE.</span>`;
-        terminal.innerHTML = report;
-    }
-
-    function simulateAIScan() {
-        const term = document.getElementById('ai-terminal');
-        term.innerHTML = `<span class="ai-pulse">>>> ESCANEANDO NUBE...</span>`;
-        setTimeout(() => runMasterLogic(), 800);
-    }
-
-    function syncCircuit() {
-        document.getElementById('v-target').innerText = document.getElementById('gp-selector').value;
-        runMasterLogic();
-    }
-
-    function injectLeaguePoints() {
-        let pName = document.getElementById('adm-pilot-name').value.trim().toUpperCase();
-        let pPoints = parseInt(document.getElementById('adm-pilot-pts').value);
-        db.ref('ranking/' + pName).once('value').then(snap => {
-            let cur = snap.val() || { name: pName, pts: 0, gp: 0 };
-            db.ref('ranking/' + pName).set({ name: pName, pts: Number(cur.pts) + pPoints, gp: Number(cur.gp) + 1 });
-            alert("PUNTOS INYECTADOS.");
+    function addPointsCloud() {
+        let n = document.getElementById('adm-name').value.toUpperCase().trim();
+        let p = parseInt(document.getElementById('adm-pts').value);
+        if(!n || isNaN(p)) return;
+        db.ref('ranking/' + n).once('value').then(snap => {
+            let cur = snap.val() || { name: n, pts: 0, gp: 0 };
+            db.ref('ranking/' + n).set({ name: n, pts: Number(cur.pts) + p, gp: Number(cur.gp) + 1 });
+            alert("PUNTOS AÑADIDOS A " + n);
         });
     }
 
-    function accessRoot() {
-        if(prompt("ROOT_KEY:") === PASS_ROOT) {
-            isRoot = true; 
-            document.getElementById('main-reset-trigger').style.display = 'block';
-            alert("MODO COMANDANTE. BOTÓN DE RESET TOTAL ACTIVADO.");
-        }
-    }
-
-    function resetMasterLeague() {
-        if(!isRoot) return;
-        if(confirm("🚨 ¡ADVERTENCIA! Se eliminarán todos los MANAGERS (nombres y pines) y el RANKING. ¿Confirmar limpieza total de temporada?")) {
-            db.ref('/').remove().then(() => {
-                alert("NUBE LIMPIA. REINICIANDO...");
-                location.reload();
-            });
-        }
+    function syncCircuitData() {
+        document.getElementById('v-target').innerText = document.getElementById('gp-selector').value;
+        calculateStrategy();
     }
 </script>
 </body>
