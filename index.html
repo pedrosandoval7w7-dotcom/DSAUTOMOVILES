@@ -643,61 +643,12 @@ function actualizarDatosAdmin() {
     alert("¡Ranking actualizado!");
 }
 
-// D. Borrar Perfil de Firebase (Versión RASTREADORA)
-function resetearPerfilFirebase() {
-    const nombreEscrito = document.getElementById('admin-nombre').value.trim().toLowerCase();
-    
-    if (!nombreEscrito) {
-        alert("⚠️ Comisario, escriba el nombre del manager para resetear su perfil.");
-        return;
-    }
-
-    // Accedemos a la base de datos de perfiles
-    db.ref('perfiles').once('value', (snapshot) => {
-        let encontrado = false;
-        let idABorrar = null;
-        let nombreRealEncontrado = "";
-
-        snapshot.forEach((childSnapshot) => {
-            const datos = childSnapshot.val();
-            // Limpiamos el nombre de la base de datos de posibles espacios invisibles
-            const nombreEnDB = datos.nombre ? datos.nombre.trim().toLowerCase() : "";
-
-            // Si el nombre escrito está contenido en el nombre de la DB o viceversa
-            if (nombreEnDB.includes(nombreEscrito) || nombreEscrito.includes(nombreEnDB)) {
-                encontrado = true;
-                idABorrar = childSnapshot.key;
-                nombreRealEncontrado = datos.nombre;
-            }
-        });
-
-        if (encontrado) {
-            if (confirm(`¿ELIMINAR el perfil de "${nombreRealEncontrado}" de la web?\n\n(ID detectado: ${idABorrar})`)) {
-                db.ref('perfiles/' + idABorrar).remove()
-                    .then(() => {
-                        alert(`✅ ¡Hecho! El perfil de ${nombreRealEncontrado} ha sido borrado.`);
-                        document.getElementById('admin-nombre').value = "";
-                    })
-                    .catch((e) => alert("❌ Error: " + e.message));
-            }
-        } else {
-            alert(`❓ No hubo suerte. En la base de datos no hay nadie que se llame parecido a "${nombreEscrito}".`);
-        }
-    });
-}
 // E. Reset Temporada
 function resetTemporada() {
     if (confirm("⚠️ ¿Resetear puntos de TEMPORADA?")) {
         datosRanking.temporada = [];
         localStorage.setItem('rankingDS', JSON.stringify(datosRanking));
         switchRank('temporada');
-    }
-}
-
-// F. Abrir Admin
-function abrirAdmin() {
-    if (prompt("PIN DE COMISARIO:") === "1234") {
-        document.getElementById('admin-panel').style.display = 'block';
     }
 }
 
@@ -710,79 +661,73 @@ window.onload = () => switchRank('temporada');
 
     let sessionID = ""; let managerName = ""; let stintsArr = []; let isAdmin = false;
 
-  // --- SISTEMA DE ACCESO (PERFILES + EXTRAS) ---
-    db.ref('perfiles').on('value', (snap) => {
-        const grid = document.getElementById('m-grid'); 
-        if(!grid) return;
-        grid.innerHTML = '';
-        const data = snap.val() || {};
-        
-        // Categorías F1 a K6
-        const categorias = ["F1", "F2", "F3", "F4", "F5", "K6"];
-        categorias.forEach(cat => {
-            let h = `<div class="slot-card"><h3>ESTAMENTO ${cat}</h3>`;
-            for(let i=1; i<=4; i++) {
-                let id = `${cat}_M${i}`; 
-                let p = data[id];
-                h += `<button class="m-btn ${p ? 'occupied' : ''}" onclick="login('${id}')">
-                    <span style="font-size:0.6rem; opacity:0.4; margin-right:10px;">${id}</span> ${p ? p.name.toUpperCase() : 'VACANTE'}
-                </button>`;
-            }
-            grid.innerHTML += h + `</div>`;
-        });
-
-        // 6 Perfiles Extras (Como pediste)
-        let extraH = `<div class="slot-card" style="border-top-color: var(--green);"><h3>PERFILES EXTRAS</h3>`;
-        for(let i=1; i<=6; i++) {
-            let id = `EXTRA_${i}`; 
+ // --- SISTEMA DE ACCESO (ACTUALIZADO CON X DE BORRADO) ---
+db.ref('perfiles').on('value', (snap) => {
+    const grid = document.getElementById('m-grid'); 
+    if(!grid) return;
+    grid.innerHTML = '';
+    const data = snap.val() || {};
+    
+    const categorias = ["F1", "F2", "F3", "F4", "F5", "K6"];
+    categorias.forEach(cat => {
+        let h = `<div class="slot-card"><h3>ESTAMENTO ${cat}</h3>`;
+        for(let i=1; i<=4; i++) {
+            let id = `${cat}_M${i}`; 
             let p = data[id];
-            extraH += `<button class="m-btn ${p ? 'occupied' : ''}" style="${p ? 'border-color:var(--green);' : ''}" onclick="login('${id}')">
-                <span style="font-size:0.6rem; opacity:0.4; margin-right:10px;">EX-${i}</span> ${p ? p.name.toUpperCase() : 'VACANTE'}
-            </button>`;
+            
+            // Contenedor para la X roja
+            h += `<div style="position: relative; margin-bottom: 5px;">
+                    <button class="m-btn ${p ? 'occupied' : ''}" onclick="login('${id}')">
+                        <span style="font-size:0.6rem; opacity:0.4; margin-right:10px;">${id}</span> ${p ? p.name.toUpperCase() : 'VACANTE'}
+                    </button>
+                    ${p ? `<button onclick="event.stopPropagation(); borrarPerfilDirecto('${id}', '${p.name}')" class="btn-delete-admin" style="display: ${typeof isAdmin !== 'undefined' && isAdmin ? 'block' : 'none'}; position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: #ff4757; color: white; border: none; border-radius: 4px; padding: 2px 8px; font-size: 10px; cursor: pointer; font-weight: bold; z-index: 10;">X</button>` : ''}
+                  </div>`;
         }
-        grid.innerHTML += extraH + `</div>`;
+        grid.innerHTML += h + `</div>`;
     });
 
-    // --- FUNCIÓN DE LOGIN Y CREACIÓN ---
-    function login(id) {
-        db.ref('perfiles/' + id).once('value').then(s => {
-            let p = s.val();
-            
-            // Si el perfil está vacío, lo creamos
-            if(!p) {
-                let n = prompt("NUEVO MANAGER - NOMBRE:"); 
-                let pin = prompt("CREAR PIN DE SEGURIDAD:");
-                if(!n || !pin) return; 
-                
-                p = { name: n, pin: pin, fb: 2.7 }; 
-                db.ref('perfiles/' + id).set(p);
-            } 
-            // Si ya existe, pedimos el PIN (a menos que seas admin)
-            else if(!isAdmin) {
-                let userPin = prompt("PIN DE ACCESO PARA " + p.name.toUpperCase() + ":");
-                if(userPin !== p.pin) { 
-                    alert("PIN INCORRECTO. ACCESO DENEGADO."); 
-                    return; 
-                }
-            }
-
-            // Si todo está bien, entramos al Dashboard
-            sessionID = id; 
-            managerName = p.name.toUpperCase();
-            document.getElementById('login-system').style.display = 'none';
-            document.getElementById('app-interface').style.display = 'grid';
-            
-            // Cargar configuración previa
-            if(p.fb) document.getElementById('fb-base').value = p.fb;
-            
-            updateCircuit(); 
-            syncLiveNotes();
-            logTelemetry(`SESIÓN INICIADA: ${managerName} (${id})`);
-        }).catch(err => {
-            console.error("Error en Firebase:", err);
-            alert("Error de conexión. Revisa tu internet.");
-        });
+    let extraH = `<div class="slot-card" style="border-top-color: var(--green);"><h3>PERFILES EXTRAS</h3>`;
+    for(let i=1; i<=6; i++) {
+        let id = `EXTRA_${i}`; 
+        let p = data[id];
+        extraH += `<div style="position: relative; margin-bottom: 5px;">
+                    <button class="m-btn ${p ? 'occupied' : ''}" style="${p ? 'border-color:var(--green);' : ''}" onclick="login('${id}')">
+                        <span style="font-size:0.6rem; opacity:0.4; margin-right:10px;">EX-${i}</span> ${p ? p.name.toUpperCase() : 'VACANTE'}
+                    </button>
+                    ${p ? `<button onclick="event.stopPropagation(); borrarPerfilDirecto('${id}', '${p.name}')" class="btn-delete-admin" style="display: ${typeof isAdmin !== 'undefined' && isAdmin ? 'block' : 'none'}; position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: #ff4757; color: white; border: none; border-radius: 4px; padding: 2px 8px; font-size: 10px; cursor: pointer; font-weight: bold; z-index: 10;">X</button>` : ''}
+                  </div>`;
     }
+    grid.innerHTML += extraH + `</div>`;
+});
+
+// --- FUNCIÓN DE LOGIN Y CREACIÓN ---
+function login(id) {
+    db.ref('perfiles/' + id).once('value').then(s => {
+        let p = s.val();
+        if(!p) {
+            let n = prompt("NUEVO MANAGER - NOMBRE:"); 
+            let pin = prompt("CREAR PIN DE SEGURIDAD:");
+            if(!n || !pin) return; 
+            p = { name: n, pin: pin, fb: 2.7 }; 
+            db.ref('perfiles/' + id).set(p);
+        } 
+        else if(!isAdmin) {
+            let userPin = prompt("PIN DE ACCESO PARA " + p.name.toUpperCase() + ":");
+            if(userPin !== p.pin) { 
+                alert("PIN INCORRECTO. ACCESO DENEGADO."); 
+                return; 
+            }
+        }
+        sessionID = id; 
+        managerName = p.name.toUpperCase();
+        document.getElementById('login-system').style.display = 'none';
+        document.getElementById('app-interface').style.display = 'grid';
+        if(p.fb) document.getElementById('fb-base').value = p.fb;
+        updateCircuit(); 
+        syncLiveNotes();
+        logTelemetry(`SESIÓN INICIADA: ${managerName} (${id})`);
+    });
+}
 
     // --- SUGERENCIAS DE ESTRATEGIA (MAESTRO IGP - COMBINACIÓN DE COMPUESTOS) ---
 function generateSuggestions() {
@@ -1043,21 +988,47 @@ function generateSuggestions() {
         });
     }
 
-   // 2. FUNCIONES DE ADMINISTRACIÓN Y CONTROL (CON BOTÓN DE BORRADO)
-    function unlockAdmin() { 
-        if(prompt("ACCESS KEY:") === "DS2026") { 
-            isAdmin = true; 
-            document.getElementById('admin-panel').style.display='block'; 
-            
-            // ESTA ES LA LÍNEA QUE TE FALTA:
-            if(document.getElementById('clear-notes-btn')) {
-                document.getElementById('clear-notes-btn').style.display='block'; 
-            }
-            
-            alert("MODO ADMIN ACTIVO"); 
-        } 
-    }
+  // --- 2. CONTROL DE ADMINISTRACIÓN Y BORRADO DIRECTO ---
 
+// A. Función para activar el Modo Admin (Interruptor)
+function unlockAdmin() { 
+    if(prompt("ACCESS KEY:") === "DS2026") { 
+        isAdmin = true; 
+        
+        // Abrir el panel de puntos si existe
+        if(document.getElementById('admin-panel')) {
+            document.getElementById('admin-panel').style.display = 'block'; 
+        }
+        
+        // Mostrar botón de limpiar notas si existe
+        if(document.getElementById('clear-notes-btn')) {
+            document.getElementById('clear-notes-btn').style.display = 'block'; 
+        }
+        
+        // --- ACTIVAR LAS X ROJAS EN LOS PERFILES ---
+        const botonesX = document.querySelectorAll('.btn-delete-admin');
+        botonesX.forEach(btn => {
+            btn.style.display = 'block'; // Hace que las X sean visibles
+        });
+        
+        alert("MODO ADMIN ACTIVO: Ya puedes usar las X para resetear perfiles."); 
+    } else {
+        alert("ACCESS KEY INCORRECTA");
+    }
+}
+
+// B. Función que ejecuta el borrado al tocar la X (Gatillo)
+function borrarPerfilDirecto(id, nombre) {
+    if (confirm(`⚠️ COMISARIO: ¿Deseas resetear el perfil de ${nombre.toUpperCase()}?\n\nEl espacio quedará VACANTE y se borrará su PIN.`)) {
+        db.ref('perfiles/' + id).remove()
+            .then(() => {
+                alert("✅ PERFIL ELIMINADO CORRECTAMENTE");
+            })
+            .catch((e) => {
+                alert("❌ ERROR EN BOXES: " + e.message);
+            });
+    }
+}
     function resetRanking() { 
         if(confirm("¿RESETEAR RANKING TOTAL? ESTO NO SE PUEDE DESHACER.")) {
             db.ref('ranking').remove(); 
