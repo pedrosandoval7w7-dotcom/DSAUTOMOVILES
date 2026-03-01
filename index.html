@@ -484,75 +484,53 @@
 
             <label>LIVE NOTES (TELEMETRÍA COMPARTIDA)</label>
             <textarea id="live-notes" rows="10" oninput="broadcastNotes()" placeholder="Comparte incidentes, lluvia o tráfico..."></textarea>
+<button onclick="toggleHelp()" style="background:#f1c40f; color:black; width:100%; padding:15px; margin-top:15px; font-weight:bold; border:none; cursor:pointer; border-radius:5px; box-shadow: 0 5px 15px rgba(0,0,0,0.4); font-size: 1.1rem; text-transform: uppercase;">
+    📖 ABRIR MANUAL TÉCNICO COMPLETO
+</button>
+
 <div id="help-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.98); z-index:10000; color:white; padding:10px; font-family: 'Segoe UI', sans-serif; overflow-y: auto;">
-    <div style="background:#080808; padding:35px; border-radius:20px; border:2px solid #f1c40f; max-width:1000px; margin:20px auto; font-family: 'Segoe UI', sans-serif; color: #fff; box-shadow: 0 0 60px rgba(0,0,0,0.95);">
+    <div style="background:#080808; padding:35px; border-radius:20px; border:2px solid #f1c40f; max-width:900px; margin:40px auto; box-shadow: 0 0 60px rgba(0,0,0,0.95);">
 
         <h1 style="color:#f1c40f; text-align:center; text-transform: uppercase; letter-spacing: 4px; border-bottom: 2px solid #333; padding-bottom:20px; margin-bottom:30px;">
             Manual Maestro DS-Automobiles V10.6
         </h1>
 
-        <section style="margin-bottom:25px; border-bottom: 1px solid #222; padding-bottom:15px;">
-            <h3 style="color:#f1c40f; background:#222; padding:8px; border-left: 5px solid #f1c40f;">👤 1. GESTIÓN DE PERFILES (LOGIN)</h3>
-            <p>La parrilla cuenta con 24 slots (F1 a K6) y 6 perfiles Extras.</p>
-            <ul>
-                <li><b>Crear Perfil:</b> Pulsa en un slot "VACANTE" para asignar tu nombre y un PIN.</li>
-                <li><b>PIN:</b> Es obligatorio para entrar a tu sesión. Si lo olvidas, contacta con un Comisario.</li>
-                <li><b>Sesión:</b> Al entrar, el sistema cargará automáticamente tu último diseño y consumo base (FB).</li>
-            </ul>
-        </section>
+        <h3 style="color:#f1c40f; background:#222; padding:8px; border-left: 5px solid #f1c40f;">👤 1. GESTIÓN DE PERFILES (LOGIN)</h3>
+        <p>Usa los slots F1 a K6. Los perfiles ocupados requieren PIN. El <b>Modo Admin</b> permite resetear slots con la "X" roja.</p>
 
-        <section style="margin-bottom:25px; border-bottom: 1px solid #222; padding-bottom:15px;">
-            <h3 style="color:#f1c40f; background:#222; padding:8px; border-left: 5px solid #f1c40f;">📊 2. SUGERENCIAS DE ESTRATEGIA</h3>
-            <p>Introduce el desgaste de tu vuelta de práctica para que la IA genere rutas:</p>
-            <ul>
-                <li><b>Ruta Sprint:</b> Estrategia de 2 paradas para atacar (SS/S).</li>
-                <li><b>Ruta Equilibrada:</b> Estrategia de 1 parada para ritmo constante (S/M).</li>
-                <li><b>Muerte al 32%:</b> Los cálculos mueren al 32%. Por debajo de eso, perderás 2 segundos por vuelta.</li>
-            </ul>
-        </section>
+        <h3 style="color:#f1c40f; background:#222; padding:8px; border-left: 5px solid #f1c40f;">📊 2. SUGERENCIAS DE ESTRATEGIA</h3>
+        <p>La IA genera rutas basadas en tu vuelta de práctica:</p>
+        <ul>
+            <li><b>Sprint:</b> 2 paradas (Ataque).</li>
+            <li><b>Equilibrada:</b> 1 parada (Consistencia).</li>
+            <li><b>Límite Crítico:</b> No bajes del <b>32%</b> de neumático o perderás 2s por vuelta.</li>
+        </ul>
 
-        <section style="margin-bottom:25px; border-bottom: 1px solid #222; padding-bottom:15px;">
-            <h3 style="color:#2ecc71; background:#1a2e21; padding:8px; border-left: 5px solid #2ecc71;">🔬 3. LABORATORIO DE DISEÑO Y ESPIONAJE</h3>
-            <p>Configura tus puntos de diseño (ACE, FRE, AERO, MAN) para obtener el <b>Análisis de Ingenieros</b>:</p>
-            <ul>
-                <li><b>Delta Estimado:</b> Indica cuántos segundos por vuelta pierdes/ganas según el coche actual.</li>
-                <li><b>Spy Target:</b> Selecciona a un rival en la lista para comparar tu ventaja porcentual (%) contra él.</li>
-                <li><b>Plan de Investigación:</b> El sistema te dirá cuántos puntos asignar a cada área según el circuito.</li>
-            </ul>
-            
-        </section>
+        <h3 style="color:#2ecc71; background:#1a2e21; padding:8px; border-left: 5px solid #2ecc71;">🔬 3. DESARROLLO Y ESPIONAJE</h3>
+        <p>Configura ACE, FRE, AERO y MAN para ver el <b>Delta Estimado</b>. Usa el <b>Spy Target</b> para comparar tu coche con el de tus rivales en tiempo real.</p>
 
-        <section style="margin-bottom:25px; border-bottom: 1px solid #222; padding-bottom:15px;">
-            <h3 style="color:#f1c40f; background:#222; padding:8px; border-left: 5px solid #f1c40f;">⛽ 4. MOTOR DE STINTS Y COMBUSTIBLE</h3>
-            <ul>
-                <li><b>Cálculo de Litros:</b> Incluye automáticamente el margen de seguridad de <b>0.35L</b>.</li>
-                <li><b>Modos Push:</b> Ajusta el nivel de ataque (1 al 5) y verás el impacto real en el consumo y la degradación térmica.</li>
-                <li><b>Barra Térmica:</b> Muestra la salud exponencial del neumático vuelta a vuelta.</li>
-            </ul>
-            
-        </section>
+        <h3 style="color:#f1c40f; background:#222; padding:8px; border-left: 5px solid #f1c40f;">⛽ 4. STINTS Y COMBUSTIBLE</h3>
+        <p>El sistema añade <b>0.35L</b> de reserva. Ajusta el <b>Modo Push (1-5)</b> para ver la degradación térmica real en la barra de salud.</p>
 
-        <section style="margin-bottom:25px; border-bottom: 1px solid #222; padding-bottom:15px;">
-            <h3 style="color:#3498db; background:#1a3a5a; padding:8px; border-left: 5px solid #3498db;">📻 5. RADIO Y NOTAS (GLOBAL)</h3>
-            <ul>
-                <li><b>Live Notes:</b> Escribe datos como <i>"Lluvia en v.10"</i>. Si detecta "LLUVIA", saltará una alerta visual azul.</li>
-                <li><b>Chat:</b> Conversación en tiempo real para coordinar la estrategia del equipo.</li>
-            </ul>
-        </section>
+        <h3 style="color:#3498db; background:#1a3a5a; padding:8px; border-left: 5px solid #3498db;">🌧️ 5. PROTOCOLO DE LLUVIA</h3>
+        <ul>
+            <li><b>0.6mm a 2.9mm:</b> Intermedios (I).</li>
+            <li><b>3.0mm+:</b> Lluvia Extrema (W).</li>
+            <li>Si escribes "LLUVIA" en las <b>Live Notes</b>, activarás la alerta global.</li>
+        </ul>
 
-        <section style="margin-bottom:25px;">
-            <h3 style="color:#e67e22; background:#2e1f14; padding:8px; border-left: 5px solid #e67e22;">🏆 6. RANKING Y MODALIDAD ADMIN</h3>
-            <ul>
-                <li><b>Ranking:</b> Clasificación por puntos. El Top 3 tiene colores especiales (Oro, Plata, Bronce).</li>
-                <li><b>Comisario (Admin):</b> Al activar el modo Admin con la clave, se pueden borrar perfiles ("X" roja) e inyectar puntos.</li>
-            </ul>
-        </section>
+        <h3 style="color:#e67e22; background:#2e1f14; padding:8px; border-left: 5px solid #e67e22;">🏆 6. RANKING Y PUNTOS</h3>
+        <p>El Comisario inyecta puntos tras cada carrera. El Top 3 del ranking se muestra con colores Oro, Plata y Bronce.</p>
 
-        <button onclick="toggleHelp()" style="background:#ff4757; color:white; border:none; padding:18px; width:100%; font-weight:bold; border-radius:10px; cursor:pointer; font-size:1.2rem; transition: 0.3s; text-transform: uppercase;">
-            🏁 ENTENDIDO / CERRAR MANUAL
+        <button onclick="toggleHelp()" style="background:#ff4757; color:white; border:none; padding:18px; width:100%; margin-top:25px; font-weight:bold; border-radius:10px; cursor:pointer; font-size:1.2rem; text-transform: uppercase;">
+            🏁 CERRAR MANUAL
         </button>
     </div>
 </div>
+
+<button class="action-btn" style="background:#080808; color:#fff; border:1px solid #333; width:100%; padding:12px; margin-top:10px; cursor:pointer; border-radius:5px;" onclick="location.reload()">
+    CERRAR SESIÓN
+</button>
     <div class="panel">
         <div class="panel-header">DS-ENGINE V10.6 | EXPO-THERMAL CORE</div>
         <div class="panel-body">
