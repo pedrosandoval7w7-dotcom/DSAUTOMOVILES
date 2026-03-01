@@ -432,7 +432,29 @@
 
             <label>LIVE NOTES (TELEMETRÍA COMPARTIDA)</label>
             <textarea id="live-notes" rows="10" oninput="broadcastNotes()" placeholder="Comparte incidentes, lluvia o tráfico..."></textarea>
-            
+<button onclick="toggleHelp()" style="background:#f1c40f; color:black; width:100%; padding:10px; margin-top:15px; font-weight:bold; border:none; cursor:pointer; border-radius:5px; box-shadow: 0 4px 6px rgba(0,0,0,0.3);">
+                ❓ ¿CÓMO USAR ESTA PÁGINA?
+            </button>
+
+            <div id="help-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); z-index:10000; color:white; padding:20px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
+                <div style="background:#1a1a1a; padding:25px; border-radius:15px; border:2px solid #f1c40f; max-width:500px; margin:auto; margin-top:40px; box-shadow: 0 0 20px rgba(241, 196, 15, 0.2);">
+                    <h2 style="color:#f1c40f; text-align:center; margin-top:0;">📖 MANUAL DEL MANAGER</h2>
+                    <hr style="border:0; border-top:1px solid #333; margin:15px 0;">
+                    
+                    <div style="line-height:1.6;">
+                        <p><strong style="color:#f1c40f;">1. Sugerencias de estrategia:</strong> Ingresa el % de desgaste de tu práctica. El sistema calculará automáticamente qué neumáticos combinar (ej. SS+SS+S) y en qué vuelta exacta entrar a boxes según las vueltas de cada circuito.</p>
+                        
+                        <p><strong style="color:#f1c40f;">2. Live Notes (Radio):</strong> Es comunicación en tiempo real. Lo que escribas aquí se guarda en la nube y aparece en las pantallas de todos los managers del equipo al instante.</p>
+                        
+                        <p><strong style="color:#f1c40f;">3. Telemetría y Combustible:</strong> Usa la calculadora principal para ver cuántos litros necesitas por vuelta y cuánta vida le queda al neumático antes de llegar al límite crítico del 32%.</p>
+                        
+                        <p><strong style="color:#f1c40f;">4. Ranking:</strong> Tus puntos se guardan permanentemente. Al final de la carrera, asegúrate de ver tu posición en la tabla global.</p>
+                    </div>
+
+                    <button onclick="toggleHelp()" style="background:#ff4757; color:white; border:none; padding:12px; width:100%; margin-top:20px; font-weight:bold; border-radius:5px; cursor:pointer; font-size:1rem;">ENTENDIDO / CERRAR GUÍA</button>
+                </div>
+            </div>
+        
             <button class="action-btn" style="background:#080808; color:#444; border:1px solid #111;" onclick="location.reload()">CERRAR SESIÓN</button>
         </div>
     </div>
@@ -951,7 +973,16 @@ function generateSuggestions() {
             logTelemetry(`Actualizado cálculo para ${stintsArr.length} stints.`);
         }
     };
-
+    
+function toggleHelp() {
+    const modal = document.getElementById('help-modal');
+    // Si está escondido O si es la primera vez que se lee (está vacío), lo muestra.
+    if(modal.style.display === 'none' || modal.style.display === '') {
+        modal.style.display = 'block';
+    } else {
+        modal.style.display = 'none';
+    }
+}
     console.log("DS-Automobiles: Módulo de Potencia V10.6 activado. Total de líneas estimadas en archivo único: 920.");
 </script>
 </body>
