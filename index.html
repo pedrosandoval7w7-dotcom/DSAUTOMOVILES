@@ -494,11 +494,15 @@
 
     let sessionID = ""; let managerName = ""; let stintsArr = []; let isAdmin = false;
 
-    // SISTEMA DE PERFILES POR CATEGORÍA
+   // SISTEMA DE PERFILES AMPLIADO (CATEGORÍAS + EXTRAS)
     db.ref('perfiles').on('value', (snap) => {
-        const grid = document.getElementById('m-grid'); grid.innerHTML = '';
+        const grid = document.getElementById('m-grid'); 
+        grid.innerHTML = '';
         const data = snap.val() || {};
-        ["F1", "F2", "F3", "F4", "F5", "K6"].forEach(cat => {
+        
+        // Categorías Estándar
+        const categorias = ["F1", "F2", "F3", "F4", "F5", "K6"];
+        categorias.forEach(cat => {
             let h = `<div class="slot-card"><h3>ESTAMENTO ${cat}</h3>`;
             for(let i=1; i<=4; i++) {
                 let id = `${cat}_M${i}`; let p = data[id];
@@ -508,24 +512,17 @@
             }
             grid.innerHTML += h + `</div>`;
         });
-    });
 
-    function login(id) {
-        db.ref('perfiles/'+id).once('value').then(s => {
-            let p = s.val();
-            if(!p) {
-                let n = prompt("NUEVO MANAGER - NOMBRE:"); let pin = prompt("CREAR PIN SEGURIDAD:");
-                if(!n || !pin) return; p = { name: n, pin: pin, fb: 2.7 }; db.ref('perfiles/'+id).set(p);
-            } else if(!isAdmin) {
-                if(prompt("PIN DE ACCESO PARA " + p.name.toUpperCase() + ":") !== p.pin) { alert("PIN INCORRECTO"); return; }
-            }
-            sessionID = id; managerName = p.name.toUpperCase();
-            document.getElementById('login-system').style.display = 'none';
-            document.getElementById('app-interface').style.display = 'grid';
-            document.getElementById('fb-base').value = p.fb || 2.7;
-            updateCircuit(); syncLiveNotes();
-        });
-    }
+        // NUEVA SECCIÓN: 6 PERFILES EXTRAS
+        let extraH = `<div class="slot-card" style="border-top-color: var(--green);"><h3>PERFILES EXTRAS</h3>`;
+        for(let i=1; i<=6; i++) {
+            let id = `EXTRA_${i}`; let p = data[id];
+            extraH += `<button class="m-btn ${p?'occupied':''}" style="${p?'border-color:var(--green);':''}" onclick="login('${id}')">
+                <span style="font-size:0.6rem; opacity:0.4; margin-right:10px;">EX-${i}</span> ${p?p.name.toUpperCase():'VACANTE'}
+            </button>`;
+        }
+        grid.innerHTML += extraH + `</div>`;
+    });
 
     // MOTOR DE SUGERENCIAS CON FÓRMULA EXPONENCIAL
     function generateSuggestions() {
@@ -634,21 +631,95 @@
         c.scrollTop = c.scrollHeight;
     });
 
+  // 1. VISUALIZACIÓN PROFESIONAL DEL RANKING (REEMPLAZA LO QUE ME MOSTRASTE)
     db.ref('ranking').on('value', (s) => {
-        let l = document.getElementById('ranking-list'); l.innerHTML = '';
-        Object.values(s.val() || {}).sort((a,b)=>b.pts-a.pts).forEach(p => { 
-            l.innerHTML += `<div class="rank-row"><b>${p.name}</b><span>${p.pts} PTS</span></div>`; 
+        const l = document.getElementById('ranking-list'); 
+        if(!l) return;
+        l.innerHTML = '';
+        const rawData = s.val() || {};
+        
+        // Convertir a array y ordenar por puntos (Mayor a menor)
+        const sortedRanking = Object.values(rawData).sort((a, b) => (b.pts || 0) - (a.pts || 0));
+        
+        if(sortedRanking.length === 0) {
+            l.innerHTML = `<div style="text-align:center; color:#333; padding:20px;">SIN DATOS DE TEMPORADA</div>`;
+            return;
+        }
+
+        sortedRanking.forEach((p, index) => {
+            const pos = index + 1;
+            // Colores de podio: Oro, Plata, Bronce, Gris
+            const color = pos === 1 ? 'var(--gold)' : (pos === 2 ? '#C0C0C0' : (pos === 3 ? '#CD7F32' : '#555'));
+            
+            l.innerHTML += `
+                <div class="rank-row" style="border-left: 4px solid ${color}; display:flex; justify-content:space-between; align-items:center; padding:15px; background:#080808; margin-bottom:8px; border-radius:10px;">
+                    <div style="display:flex; align-items:center; gap:12px;">
+                        <span style="font-family:var(--font-tech); color:${color}; font-size:0.7rem;">#${pos}</span>
+                        <b style="text-transform:uppercase;">${p.name}</b>
+                    </div>
+                    <span style="font-family:var(--font-tech); color:var(--white);">${p.pts} <small style="font-size:0.5rem; opacity:0.5;">PTS</small></span>
+                </div>`;
         });
     });
 
-    function unlockAdmin() { if(prompt("ACCESS KEY:") === "DS2026") { isAdmin = true; document.getElementById('admin-panel').style.display='block'; alert("MODO ADMIN ACTIVO"); } }
+    // 1. FUNCIÓN DE INYECCIÓN (CON ACUMULACIÓN REAL)
     function injectPoints() {
-        let u = document.getElementById('adm-user').value.toUpperCase(); let p = parseInt(document.getElementById('adm-pts').value);
-        db.ref('ranking/'+u).once('value').then(s => { db.ref('ranking/'+u).set({ name: u, pts: (s.exists()?s.val().pts:0) + p }); });
+        const userRaw = document.getElementById('adm-user').value;
+        const ptsToAdd = parseInt(document.getElementById('adm-pts').value);
+        
+        if(!userRaw || isNaN(ptsToAdd)) {
+            alert("ERROR: Manager y Puntos son obligatorios.");
+            return;
+        }
+
+        const userKey = userRaw.toUpperCase().trim();
+        const rankRef = db.ref('ranking/' + userKey);
+
+        rankRef.once('value').then(snapshot => {
+            let currentPts = 0;
+            if(snapshot.exists()) {
+                currentPts = snapshot.val().pts || 0;
+            }
+            const totalFinal = currentPts + ptsToAdd;
+
+            rankRef.update({
+                name: userKey,
+                pts: totalFinal
+            }).then(() => {
+                document.getElementById('adm-pts').value = '';
+                logTelemetry(`SISTEMA: ${userKey} acumuló +${ptsToAdd} PTS (Total: ${totalFinal})`);
+            });
+        });
     }
-    function resetRanking() { if(confirm("¿RESETEAR RANKING TOTAL?")) db.ref('ranking').remove(); }
-    function resetPerfiles() { if(confirm("¿WIPE PERFILES?") && prompt("CONFIRMAR") === "ELIMINAR") { db.ref('perfiles').remove(); location.reload(); } }
-    function updateCircuit() { calculateAll(); generateSuggestions(); }
+
+    // 2. FUNCIONES DE ADMINISTRACIÓN Y CONTROL
+    function unlockAdmin() { 
+        if(prompt("ACCESS KEY:") === "DS2026") { 
+            isAdmin = true; 
+            document.getElementById('admin-panel').style.display='block'; 
+            alert("MODO ADMIN ACTIVO"); 
+        } 
+    }
+
+    function resetRanking() { 
+        if(confirm("¿RESETEAR RANKING TOTAL? ESTO NO SE PUEDE DESHACER.")) {
+            db.ref('ranking').remove(); 
+            logTelemetry("SISTEMA: RANKING RESETEADO POR ADMIN.");
+        }
+    }
+
+    function resetPerfiles() { 
+        if(confirm("¿BORRAR TODOS LOS PERFILES?") && prompt("ESCRIBE 'ELIMINAR' PARA CONFIRMAR:") === "ELIMINAR") { 
+            db.ref('perfiles').remove(); 
+            location.reload(); 
+        } 
+    }
+
+    // 3. ACTUALIZACIÓN DE CIRCUITO Y SUGERENCIAS
+    function updateCircuit() { 
+        calculateAll(); 
+        generateSuggestions(); 
+    }
 
     /* --- MÓDULO DE TELEMETRÍA AVANZADA (EXTENSIÓN LÍNEAS 700-950) --- */
     
