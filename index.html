@@ -1292,22 +1292,29 @@ function analizarDesarrollo() {
         des: parseInt(document.getElementById('dev-des').value) || 0
     };
 
-    // --- 1. CONFIGURACIÓN DE SETUP IDEAL SEGÚN ADN DEL CIRCUITO ---
+   // --- 1. CONFIGURACIÓN DE SETUP IDEAL SEGÚN ADN DEL CIRCUITO ---
     let ideal = { ace: 60, fre: 60, aero: 60, man: 60 }; 
     let tipoPista = "BALANCEADA";
     let rel = { ace: 1, fre: 1, aero: 1, man: 1 };
     let prioridadDesc = "DISEÑO GENERAL";
 
-    if (textoCircuito.includes("Italy") || textoCircuito.includes("Belgium") || textoCircuito.includes("Austria") || textoCircuito.includes("Saudi")) {
-        ideal = { ace: 85, fre: 35, aero: 90, man: 30 };
-        rel = { ace: 1.8, fre: 0.6, aero: 1.8, man: 0.4 };
+    // --- PISTAS DE POTENCIA (VELOCIDAD PUNTA) ---
+    if (textoCircuito.includes("Italy") || textoCircuito.includes("Belgium") || textoCircuito.includes("Austria") || 
+        textoCircuito.includes("Saudi") || textoCircuito.includes("Bahrain") || textoCircuito.includes("Mexico")) {
+        
+        ideal = { ace: 90, fre: 30, aero: 85, man: 35 }; // Pedimos mucha ACE y AERO
+        rel = { ace: 2.0, fre: 0.5, aero: 1.8, man: 0.5 };
         tipoPista = "ALTA VELOCIDAD (RECTAS)";
-        prioridadDesc = "ACELERACIÓN / AERO";
-    } else if (textoCircuito.includes("Monaco") || textoCircuito.includes("Singapore") || textoCircuito.includes("Hungary") || textoCircuito.includes("Spain")) {
-        ideal = { ace: 30, fre: 85, aero: 35, man: 90 };
-        rel = { ace: 0.5, fre: 1.7, aero: 0.5, man: 1.8 };
-        tipoPista = "VIRADA (CURVAS LENTAS)";
-        prioridadDesc = "FRENADO / MANEJO";
+        prioridadDesc = "ACELERACIÓN Y AERODINÁMICA"; // <--- ESTO ES LO QUE VERÁS EN EL PLAN
+    } 
+    // --- PISTAS DE CHASIS (CURVAS LENTAS / TRACCIÓN) ---
+    else if (textoCircuito.includes("Monaco") || textoCircuito.includes("Singapore") || textoCircuito.includes("Hungary") || 
+             textoCircuito.includes("Spain") || textoCircuito.includes("Japan")) {
+        
+        ideal = { ace: 35, fre: 85, aero: 30, man: 90 }; // Pedimos mucho FRE y MAN
+        rel = { ace: 0.5, fre: 1.8, aero: 0.5, man: 2.0 };
+        tipoPista = "VIRADA (CHASIS Y FRENOS)";
+        prioridadDesc = "FRENADO Y MANEJO"; // <--- ESTO ES LO QUE VERÁS EN EL PLAN
     }
 
     // --- 2. CÁLCULO DE DÉFICIT Y TIEMPO PERDIDO (DELTA) ---
