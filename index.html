@@ -432,24 +432,74 @@
 
             <label>LIVE NOTES (TELEMETRÍA COMPARTIDA)</label>
             <textarea id="live-notes" rows="10" oninput="broadcastNotes()" placeholder="Comparte incidentes, lluvia o tráfico..."></textarea>
-<button onclick="toggleHelp()" style="background:#f1c40f; color:black; width:100%; padding:10px; margin-top:15px; font-weight:bold; border:none; cursor:pointer; border-radius:5px; box-shadow: 0 4px 6px rgba(0,0,0,0.3);">
-                ❓ ¿CÓMO USAR ESTA PÁGINA?
-            </button>
+<button onclick="toggleHelp()" style="background:#f1c40f; color:black; width:100%; padding:15px; margin-top:15px; font-weight:bold; border:none; cursor:pointer; border-radius:5px; box-shadow: 0 5px 15px rgba(0,0,0,0.4); font-size: 1.1rem; text-transform: uppercase;">
+    📖 ABRIR MANUAL TÉCNICO COMPLETO
+</button>
 
-            <div id="help-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); z-index:10000; color:white; padding:20px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
-                <div style="background:#1a1a1a; padding:25px; border-radius:15px; border:2px solid #f1c40f; max-width:500px; margin:auto; margin-top:40px; box-shadow: 0 0 20px rgba(241, 196, 15, 0.2);">
-                    <h2 style="color:#f1c40f; text-align:center; margin-top:0;">📖 MANUAL DEL MANAGER</h2>
-                    <hr style="border:0; border-top:1px solid #333; margin:15px 0;">
-                    
-                    <div style="line-height:1.6;">
-                        <p><strong style="color:#f1c40f;">1. Sugerencias de estrategia:</strong> Ingresa el % de desgaste de tu práctica. El sistema calculará automáticamente qué neumáticos combinar (ej. SS+SS+S) y en qué vuelta exacta entrar a boxes según las vueltas de cada circuito.</p>
-                        
-                        <p><strong style="color:#f1c40f;">2. Live Notes (Radio):</strong> Es comunicación en tiempo real. Lo que escribas aquí se guarda en la nube y aparece en las pantallas de todos los managers del equipo al instante.</p>
-                        
-                        <p><strong style="color:#f1c40f;">3. Telemetría y Combustible:</strong> Usa la calculadora principal para ver cuántos litros necesitas por vuelta y cuánta vida le queda al neumático antes de llegar al límite crítico del 32%.</p>
-                        
-                        <p><strong style="color:#f1c40f;">4. Ranking:</strong> Tus puntos se guardan permanentemente. Al final de la carrera, asegúrate de ver tu posición en la tabla global.</p>
-                    </div>
+<div id="help-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.98); z-index:10000; color:white; padding:10px; font-family: 'Segoe UI', sans-serif; overflow-y: auto;">
+    <div style="background:#111; padding:30px; border-radius:15px; border:2px solid #f1c40f; max-width:800px; margin:20px auto; box-shadow: 0 0 40px rgba(241, 196, 15, 0.4);">
+        
+        <h1 style="color:#f1c40f; text-align:center; margin-top:0; border-bottom: 2px solid #f1c40f; padding-bottom:10px;">MANUAL DE OPERACIONES DS-AUTOMOBILES</h1>
+
+        <h3 style="color:#f1c40f; background:#222; padding:8px;">1. ENTRADA DE DATOS (EL ORIGEN)</h3>
+        <p>Antes de la carrera, DEBES hacer una vuelta de práctica en iGP Manager. Sin esos datos, la calculadora no puede adivinar tu velocidad real.</p>
+        <ul>
+            <li><b>Vueltas Totales:</b> Distancia de la carrera (ej: 27v).</li>
+            <li><b>Litros por Vuelta:</b> Consumo de tu motor.</li>
+            <li><b>Desgaste (%):</b> Cuánto se gasta la goma en una vuelta (ej: 4.5).</li>
+        </ul>
+
+        <h3 style="color:#f1c40f; background:#222; padding:8px;">2. SUGERENCIAS DE ESTRATEGIA (TU INGENIERO)</h3>
+        <ul>
+            <li><b>Ruta Sprint (2 paradas):</b> Máxima velocidad, stints cortos.</li>
+            <li><b>Ruta Equilibrada (1 parada):</b> El mejor balance tiempo/parada.</li>
+            <li><b>Vuelta de Entrada:</b> Entra a boxes exactamente en la vuelta indicada.</li>
+            <li><b>Muerte al 32%:</b> Si el neumático baja de este número, el coche se frena 2 segundos por vuelta. <b>¡No arriesgues!</b></li>
+        </ul>
+
+        <h3 style="color:#3498db; background:#1a3a5a; padding:8px; border-left: 5px solid #3498db;">🌧️ PROTOCOLO DE LLUVIA (WET WEATHER)</h3>
+        <p>Si empieza a llover, mira los milímetros (<b>mm</b>) de agua en la pista del juego:</p>
+        <table style="width:100%; border-collapse: collapse; margin:10px 0; background:#1a1a1a;">
+            <tr style="border-bottom: 1px solid #333;">
+                <th style="padding:10px; text-align:left; color:#3498db;">Agua en Pista</th>
+                <th style="padding:10px; text-align:left; color:#3498db;">Neumático Ideal</th>
+                <th style="padding:10px; text-align:left; color:#3498db;">Acción</th>
+            </tr>
+            <tr style="border-bottom: 1px solid #222;">
+                <td style="padding:8px;">0.0 mm a 0.5 mm</td>
+                <td style="padding:8px;">Seco (SS/S/M/H)</td>
+                <td style="padding:8px;">Mantente en pista.</td>
+            </tr>
+            <tr style="border-bottom: 1px solid #222;">
+                <td style="padding:8px;"><b>0.6 mm a 2.9 mm</b></td>
+                <td style="padding:8px; color:#2ecc71;"><b>Intermedios (I)</b></td>
+                <td style="padding:8px;">Entra a boxes YA.</td>
+            </tr>
+            <tr>
+                <td style="padding:8px;"><b>3.0 mm o más</b></td>
+                <td style="padding:8px; color:#3498db;"><b>Lluvia (W)</b></td>
+                <td style="padding:8px;">Cambia a Full Wet.</td>
+            </tr>
+        </table>
+        <p><i>Nota: Si la lluvia está en 0.5mm y subiendo rápido, entra a poner Intermedios antes de que llegue a 0.6mm.</i></p>
+
+        <h3 style="color:#f1c40f; background:#222; padding:8px;">4. LIVE NOTES (RADIO DE EQUIPO)</h3>
+        <ul>
+            <li>Escribe incidentes: <i>"Lluvia en v.15"</i> o <i>"Pista secando"</i>.</li>
+            <li>Todos los managers ven esto al instante. No necesitas refrescar la página.</li>
+        </ul>
+
+        <h3 style="color:#f1c40f; background:#222; padding:8px;">5. COMBUSTIBLE Y CLIMA</h3>
+        <ul>
+            <li><b>Combustible:</b> Si el sistema dice 15L, pon 15.5L. Un poco de peso extra es mejor que el abandono (DNF).</li>
+            <li><b>Temperatura:</b> Si hace mucho calor (>30°C), los neumáticos se degradan un 10-15% más rápido. Acorta tus stints.</li>
+        </ul>
+
+        <button onclick="toggleHelp()" style="background:#ff4757; color:white; border:none; padding:15px; width:100%; margin-top:25px; font-weight:bold; border-radius:8px; cursor:pointer; font-size:1.2rem; transition: 0.3s;">
+            🏁 ENTENDIDO, ¡A POR EL PODIO!
+        </button>
+    </div>
+</div>
 
                     <button onclick="toggleHelp()" style="background:#ff4757; color:white; border:none; padding:12px; width:100%; margin-top:20px; font-weight:bold; border-radius:5px; cursor:pointer; font-size:1rem;">ENTENDIDO / CERRAR GUÍA</button>
                 </div>
