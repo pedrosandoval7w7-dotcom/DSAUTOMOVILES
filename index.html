@@ -494,35 +494,79 @@
 
     let sessionID = ""; let managerName = ""; let stintsArr = []; let isAdmin = false;
 
-   // SISTEMA DE PERFILES AMPLIADO (CATEGORÍAS + EXTRAS)
+  // --- SISTEMA DE ACCESO (PERFILES + EXTRAS) ---
     db.ref('perfiles').on('value', (snap) => {
         const grid = document.getElementById('m-grid'); 
+        if(!grid) return;
         grid.innerHTML = '';
         const data = snap.val() || {};
         
-        // Categorías Estándar
+        // Categorías F1 a K6
         const categorias = ["F1", "F2", "F3", "F4", "F5", "K6"];
         categorias.forEach(cat => {
             let h = `<div class="slot-card"><h3>ESTAMENTO ${cat}</h3>`;
             for(let i=1; i<=4; i++) {
-                let id = `${cat}_M${i}`; let p = data[id];
-                h += `<button class="m-btn ${p?'occupied':''}" onclick="login('${id}')">
-                    <span style="font-size:0.6rem; opacity:0.4; margin-right:10px;">${id}</span> ${p?p.name.toUpperCase():'VACANTE'}
+                let id = `${cat}_M${i}`; 
+                let p = data[id];
+                h += `<button class="m-btn ${p ? 'occupied' : ''}" onclick="login('${id}')">
+                    <span style="font-size:0.6rem; opacity:0.4; margin-right:10px;">${id}</span> ${p ? p.name.toUpperCase() : 'VACANTE'}
                 </button>`;
             }
             grid.innerHTML += h + `</div>`;
         });
 
-        // NUEVA SECCIÓN: 6 PERFILES EXTRAS
+        // 6 Perfiles Extras (Como pediste)
         let extraH = `<div class="slot-card" style="border-top-color: var(--green);"><h3>PERFILES EXTRAS</h3>`;
         for(let i=1; i<=6; i++) {
-            let id = `EXTRA_${i}`; let p = data[id];
-            extraH += `<button class="m-btn ${p?'occupied':''}" style="${p?'border-color:var(--green);':''}" onclick="login('${id}')">
-                <span style="font-size:0.6rem; opacity:0.4; margin-right:10px;">EX-${i}</span> ${p?p.name.toUpperCase():'VACANTE'}
+            let id = `EXTRA_${i}`; 
+            let p = data[id];
+            extraH += `<button class="m-btn ${p ? 'occupied' : ''}" style="${p ? 'border-color:var(--green);' : ''}" onclick="login('${id}')">
+                <span style="font-size:0.6rem; opacity:0.4; margin-right:10px;">EX-${i}</span> ${p ? p.name.toUpperCase() : 'VACANTE'}
             </button>`;
         }
         grid.innerHTML += extraH + `</div>`;
     });
+
+    // --- FUNCIÓN DE LOGIN Y CREACIÓN ---
+    function login(id) {
+        db.ref('perfiles/' + id).once('value').then(s => {
+            let p = s.val();
+            
+            // Si el perfil está vacío, lo creamos
+            if(!p) {
+                let n = prompt("NUEVO MANAGER - NOMBRE:"); 
+                let pin = prompt("CREAR PIN DE SEGURIDAD:");
+                if(!n || !pin) return; 
+                
+                p = { name: n, pin: pin, fb: 2.7 }; 
+                db.ref('perfiles/' + id).set(p);
+            } 
+            // Si ya existe, pedimos el PIN (a menos que seas admin)
+            else if(!isAdmin) {
+                let userPin = prompt("PIN DE ACCESO PARA " + p.name.toUpperCase() + ":");
+                if(userPin !== p.pin) { 
+                    alert("PIN INCORRECTO. ACCESO DENEGADO."); 
+                    return; 
+                }
+            }
+
+            // Si todo está bien, entramos al Dashboard
+            sessionID = id; 
+            managerName = p.name.toUpperCase();
+            document.getElementById('login-system').style.display = 'none';
+            document.getElementById('app-interface').style.display = 'grid';
+            
+            // Cargar configuración previa
+            if(p.fb) document.getElementById('fb-base').value = p.fb;
+            
+            updateCircuit(); 
+            syncLiveNotes();
+            logTelemetry(`SESIÓN INICIADA: ${managerName} (${id})`);
+        }).catch(err => {
+            console.error("Error en Firebase:", err);
+            alert("Error de conexión. Revisa tu internet.");
+        });
+    }
 
     // MOTOR DE SUGERENCIAS CON FÓRMULA EXPONENCIAL
     function generateSuggestions() {
