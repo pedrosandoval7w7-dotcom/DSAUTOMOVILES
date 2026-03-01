@@ -568,57 +568,78 @@
         });
     }
 
-    // MOTOR DE SUGERENCIAS CORREGIDO (iGP MANAGER REAL-TIME)
-    function generateSuggestions() {
-        const pWear = parseFloat(document.getElementById('practice-wear').value);
-        const aiBox = document.getElementById('ai-content');
-        // VITAL: Detectamos las vueltas reales del GP seleccionado (ej. 28 para Bahrain)
-        const totalGP = parseInt(document.getElementById('gp-select').value);
+    // --- SUGERENCIAS DE ESTRATEGIA (MAESTRO IGP - COMBINACIÓN DE COMPUESTOS) ---
+function generateSuggestions() {
+    const pWear = parseFloat(document.getElementById('practice-wear').value);
+    const totalGP = parseInt(document.getElementById('gp-select').value);
+    const aiBox = document.getElementById('ai-content');
 
-        if(!pWear || isNaN(pWear) || isNaN(totalGP)) return;
+    if (!pWear || isNaN(totalGP)) return;
 
-        const mults = { ss: 1.45, s: 1.0, m: 0.78, h: 0.54 };
+    // Multiplicadores oficiales de iGP
+    const mults = { ss: 1.45, s: 1.0, m: 0.78, h: 0.54 };
 
-        function simulate(m) {
-            let h = 100; let v = 0;
-            // Solo simulamos hasta el límite de vueltas del circuito (totalGP)
-            while(h > 32 && v < totalGP) {
-                let heat = 1 + (v * 0.018); 
-                h -= (pWear * m * heat); 
-                if(h > 32) v++;
-            }
-            return v;
+    // Calcula la vida real (muerte al 32%)
+    function getLife(m) {
+        let h = 100; let v = 0;
+        while (h > 32 && v < 100) {
+            h -= (pWear * m * (1 + (v * 0.018)));
+            if (h > 32) v++;
         }
-
-        aiBox.innerHTML = `
-            <div class="sug-box" style="border-left-color: var(--white); background: #1a1a1a;">
-                <span class="sug-title">CONFIGURACIÓN: ${totalGP} VUELTAS TOTALES</span>
-                <div style="font-size:0.8rem; color:var(--gold);">Dato base: ${pWear}% desgaste inicial</div>
-            </div>
-            
-            <div class="sug-box">
-                <span class="sug-title">ESTRATEGIA SOFT (S)</span>
-                Límite seguro: <b>${simulate(mults.s)}v</b> de ${totalGP}v.
-                <br><small style="color:${simulate(mults.s) >= totalGP ? 'var(--green)' : 'var(--red)'}">
-                    ${simulate(mults.s) >= totalGP ? '✓ CUBRE EL GP COMPLETO' : '✗ REQUIERE PARADA'}
-                </small>
-            </div>
-
-            <div class="sug-box">
-                <span class="sug-title">ESTRATEGIA MEDIUM (M)</span>
-                Límite seguro: <b>${simulate(mults.m)}v</b> de ${totalGP}v.
-                <br><small style="color:${simulate(mults.m) >= totalGP ? 'var(--green)' : 'var(--orange)'}">
-                    ${simulate(mults.m) >= totalGP ? '✓ CUBRE EL GP COMPLETO' : '⚠ REVISAR CARGA DE FUEL'}
-                </small>
-            </div>
-
-            <div class="sug-box">
-                <span class="sug-title">ESTRATEGIA HARD (H)</span>
-                Límite seguro: <b>${simulate(mults.h)}v</b> de ${totalGP}v.
-                <br><small style="color:var(--green)">✓ MÁXIMA DURABILIDAD</small>
-            </div>
-        `;
+        return v;
     }
+
+    const vSS = getLife(mults.ss);
+    const vS = getLife(mults.s);
+    const vM = getLife(mults.m);
+    const vH = getLife(mults.h);
+
+    let html = `<div class="sug-box" style="background:#1a1a1a; border-left:4px solid var(--gold);">
+                    <b style="color:var(--gold);">PLAN DE CARRERA: ${totalGP} VTS</b><br>
+                    <small>Vida max: SS:${vSS}v | S:${vS}v | M:${vM}v | H:${vH}v</small>
+                </div>`;
+
+    // --- OPCIÓN 1: ESTRATEGIA SPRINT (2 PARADAS / 3 TRAMOS) ---
+    if (vS * 3 >= totalGP) {
+        let s1 = Math.min(vSS, Math.floor(totalGP/3));
+        let s2 = s1;
+        let s3 = totalGP - (s1 + s2);
+        let comp3 = s3 <= vSS ? 'SS' : (s3 <= vS ? 'S' : 'M');
+        
+        html += `<div class="sug-box" style="border-left-color: #ff004c;">
+                    <span class="sug-title" style="color:#ff004c;">🚀 RUTA SPRINT (2 PARADAS)</span>
+                    <b>SS + SS + ${comp3}</b><br>
+                    <small>Stints: ${s1}v, ${s2}v y ${s3}v final.</small>
+                 </div>`;
+    }
+
+    // --- OPCIÓN 2: ESTRATEGIA EQUILIBRADA (1 PARADA / 2 TRAMOS) ---
+    if (vS + vM >= totalGP) {
+        let split = Math.min(vS, Math.floor(totalGP/2));
+        let resto = totalGP - split;
+        html += `<div class="sug-box" style="border-left-color: #00ff00;">
+                    <span class="sug-title" style="color:#00ff00;">⚖️ RUTA EQUILIBRADA (1 PARADA)</span>
+                    <b>S + M</b> (Cambio en v.${split})<br>
+                    <small>Tramo 1: ${split}v | Tramo 2: ${resto}v.</small>
+                 </div>`;
+    } else if (vM * 2 >= totalGP) {
+        let split = Math.floor(totalGP/2);
+        html += `<div class="sug-box" style="border-left-color: #00ff00;">
+                    <span class="sug-title" style="color:#00ff00;">⚖️ RUTA EQUILIBRADA (1 PARADA)</span>
+                    <b>M + M</b> (Cambio en v.${split})
+                 </div>`;
+    }
+
+    // --- OPCIÓN 3: RUTA TANQUE (RESISTENCIA) ---
+    if (vH + vS >= totalGP) {
+        html += `<div class="sug-box" style="border-left-color: #ffffff;">
+                    <span class="sug-title" style="color:#fff;">🛡️ RUTA RESISTENCIA (1 PARADA)</span>
+                    <b>H + S</b> (Haces ${totalGP - vS}v con H y cierras rápido con S)
+                 </div>`;
+    }
+
+    aiBox.innerHTML = html;
+}
     // MOTOR DE STINTS Y CÁLCULO DE COMBUSTIBLE
     function addNewStint() {
         const id = Date.now(); stintsArr.push({ id, laps: 10, push: 0, wear: 8.0 });
@@ -697,17 +718,20 @@
         });
     }
 
-    function syncLiveNotes() {
+   function syncLiveNotes() {
         db.ref('global_notes').on('value', (s) => {
             const data = s.val();
             const field = document.getElementById('live-notes');
+            if(!field) return;
+
             if(data) {
-                // Solo actualiza si el mensaje es de otro manager y el texto es diferente
-                if(data.author !== managerName && field.value !== data.text) {
+                // CARGA AUTOMÁTICA: 
+                // Si el cuadro está vacío (recién entras) O si otro manager escribió algo nuevo
+                if(field.value === "" || (data.author !== managerName && field.value !== data.text)) {
                     field.value = data.text;
                 }
             } else {
-                // Si el Admin borra la referencia, limpiamos el cuadro para todos
+                // Si el Admin usa el botón de borrar, se limpia para todos
                 field.value = "";
             }
         });
