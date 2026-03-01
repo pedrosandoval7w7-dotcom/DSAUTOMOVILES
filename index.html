@@ -568,31 +568,57 @@
         });
     }
 
-    // MOTOR DE SUGERENCIAS CON FÓRMULA EXPONENCIAL
+    // MOTOR DE SUGERENCIAS CORREGIDO (iGP MANAGER REAL-TIME)
     function generateSuggestions() {
         const pWear = parseFloat(document.getElementById('practice-wear').value);
         const aiBox = document.getElementById('ai-content');
+        // VITAL: Detectamos las vueltas reales del GP seleccionado (ej. 28 para Bahrain)
         const totalGP = parseInt(document.getElementById('gp-select').value);
-        if(!pWear || isNaN(pWear)) return;
+
+        if(!pWear || isNaN(pWear) || isNaN(totalGP)) return;
 
         const mults = { ss: 1.45, s: 1.0, m: 0.78, h: 0.54 };
 
         function simulate(m) {
             let h = 100; let v = 0;
-            while(h > 32 && v < 100) {
-                let heat = 1 + (v * 0.016); // Degradación exponencial por calor acumulado
-                h -= (pWear * m * heat); if(h > 32) v++;
+            // Solo simulamos hasta el límite de vueltas del circuito (totalGP)
+            while(h > 32 && v < totalGP) {
+                let heat = 1 + (v * 0.018); 
+                h -= (pWear * m * heat); 
+                if(h > 32) v++;
             }
             return v;
         }
 
         aiBox.innerHTML = `
-            <div class="sug-box"><span class="sug-title">RUTA SPRINT (SS/S)</span>Límite: <b>${simulate(mults.ss)}v (SS)</b> / <b>${simulate(mults.s)}v (S)</b>.</div>
-            <div class="sug-box"><span class="sug-title">RUTA EQUILIBRADA (MEDIOS)</span>Límite: <b>${simulate(mults.m)}v</b>. Estrategia recomendada: 2 Paradas.</div>
-            <div class="sug-box"><span class="sug-title">RUTA RESISTENCIA (DUROS)</span>Límite: <b>${simulate(mults.h)}v</b>. Ideal para gestionar tráfico largo.</div>
+            <div class="sug-box" style="border-left-color: var(--white); background: #1a1a1a;">
+                <span class="sug-title">CONFIGURACIÓN: ${totalGP} VUELTAS TOTALES</span>
+                <div style="font-size:0.8rem; color:var(--gold);">Dato base: ${pWear}% desgaste inicial</div>
+            </div>
+            
+            <div class="sug-box">
+                <span class="sug-title">ESTRATEGIA SOFT (S)</span>
+                Límite seguro: <b>${simulate(mults.s)}v</b> de ${totalGP}v.
+                <br><small style="color:${simulate(mults.s) >= totalGP ? 'var(--green)' : 'var(--red)'}">
+                    ${simulate(mults.s) >= totalGP ? '✓ CUBRE EL GP COMPLETO' : '✗ REQUIERE PARADA'}
+                </small>
+            </div>
+
+            <div class="sug-box">
+                <span class="sug-title">ESTRATEGIA MEDIUM (M)</span>
+                Límite seguro: <b>${simulate(mults.m)}v</b> de ${totalGP}v.
+                <br><small style="color:${simulate(mults.m) >= totalGP ? 'var(--green)' : 'var(--orange)'}">
+                    ${simulate(mults.m) >= totalGP ? '✓ CUBRE EL GP COMPLETO' : '⚠ REVISAR CARGA DE FUEL'}
+                </small>
+            </div>
+
+            <div class="sug-box">
+                <span class="sug-title">ESTRATEGIA HARD (H)</span>
+                Límite seguro: <b>${simulate(mults.h)}v</b> de ${totalGP}v.
+                <br><small style="color:var(--green)">✓ MÁXIMA DURABILIDAD</small>
+            </div>
         `;
     }
-
     // MOTOR DE STINTS Y CÁLCULO DE COMBUSTIBLE
     function addNewStint() {
         const id = Date.now(); stintsArr.push({ id, laps: 10, push: 0, wear: 8.0 });
@@ -661,19 +687,60 @@
         if(sessionID) db.ref('perfiles/'+sessionID).update({ fb: fb });
     }
 
-    // COMUNICACIONES Y SYNC
-    function broadcastNotes() { db.ref('global_notes').set({ text: document.getElementById('live-notes').value, author: managerName }); }
-    function syncLiveNotes() { db.ref('global_notes').on('value', (s) => { if(s.val() && s.val().author !== managerName) document.getElementById('live-notes').value = s.val().text; }); }
-    
+   // --- 3. COMUNICACIONES Y RADIO (ACTUALIZADO CON PERSISTENCIA Y BORRADO) ---
+    function broadcastNotes() {
+        const noteText = document.getElementById('live-notes').value;
+        db.ref('global_notes').set({ 
+            text: noteText, 
+            author: managerName,
+            time: Date.now() 
+        });
+    }
+
+    function syncLiveNotes() {
+        db.ref('global_notes').on('value', (s) => {
+            const data = s.val();
+            const field = document.getElementById('live-notes');
+            if(data) {
+                // Solo actualiza si el mensaje es de otro manager y el texto es diferente
+                if(data.author !== managerName && field.value !== data.text) {
+                    field.value = data.text;
+                }
+            } else {
+                // Si el Admin borra la referencia, limpiamos el cuadro para todos
+                field.value = "";
+            }
+        });
+    }
+
+    // --- CHAT DE ESTRATEGIA (MANTENIDO) ---
     document.getElementById('chat-send').onclick = () => {
-        let i = document.getElementById('chat-input'); if(!i.value) return;
-        db.ref('chat').push({ user: managerName, text: i.value }); i.value = '';
+        let i = document.getElementById('chat-input'); 
+        if(!i.value) return;
+        db.ref('chat').push({ 
+            user: managerName, 
+            text: i.value,
+            time: Date.now()
+        }); 
+        i.value = '';
     };
+
     db.ref('chat').limitToLast(25).on('value', (s) => {
-        let c = document.getElementById('chat-messages'); c.innerHTML = '';
-        Object.values(s.val() || {}).forEach(m => { c.innerHTML += `<div class="msg-bubble"><b>${m.user}</b>${m.text}</div>`; });
+        let c = document.getElementById('chat-messages'); 
+        if(!c) return;
+        c.innerHTML = '';
+        Object.values(s.val() || {}).forEach(m => { 
+            c.innerHTML += `<div class="msg-bubble"><b>${m.user}:</b> ${m.text}</div>`; 
+        });
         c.scrollTop = c.scrollHeight;
     });
+
+    // FUNCIÓN DE BORRADO PARA EL BOTÓN DEL ADMIN
+    function clearGlobalNotes() {
+        if(confirm("¿BORRAR TODAS LAS NOTAS DE RADIO?")) {
+            db.ref('global_notes').remove();
+        }
+    }
 
   // 1. VISUALIZACIÓN PROFESIONAL DEL RANKING (REEMPLAZA LO QUE ME MOSTRASTE)
     db.ref('ranking').on('value', (s) => {
@@ -736,11 +803,17 @@
         });
     }
 
-    // 2. FUNCIONES DE ADMINISTRACIÓN Y CONTROL
+   // 2. FUNCIONES DE ADMINISTRACIÓN Y CONTROL (CON BOTÓN DE BORRADO)
     function unlockAdmin() { 
         if(prompt("ACCESS KEY:") === "DS2026") { 
             isAdmin = true; 
             document.getElementById('admin-panel').style.display='block'; 
+            
+            // ESTA ES LA LÍNEA QUE TE FALTA:
+            if(document.getElementById('clear-notes-btn')) {
+                document.getElementById('clear-notes-btn').style.display='block'; 
+            }
+            
             alert("MODO ADMIN ACTIVO"); 
         } 
     }
