@@ -643,23 +643,46 @@ function actualizarDatosAdmin() {
     alert("¡Ranking actualizado!");
 }
 
-// D. Borrar Perfil de Firebase
+// D. Borrar Perfil de Firebase (Versión Reforzada)
 function resetearPerfilFirebase() {
-    const nombre = document.getElementById('admin-nombre').value.trim();
-    if (!nombre) { alert("Escriba el nombre del manager."); return; }
+    const nombreAEliminar = document.getElementById('admin-nombre').value.trim();
+    
+    if (!nombreAEliminar) {
+        alert("⚠️ Comisario, escriba el nombre del manager en el cuadro de texto para resetear su perfil.");
+        return;
+    }
 
-    if (confirm(`¿Borrar perfil de ${nombre} de la WEB?`)) {
-        db.ref('perfiles').once('value', (snap) => {
-            snap.forEach((child) => {
-                if (child.val().nombre && child.val().nombre.toLowerCase() === nombre.toLowerCase()) {
-                    db.ref('perfiles/' + child.key).remove();
+    if (confirm(`¿Estás seguro de ELIMINAR el perfil visual de "${nombreAEliminar}"? \n\nEsto borrará su ficha de la web pero NO sus puntos del ranking.`)) {
+        
+        // Buscamos en la base de datos de perfiles
+        db.ref('perfiles').once('value', (snapshot) => {
+            let encontrado = false;
+            
+            snapshot.forEach((childSnapshot) => {
+                const datos = childSnapshot.val();
+                
+                // Comparamos limpiando espacios y mayúsculas
+                if (datos.nombre && datos.nombre.trim().toLowerCase() === nombreAEliminar.toLowerCase()) {
+                    encontrado = true;
+                    
+                    // Borramos el nodo exacto usando su ID único (key)
+                    db.ref('perfiles/' + childSnapshot.key).remove()
+                        .then(() => {
+                            alert(`✅ Perfil de ${nombreAEliminar} reseteado con éxito de la web.`);
+                            document.getElementById('admin-nombre').value = ""; // Limpia el buscador
+                        })
+                        .catch((error) => {
+                            alert("❌ Error en los pits (Firebase): " + error.message);
+                        });
                 }
             });
-            alert("Proceso completado.");
+
+            if (!encontrado) {
+                alert(`❓ No se encontró a "${nombreAEliminar}". Asegúrate de escribir el nombre tal cual aparece en su ficha.`);
+            }
         });
     }
 }
-
 // E. Reset Temporada
 function resetTemporada() {
     if (confirm("⚠️ ¿Resetear puntos de TEMPORADA?")) {
