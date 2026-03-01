@@ -558,129 +558,126 @@
     <h3 style="color: #f1c40f; text-align: center; margin-top: 0;">🛠️ COMISARIO DS-AUTOMOBILES</h3>
     <div style="display: flex; flex-direction: column; gap: 10px;">
         <select id="admin-tipo" style="padding: 10px; background: #333; color: white; border: 1px solid #f1c40f;">
-            <option value="temporada">🏎️ Temporada</option>
-            <option value="historico">🏛️ Puntos DS</option>
-            <option value="victorias">🥇 Victorias</option>
-            <option value="poles">⏱️ Poles</option>
-            <option value="copas">🏆 Copas</option>
+            <option value="temporada">🏎️ Temporada (Ranking)</option>
+            <option value="historico">🏛️ Puntos DS (Ranking)</option>
+            <option value="victorias">🥇 Victorias (Ranking)</option>
+            <option value="poles">⏱️ Poles (Ranking)</option>
+            <option value="copas">🏆 Copas (Ranking)</option>
         </select>
-        <input type="text" id="admin-nombre" placeholder="Nombre del Manager" style="padding: 10px; background: #222; color: white; border: 1px solid #444;">
-        <input type="number" id="admin-valor" placeholder="Cantidad" style="padding: 10px; background: #222; color: white; border: 1px solid #444;">
+
+        <input type="text" id="admin-nombre" placeholder="Nombre exacto del Manager" style="padding: 10px; background: #222; color: white; border: 1px solid #444;">
+        <input type="number" id="admin-valor" placeholder="Cantidad a SUMAR" style="padding: 10px; background: #222; color: white; border: 1px solid #444;">
+        
         <button onclick="actualizarDatosAdmin()" style="background: #f1c40f; color: black; font-weight: bold; padding: 12px; border: none; border-radius: 5px; cursor: pointer;">
-            💾 GUARDAR CAMBIOS
+            💾 SUMAR AL RANKING
         </button>
+
+        <div style="display: flex; gap: 10px; margin-top: 15px; border-top: 1px solid #333; padding-top: 15px;">
+            <button onclick="resetearPerfilFirebase()" style="flex: 1; background: #3498db; color: white; padding: 10px; border: none; border-radius: 5px; font-size: 11px; cursor: pointer; font-weight: bold;">👤 LIMPIAR PERFIL (WEB)</button>
+            <button onclick="resetTemporada()" style="flex: 1; background: #c0392b; color: white; padding: 10px; border: none; border-radius: 5px; font-size: 11px; cursor: pointer; font-weight: bold;">🏁 RESET TEMPORADA</button>
+        </div>
+        <p style="color: #666; font-size: 10px; text-align: center; margin-top: 5px;">* El Reset de Temporada solo afecta a la tabla de puntos actual.</p>
     </div>
 </div>
 
 <button onclick="abrirAdmin()" style="background:none; border:none; color:#111; cursor:default; font-size:10px; display:block; margin: 0 auto;">.</button>
 
 <script>
-
-    // 1. Base de Datos con Memoria Local (Persistent)
+// A. Base de Datos
 let datosRanking = JSON.parse(localStorage.getItem('rankingDS')) || {
-    temporada: [], 
-    historico: [], 
-    victorias: [], 
-    poles: [], 
-    copas: []
+    temporada: [], historico: [], victorias: [], poles: [], copas: []
 };
 
-// 2. Función para cambiar de pestaña y renderizar tabla
+// B. Función para cambiar pestañas
 function switchRank(tipo) {
-    // Cambiar estilos de los botones
     const btns = document.querySelectorAll('.tab-btn');
     btns.forEach(btn => {
         btn.style.background = "#222";
         btn.style.color = "#f1c40f";
     });
-    
-    // Si el cambio viene de un clic real, resaltamos el botón
+
     if (event && event.currentTarget && event.currentTarget.classList.contains('tab-btn')) {
         event.currentTarget.style.background = "#f1c40f";
         event.currentTarget.style.color = "black";
     }
 
     const tabla = document.getElementById('tabla-ranking-dinamica');
-    
-    // Título dinámico según la pestaña
     let tituloCol = "PUNTOS";
     if(tipo === 'victorias') tituloCol = "VICTORIAS";
     if(tipo === 'poles') tituloCol = "POLES";
     if(tipo === 'copas') tituloCol = "COPAS";
 
-    // Ordenar de mayor a menor antes de mostrar
     datosRanking[tipo].sort((a, b) => b.valor - a.valor);
 
-    let html = `
-        <thead>
-            <tr style="background: #222; color: #f1c40f;">
-                <th style="padding: 12px; border-bottom: 2px solid #f1c40f;">POS</th>
-                <th style="padding: 12px; border-bottom: 2px solid #f1c40f; text-align: left;">MANAGER</th>
-                <th style="padding: 12px; border-bottom: 2px solid #f1c40f;">${tituloCol}</th>
-            </tr>
-        </thead>
-        <tbody>`;
+    let html = `<thead><tr style="background: #222; color: #f1c40f;"><th style="padding: 12px;">POS</th><th style="padding: 12px; text-align: left;">MANAGER</th><th style="padding: 12px;">${tituloCol}</th></tr></thead><tbody>`;
 
     if (datosRanking[tipo].length === 0) {
-        html += `<tr><td colspan="3" style="padding:20px; color:#666;">Sin datos registrados aún</td></tr>`;
+        html += `<tr><td colspan="3" style="padding:20px; color:#666;">Sin datos registrados</td></tr>`;
     } else {
         datosRanking[tipo].forEach((m, i) => {
-            html += `
-                <tr style="border-bottom: 1px solid #222;">
-                    <td style="padding: 10px; font-weight: bold;">${i + 1}º</td>
-                    <td style="padding: 10px; text-align: left;">${m.nombre}</td>
-                    <td style="padding: 10px; color: #f1c40f; font-weight: bold;">${m.valor}</td>
-                </tr>`;
+            html += `<tr style="border-bottom: 1px solid #222;"><td style="padding: 10px;">${i + 1}º</td><td style="padding: 10px; text-align: left;">${m.nombre}</td><td style="padding: 10px; color: #f1c40f; font-weight: bold;">${m.valor}</td></tr>`;
         });
     }
-
-    html += `</tbody>`;
-    tabla.innerHTML = html;
+    tabla.innerHTML = html + `</tbody>`;
 }
 
-// 3. Función del Admin para Inyectar Datos
+// C. Función para SUMAR al Ranking
 function actualizarDatosAdmin() {
     const tipo = document.getElementById('admin-tipo').value;
     const nombre = document.getElementById('admin-nombre').value.trim();
-    const valor = parseInt(document.getElementById('admin-valor').value);
+    const valorNuevo = parseInt(document.getElementById('admin-valor').value);
 
-    if (!nombre || isNaN(valor)) {
-        alert("Comisario, ingrese nombre y valor correctamente.");
-        return;
+    if (!nombre || isNaN(valorNuevo)) {
+        alert("Ingrese nombre y valor."); return;
     }
 
     const idx = datosRanking[tipo].findIndex(m => m.nombre.toLowerCase() === nombre.toLowerCase());
-    
     if (idx !== -1) {
-        datosRanking[tipo][idx].valor = valor;
+        datosRanking[tipo][idx].valor += valorNuevo;
     } else {
-        datosRanking[tipo].push({ nombre, valor });
+        datosRanking[tipo].push({ nombre, valor: valorNuevo });
     }
 
-    // Guardar en el disco local
     localStorage.setItem('rankingDS', JSON.stringify(datosRanking));
-    
-    // Refrescar vista
     switchRank(tipo);
-    
-    document.getElementById('admin-nombre').value = "";
-    document.getElementById('admin-valor').value = "";
-    alert("¡Historial DS actualizado!");
+    alert("¡Ranking actualizado!");
 }
 
-// 4. Función para el PIN Secreto
-function abrirAdmin() {
-    const pin = prompt("PIN DE COMISARIO DS:");
-    if (pin === "1234") { // <--- Puedes cambiar tu clave aquí
-        document.getElementById('admin-panel').style.display = 'block';
-    } else {
-        alert("PIN Incorrecto.");
+// D. Borrar Perfil de Firebase
+function resetearPerfilFirebase() {
+    const nombre = document.getElementById('admin-nombre').value.trim();
+    if (!nombre) { alert("Escriba el nombre del manager."); return; }
+
+    if (confirm(`¿Borrar perfil de ${nombre} de la WEB?`)) {
+        db.ref('perfiles').once('value', (snap) => {
+            snap.forEach((child) => {
+                if (child.val().nombre && child.val().nombre.toLowerCase() === nombre.toLowerCase()) {
+                    db.ref('perfiles/' + child.key).remove();
+                }
+            });
+            alert("Proceso completado.");
+        });
     }
 }
 
-// Carga inicial automática al abrir la web
+// E. Reset Temporada
+function resetTemporada() {
+    if (confirm("⚠️ ¿Resetear puntos de TEMPORADA?")) {
+        datosRanking.temporada = [];
+        localStorage.setItem('rankingDS', JSON.stringify(datosRanking));
+        switchRank('temporada');
+    }
+}
+
+// F. Abrir Admin
+function abrirAdmin() {
+    if (prompt("PIN DE COMISARIO:") === "1234") {
+        document.getElementById('admin-panel').style.display = 'block';
+    }
+}
+
 window.onload = () => switchRank('temporada');
-            
+           
     /* LÓGICA MAESTRA - 900+ LÍNEAS DE FUNCIONALIDAD */
     const firebaseConfig = { databaseURL: "https://ds-automobiles-f0a17-default-rtdb.firebaseio.com/" };
     firebase.initializeApp(firebaseConfig);
