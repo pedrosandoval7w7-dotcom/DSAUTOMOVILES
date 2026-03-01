@@ -1269,9 +1269,8 @@ db.ref('perfiles').on('value', (snap) => {
         .then(() => alert("✅ Configuración guardada en la base de datos"))
         .catch((err) => console.error("Error al guardar:", err));
 }
-// --- 2. LÓGICA DE ANÁLISIS Y COMPARACIÓN ---
+// --- 2. LÓGICA DE INGENIERÍA AVANZADA Y COMPARACIÓN ---
 function analizarDesarrollo() {
-    // IMPORTANTE: Usamos 'gp-select' que es el ID que tienes en tu HTML
     const gpSelector = document.getElementById('gp-select');
     if(!gpSelector) return;
     
@@ -1293,25 +1292,45 @@ function analizarDesarrollo() {
         des: parseInt(document.getElementById('dev-des').value) || 0
     };
 
-    // Configuración de importancia por pista
-    const nivelObjetivo = 50; 
+    // --- CONFIGURACIÓN DE SETUP IDEAL SEGÚN ADN DEL CIRCUITO ---
+    let ideal = { ace: 50, fre: 50, aero: 50, man: 50 }; 
+    let prioridad = "BALANCE GENERAL";
     let rel = { ace: 1, fre: 1, aero: 1, man: 1 };
-    
-    if (textoCircuito.includes("Italy") || textoCircuito.includes("Belgium") || textoCircuito.includes("Austria")) {
+
+    if (textoCircuito.includes("Italy") || textoCircuito.includes("Belgium") || textoCircuito.includes("Austria") || textoCircuito.includes("Saudi")) {
+        ideal = { ace: 75, fre: 30, aero: 75, man: 25 };
         rel = { ace: 1.6, fre: 0.7, aero: 1.6, man: 0.4 };
-    } else if (textoCircuito.includes("Monaco") || textoCircuito.includes("Singapore") || textoCircuito.includes("Hungary")) {
+        prioridad = "VELOCIDAD PUNTA";
+    } else if (textoCircuito.includes("Monaco") || textoCircuito.includes("Singapore") || textoCircuito.includes("Hungary") || textoCircuito.includes("Spain")) {
+        ideal = { ace: 25, fre: 75, aero: 25, man: 75 };
         rel = { ace: 0.6, fre: 1.6, aero: 0.4, man: 1.6 };
+        prioridad = "CHASIS Y TRACCIÓN";
     }
 
+    // --- CÁLCULO DE DÉFICIT ESPECÍFICO ---
+    let faltantes = [];
+    if (misAttrs.ace < ideal.ace) faltantes.push(`ACE (+${ideal.ace - misAttrs.ace})`);
+    if (misAttrs.aero < ideal.aero) faltantes.push(`AER (+${ideal.aero - misAttrs.aero})`);
+    if (misAttrs.fre < ideal.fre) faltantes.push(`FRE (+${ideal.fre - misAttrs.fre})`);
+    if (misAttrs.man < ideal.man) faltantes.push(`MAN (+${ideal.man - misAttrs.man})`);
+
+    // --- CÁLCULO DE COMPETITIVIDAD ---
     const scoreActual = (misAttrs.ace * rel.ace) + (misAttrs.fre * rel.fre) + (misAttrs.aero * rel.aero) + (misAttrs.man * rel.man);
-    const scoreMax = (nivelObjetivo * rel.ace) + (nivelObjetivo * rel.fre) + (nivelObjetivo * rel.aero) + (nivelObjetivo * rel.man);
+    const scoreMax = (ideal.ace * rel.ace) + (ideal.fre * rel.fre) + (ideal.aero * rel.aero) + (ideal.man * rel.man);
     let porcentaje = Math.round((scoreActual / scoreMax) * 100);
     if(porcentaje > 100) porcentaje = 100;
     
     gapBar.style.width = porcentaje + "%";
-    gapText.innerText = `${porcentaje}% DE EFECTIVIDAD EN ESTA PISTA`;
+    gapText.innerText = `${porcentaje}% DE PREPARACIÓN PARA ${prioridad}`;
 
-    // Comparativa de Espionaje
+    // --- VERDICTO DEL INGENIERO ---
+    if (faltantes.length > 0) {
+        verdict.innerHTML = `<b style="color:var(--gold)">ORDEN DE TRABAJO:</b><br>Déficit en: <span style="color:#ff4757">${faltantes.join(", ")}</span>. Recomiendo invertir puntos aquí para mejorar el tiempo por vuelta.`;
+    } else {
+        verdict.innerHTML = `<b style="color:var(--green)">OPTIMIZADO:</b><br>El monoplaza cumple con los requisitos técnicos para ${textoCircuito}.`;
+    }
+
+    // --- MÓDULO DE ESPIONAJE (COMPARATIVA) ---
     if(spyTargetID) {
         db.ref('perfiles/' + spyTargetID).once('value').then(s => {
             const rival = s.val();
@@ -1319,30 +1338,25 @@ function analizarDesarrollo() {
                 const r = rival.design;
                 const diffAce = misAttrs.ace - (r.ace || 0);
                 const diffAero = misAttrs.aero - (r.aero || 0);
-                
                 let spyMsg = `<b>Vs ${rival.name.toUpperCase()}:</b><br>`;
                 spyMsg += `<span style="color:${diffAce >= 0 ? 'var(--green)' : '#ff4757'}">ACE: ${diffAce >= 0 ? '+' : ''}${diffAce}</span> | `;
                 spyMsg += `<span style="color:${diffAero >= 0 ? 'var(--green)' : '#ff4757'}">AER: ${diffAero >= 0 ? '+' : ''}${diffAero}</span><br>`;
-                
                 const scoreRival = ((r.ace||0)*rel.ace) + ((r.fre||0)*rel.fre) + ((r.aero||0)*rel.aero) + ((r.man||0)*rel.man);
                 const diffTotal = scoreRival > 0 ? Math.round(((scoreActual - scoreRival) / scoreRival) * 100) : 0;
-                
                 spyMsg += `Ventaja Global: <b style="color:${diffTotal >= 0 ? 'var(--green)' : '#ff4757'}">${diffTotal >= 0 ? '+' : ''}${diffTotal}%</b>`;
                 spyResult.innerHTML = spyMsg;
             } else {
-                spyResult.innerHTML = "Rival sin telemetría.";
+                spyResult.innerHTML = "Rival sin datos de diseño.";
             }
         });
     }
 
-    // Semáforo
+    // --- SEMÁFORO ---
     const sumaT = misAttrs.ace + misAttrs.fre + misAttrs.aero;
     const sumaS = misAttrs.fia + misAttrs.con + misAttrs.des;
-    let color = (sumaS > sumaT) ? "#ff4757" : (porcentaje > 70 ? "var(--green)" : "#eccc68");
-
+    let color = (sumaS > sumaT) ? "#ff4757" : (porcentaje > 75 ? "var(--green)" : "#eccc68");
     light.style.background = color;
     light.style.boxShadow = `0 0 15px ${color}`;
-    verdict.innerHTML = `<i>"Diagnóstico: El monoplaza rinde al ${porcentaje}% para el GP actual."</i>`;
 }
 </script>
 </body>
