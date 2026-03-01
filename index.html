@@ -1269,7 +1269,7 @@ db.ref('perfiles').on('value', (snap) => {
         .then(() => alert("✅ Configuración guardada en la base de datos"))
         .catch((err) => console.error("Error al guardar:", err));
 }
-// --- 2. LÓGICA DE INGENIERÍA AVANZADA Y COMPARACIÓN ---
+// --- 2. LÓGICA DE INGENIERÍA MASTER (TELEMETRÍA PREDICTIVA) ---
 function analizarDesarrollo() {
     const gpSelector = document.getElementById('gp-select');
     if(!gpSelector) return;
@@ -1293,42 +1293,57 @@ function analizarDesarrollo() {
     };
 
     // --- CONFIGURACIÓN DE SETUP IDEAL SEGÚN ADN DEL CIRCUITO ---
-    let ideal = { ace: 50, fre: 50, aero: 50, man: 50 }; 
-    let prioridad = "BALANCE GENERAL";
+    let ideal = { ace: 60, fre: 60, aero: 60, man: 60 }; 
+    let tipoPista = "BALANCEADA";
     let rel = { ace: 1, fre: 1, aero: 1, man: 1 };
 
     if (textoCircuito.includes("Italy") || textoCircuito.includes("Belgium") || textoCircuito.includes("Austria") || textoCircuito.includes("Saudi")) {
-        ideal = { ace: 75, fre: 30, aero: 75, man: 25 };
-        rel = { ace: 1.6, fre: 0.7, aero: 1.6, man: 0.4 };
-        prioridad = "VELOCIDAD PUNTA";
+        ideal = { ace: 85, fre: 35, aero: 90, man: 30 };
+        rel = { ace: 1.8, fre: 0.6, aero: 1.8, man: 0.4 };
+        tipoPista = "ALTA VELOCIDAD (RECTAS)";
     } else if (textoCircuito.includes("Monaco") || textoCircuito.includes("Singapore") || textoCircuito.includes("Hungary") || textoCircuito.includes("Spain")) {
-        ideal = { ace: 25, fre: 75, aero: 25, man: 75 };
-        rel = { ace: 0.6, fre: 1.6, aero: 0.4, man: 1.6 };
-        prioridad = "CHASIS Y TRACCIÓN";
+        ideal = { ace: 30, fre: 85, aero: 35, man: 90 };
+        rel = { ace: 0.5, fre: 1.7, aero: 0.5, man: 1.8 };
+        tipoPista = "VIRADA (CURVAS LENTAS)";
     }
 
-    // --- CÁLCULO DE DÉFICIT ESPECÍFICO ---
-    let faltantes = [];
-    if (misAttrs.ace < ideal.ace) faltantes.push(`ACE (+${ideal.ace - misAttrs.ace})`);
-    if (misAttrs.aero < ideal.aero) faltantes.push(`AER (+${ideal.aero - misAttrs.aero})`);
-    if (misAttrs.fre < ideal.fre) faltantes.push(`FRE (+${ideal.fre - misAttrs.fre})`);
-    if (misAttrs.man < ideal.man) faltantes.push(`MAN (+${ideal.man - misAttrs.man})`);
+    // --- CÁLCULO DE DÉFICIT Y TIEMPO PERDIDO (DELTA) ---
+    const dAce = Math.max(0, ideal.ace - misAttrs.ace);
+    const dFre = Math.max(0, ideal.fre - misAttrs.fre);
+    const dAero = Math.max(0, ideal.aero - misAttrs.aero);
+    const dMan = Math.max(0, ideal.man - misAttrs.man);
+    
+    const deficitTotal = dAce + dFre + dAero + dMan;
+    // Simulación: Cada punto de déficit cuesta ~0.007 segundos en el simulador
+    let deltaEstimado = (deficitTotal * 0.007).toFixed(3);
 
-    // --- CÁLCULO DE COMPETITIVIDAD ---
+    // --- RENDERIZADO DEL INFORME PROFESIONAL ---
+    let informe = `<div style="text-align:left; font-family:var(--font-tech); font-size:0.75rem;">`;
+    informe += `<b style="color:var(--gold)">📡 INFORME TÉCNICO: ${textoCircuito.toUpperCase()}</b><br>`;
+    informe += `Estrategia: <span style="color:var(--green)">${tipoPista}</span><br><br>`;
+    
+    if (dAce > 10 || dAero > 10) {
+        informe += `⚠️ <b style="color:#ff4757">SECTOR 1/3:</b> Déficit de potencia. Pierdes <span style="color:#ff4757">+${(dAce*0.009).toFixed(2)}s</span> en rectas.<br>`;
+    }
+    if (dFre > 10 || dMan > 10) {
+        informe += `⚠️ <b style="color:var(--gold)">SECTOR 2:</b> Falta de agarre. Pierdes <span style="color:var(--gold)">+${(dFre*0.009).toFixed(2)}s</span> en curvas.<br>`;
+    }
+
+    informe += `<div style="margin-top:8px; border-top:1px solid #333; padding-top:5px;">`;
+    informe += `DELTA TOTAL ESTIMADO: <b style="color:var(--green)">+${deltaEstimado}s / vta</b><br>`;
+    informe += `<i>"Recomendación: Prioriza ${(dAce+dAero > dFre+dMan) ? 'MOTOR/AERO' : 'FRENOS/CHASIS'}"</i>`;
+    informe += `</div></div>`;
+
+    verdict.innerHTML = informe;
+
+    // --- CÁLCULO DE COMPETITIVIDAD Y BARRA ---
     const scoreActual = (misAttrs.ace * rel.ace) + (misAttrs.fre * rel.fre) + (misAttrs.aero * rel.aero) + (misAttrs.man * rel.man);
     const scoreMax = (ideal.ace * rel.ace) + (ideal.fre * rel.fre) + (ideal.aero * rel.aero) + (ideal.man * rel.man);
     let porcentaje = Math.round((scoreActual / scoreMax) * 100);
     if(porcentaje > 100) porcentaje = 100;
     
     gapBar.style.width = porcentaje + "%";
-    gapText.innerText = `${porcentaje}% DE PREPARACIÓN PARA ${prioridad}`;
-
-    // --- VERDICTO DEL INGENIERO ---
-    if (faltantes.length > 0) {
-        verdict.innerHTML = `<b style="color:var(--gold)">ORDEN DE TRABAJO:</b><br>Déficit en: <span style="color:#ff4757">${faltantes.join(", ")}</span>. Recomiendo invertir puntos aquí para mejorar el tiempo por vuelta.`;
-    } else {
-        verdict.innerHTML = `<b style="color:var(--green)">OPTIMIZADO:</b><br>El monoplaza cumple con los requisitos técnicos para ${textoCircuito}.`;
-    }
+    gapText.innerText = `EFICIENCIA DE SETUP: ${porcentaje}%`;
 
     // --- MÓDULO DE ESPIONAJE (COMPARATIVA) ---
     if(spyTargetID) {
@@ -1336,14 +1351,12 @@ function analizarDesarrollo() {
             const rival = s.val();
             if(rival && rival.design) {
                 const r = rival.design;
-                const diffAce = misAttrs.ace - (r.ace || 0);
-                const diffAero = misAttrs.aero - (r.aero || 0);
-                let spyMsg = `<b>Vs ${rival.name.toUpperCase()}:</b><br>`;
-                spyMsg += `<span style="color:${diffAce >= 0 ? 'var(--green)' : '#ff4757'}">ACE: ${diffAce >= 0 ? '+' : ''}${diffAce}</span> | `;
-                spyMsg += `<span style="color:${diffAero >= 0 ? 'var(--green)' : '#ff4757'}">AER: ${diffAero >= 0 ? '+' : ''}${diffAero}</span><br>`;
                 const scoreRival = ((r.ace||0)*rel.ace) + ((r.fre||0)*rel.fre) + ((r.aero||0)*rel.aero) + ((r.man||0)*rel.man);
                 const diffTotal = scoreRival > 0 ? Math.round(((scoreActual - scoreRival) / scoreRival) * 100) : 0;
-                spyMsg += `Ventaja Global: <b style="color:${diffTotal >= 0 ? 'var(--green)' : '#ff4757'}">${diffTotal >= 0 ? '+' : ''}${diffTotal}%</b>`;
+                
+                let spyMsg = `<b>Vs ${rival.name.toUpperCase()}:</b><br>`;
+                spyMsg += `Ventaja Global: <b style="color:${diffTotal >= 0 ? 'var(--green)' : '#ff4757'}">${diffTotal >= 0 ? '+' : ''}${diffTotal}%</b><br>`;
+                spyMsg += `Diferencia: <small>${((scoreActual - scoreRival)*0.007).toFixed(3)}s por vuelta</small>`;
                 spyResult.innerHTML = spyMsg;
             } else {
                 spyResult.innerHTML = "Rival sin datos de diseño.";
@@ -1354,7 +1367,7 @@ function analizarDesarrollo() {
     // --- SEMÁFORO ---
     const sumaT = misAttrs.ace + misAttrs.fre + misAttrs.aero;
     const sumaS = misAttrs.fia + misAttrs.con + misAttrs.des;
-    let color = (sumaS > sumaT) ? "#ff4757" : (porcentaje > 75 ? "var(--green)" : "#eccc68");
+    let color = (sumaS > sumaT) ? "#ff4757" : (porcentaje > 80 ? "var(--green)" : "#eccc68");
     light.style.background = color;
     light.style.boxShadow = `0 0 15px ${color}`;
 }
