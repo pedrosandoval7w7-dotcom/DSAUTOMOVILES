@@ -661,31 +661,51 @@ window.onload = () => switchRank('temporada');
 
     let sessionID = ""; let managerName = ""; let stintsArr = []; let isAdmin = false;
 
-// --- SISTEMA DE ACCESO (PARRILLA COMPLETA: 24 BASE + 6 EXTRAS) ---
+// --- SISTEMA DE ACCESO REFORZADO (DIBUJA TODO SÍ O SÍ) ---
 db.ref('perfiles').on('value', (snap) => {
     const grid = document.getElementById('m-grid'); 
     if(!grid) return;
-    grid.innerHTML = ''; // Limpiar parrilla antes de rellenar
-    const data = snap.val() || {};
+    grid.innerHTML = ''; 
+    const data = snap.val() || {}; // Si Firebase está vacío, usamos un objeto vacío {}
     
-    // 1. GENERAR CATEGORÍAS F1 A K6
+    // 1. GENERAR CATEGORÍAS (24 PLAZAS)
     const categorias = ["F1", "F2", "F3", "F4", "F5", "K6"];
     categorias.forEach(cat => {
-        let h = `<div class="slot-card"><h3>ESTAMENTO ${cat}</h3>`; // Abrir tarjeta
+        let h = `<div class="slot-card"><h3>ESTAMENTO ${cat}</h3>`;
         for(let i=1; i<=4; i++) {
             let id = `${cat}_M${i}`; 
-            let p = data[id];
+            // Buscamos si existe el perfil 'p'. Si no existe, 'p' será null.
+            let p = data[id] ? data[id] : null; 
             
             h += `<div style="position: relative; margin-bottom: 5px;">
                     <button class="m-btn ${p ? 'occupied' : ''}" onclick="login('${id}')">
-                        <span style="font-size:0.6rem; opacity:0.4; margin-right:10px;">${id}</span> ${p ? p.name.toUpperCase() : 'VACANTE'}
+                        <span style="font-size:0.6rem; opacity:0.4; margin-right:10px;">${id}</span> 
+                        ${p && p.name ? p.name.toUpperCase() : 'VACANTE'}
                     </button>
                     ${p ? `<button onclick="event.stopPropagation(); borrarPerfilDirecto('${id}', '${p.name}')" class="btn-delete-admin" style="display: ${typeof isAdmin !== 'undefined' && isAdmin ? 'block' : 'none'}; position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: #ff4757; color: white; border: none; border-radius: 4px; padding: 2px 8px; font-size: 10px; cursor: pointer; font-weight: bold; z-index: 10;">X</button>` : ''}
                   </div>`;
         }
-        h += `</div>`; // Cerrar tarjeta del estamento
-        grid.innerHTML += h; // Inyectar al grid
+        h += `</div>`;
+        grid.innerHTML += h; 
     });
+
+    // 2. GENERAR LOS 6 PERFILES EXTRAS
+    let extraH = `<div class="slot-card" style="border-top-color: var(--green);"><h3>PERFILES EXTRAS</h3>`;
+    for(let i=1; i<=6; i++) {
+        let id = `EXTRA_${i}`; 
+        let p = data[id] ? data[id] : null;
+        
+        extraH += `<div style="position: relative; margin-bottom: 5px;">
+                    <button class="m-btn ${p ? 'occupied' : ''}" style="${p ? 'border-color:var(--green);' : ''}" onclick="login('${id}')">
+                        <span style="font-size:0.6rem; opacity:0.4; margin-right:10px;">EX-${i}</span> 
+                        ${p && p.name ? p.name.toUpperCase() : 'VACANTE'}
+                    </button>
+                    ${p ? `<button onclick="event.stopPropagation(); borrarPerfilDirecto('${id}', '${p.name}')" class="btn-delete-admin" style="display: ${typeof isAdmin !== 'undefined' && isAdmin ? 'block' : 'none'}; position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: #ff4757; color: white; border: none; border-radius: 4px; padding: 2px 8px; font-size: 10px; cursor: pointer; font-weight: bold; z-index: 10;">X</button>` : ''}
+                  </div>`;
+    }
+    extraH += `</div>`;
+    grid.innerHTML += extraH;
+});
 
     // 2. GENERAR LOS 6 PERFILES EXTRAS
     let extraH = `<div class="slot-card" style="border-top-color: var(--green);"><h3>PERFILES EXTRAS</h3>`;
