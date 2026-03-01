@@ -1269,7 +1269,6 @@ db.ref('perfiles').on('value', (snap) => {
         .then(() => alert("✅ Configuración guardada en la base de datos"))
         .catch((err) => console.error("Error al guardar:", err));
 }
-// --- 2. LÓGICA DE INGENIERÍA MASTER (VERSIÓN GLOBAL DEFINITIVA) ---
 function analizarDesarrollo() {
     const gpSelector = document.getElementById('gp-select');
     if(!gpSelector) return;
@@ -1292,15 +1291,14 @@ function analizarDesarrollo() {
         des: parseInt(document.getElementById('dev-des').value) || 0
     };
 
-    // --- 1. BASE DE DATOS DE CIRCUITOS iGP ---
+    // --- 1. BASE DE DATOS MAESTRA DE CIRCUITOS ---
     let ideal = { ace: 65, fre: 65, aero: 65, man: 65 }; 
     let tipoPista = "EQUILIBRADA";
     let rel = { ace: 1, fre: 1, aero: 1, man: 1 };
     let prioridadDesc = "DISEÑO GENERAL";
 
-    // Mapeo exhaustivo
-    const pistasVelocidad = ["Italy", "Belgium", "Austria", "Saudi", "Bahrain", "Mexico", "Azerbaijan", "USA", "Abu Dhabi", "Canada", "Great Britain"];
-    const pistasChasis = ["Monaco", "Singapore", "Hungary", "Spain", "Japan", "Brazil", "Netherlands", "Australia", "Turkey"];
+    const pistasVelocidad = ["Italy", "Belgium", "Austria", "Saudi", "Bahrain", "Mexico", "Azerbaijan", "USA", "Abu Dhabi", "Canada", "Great Britain", "Las Vegas", "Qatar"];
+    const pistasChasis = ["Monaco", "Singapore", "Hungary", "Spain", "Japan", "Brazil", "Netherlands", "Australia", "Turkey", "China", "Miami"];
 
     if (pistasVelocidad.some(p => textoCircuito.includes(p))) {
         ideal = { ace: 95, fre: 35, aero: 90, man: 35 }; 
@@ -1315,47 +1313,59 @@ function analizarDesarrollo() {
         prioridadDesc = "FRENADO Y MANEJO";
     }
 
-    // --- 2. CÁLCULO DE DÉFICIT Y TIEMPO (DELTA) ---
+    // --- 2. CÁLCULO DE DÉFICIT Y TIEMPO ---
     const dAce = Math.max(0, ideal.ace - misAttrs.ace);
     const dFre = Math.max(0, ideal.fre - misAttrs.fre);
     const dAero = Math.max(0, ideal.aero - misAttrs.aero);
     const dMan = Math.max(0, ideal.man - misAttrs.man);
-    
     const deficitTotal = dAce + dFre + dAero + dMan;
     let deltaEstimado = (deficitTotal * 0.007).toFixed(3);
 
-    // --- 3. RENDERIZADO DEL INFORME TÉCNICO ---
+    // --- 3. INFORME TÉCNICO VISUAL ---
     let informe = `<div style="text-align:left; font-family:var(--font-tech); font-size:0.75rem;">`;
     informe += `<b style="color:var(--gold)">📡 INFORME TÉCNICO: ${textoCircuito.toUpperCase()}</b><br>`;
     informe += `Estrategia: <span style="color:var(--green)">${tipoPista}</span><br><br>`;
-    
-    if (dAce > 5 || dAero > 5) informe += `⚠️ <b style="color:#ff4757">POTENCIA:</b> Déficit en rectas de +${(dAce*0.01).toFixed(2)}s.<br>`;
+    if (dAce > 5 || dAero > 5) informe += `⚠️ <b style="color:#ff4757">POTENCIA:</b> Déficit de +${(dAce*0.01).toFixed(2)}s.<br>`;
     if (dFre > 5 || dMan > 5) informe += `⚠️ <b style="color:var(--gold)">AGARRE:</b> Falta de giro de +${(dFre*0.01).toFixed(2)}s.<br>`;
-
     informe += `<div style="margin-top:8px; border-top:1px solid #333; padding-top:5px;">`;
     informe += `DELTA TOTAL ESTIMADO: <b style="color:var(--green)">+${deltaEstimado}s / vta</b><br>`;
     informe += `</div></div>`;
-
     verdict.innerHTML = informe;
 
-    // --- 4. 🎯 PLAN DE INVESTIGACIÓN (EL CORAZÓN DEL ASISTENTE) ---
-    let investigacion = `<div style="margin-top:10px; padding:8px; background:rgba(46, 213, 115, 0.1); border:1px dashed var(--green); border-radius:5px;">`;
-    investigacion += `<b style="color:var(--green); font-size:0.7rem;">🎯 PLAN DE INVESTIGACIÓN:</b><br>`;
-    let puntosNecesarios = Math.ceil(deficitTotal / 2); 
-    investigacion += `<span style="font-size:0.75rem;">Para recuperar <b>${(deltaEstimado/2).toFixed(3)}s</b>, asigna <b>${puntosNecesarios} pts</b> a la investigación de <u>${prioridadDesc}</u>.</span>`;
-    investigacion += `</div>`;
-    verdict.innerHTML += investigacion;
+    // --- 4. PLAN DE INVESTIGACIÓN ---
+    let puntosNec = Math.ceil(deficitTotal / 2); 
+    verdict.innerHTML += `<div style="margin-top:10px; padding:8px; background:rgba(46, 213, 115, 0.1); border:1px dashed var(--green); border-radius:5px;">
+        <b style="color:var(--green); font-size:0.7rem;">🎯 PLAN DE INVESTIGACIÓN:</b><br>
+        <span style="font-size:0.75rem;">Asigna <b>${puntosNec} pts</b> a la investigación de <u>${prioridadDesc}</u>.</span>
+    </div>`;
 
-    // --- 5. COMPETITIVIDAD Y BARRA ---
+    // --- 5. CONSEJO DE MURO (CONEXIÓN ESTRATÉGICA) ---
+    let consejoMuro = "";
+    let colorConsejo = "var(--green)";
+    if (deltaEstimado > 0.9) {
+        consejoMuro = "❌ <b>COCHE LENTO:</b> No tienes ritmo para atacar. La <b>RUTA SPRINT</b> fallará por tráfico. Ve a 1 parada.";
+        colorConsejo = "#ff4757";
+    } else if (deltaEstimado > 0.4) {
+        consejoMuro = "⚠️ <b>RITMO MEDIO:</b> Estás en la pelea. La <b>RUTA EQUILIBRADA</b> es la más segura.";
+        colorConsejo = "var(--gold)";
+    } else {
+        consejoMuro = "🚀 <b>RITMO ELITE:</b> Tienes el mejor coche. La <b>RUTA SPRINT</b> es segura para ganar.";
+    }
+    let alertaFia = (misAttrs.fia < 40) ? `<br><small style="color:#ff4757">🔥 <b>OJO:</b> Fiabilidad baja (${misAttrs.fia}).</small>` : "";
+
+    verdict.innerHTML += `
+        <div style="margin-top:10px; padding:10px; background:#1e272e; border-left:4px solid ${colorConsejo}; border-radius:4px; color:white; font-size:0.75rem;">
+            <b style="color:${colorConsejo}">💡 CONSEJO DEL MURO:</b><br>${consejoMuro}${alertaFia}
+        </div>`;
+
+    // --- 6. BARRA DE EFICIENCIA Y ESPIONAJE ---
     const scoreActual = (misAttrs.ace * rel.ace) + (misAttrs.fre * rel.fre) + (misAttrs.aero * rel.aero) + (misAttrs.man * rel.man);
     const scoreMax = (ideal.ace * rel.ace) + (ideal.fre * rel.fre) + (ideal.aero * rel.aero) + (ideal.man * rel.man);
     let porcentaje = Math.round((scoreActual / scoreMax) * 100);
     if(porcentaje > 100) porcentaje = 100;
-    
     gapBar.style.width = porcentaje + "%";
     gapText.innerText = `EFICIENCIA: ${porcentaje}%`;
 
-    // --- 6. MÓDULO DE ESPIONAJE ---
     if(spyTargetID) {
         db.ref('perfiles/' + spyTargetID).once('value').then(s => {
             const rival = s.val();
@@ -1363,22 +1373,16 @@ function analizarDesarrollo() {
                 const r = rival.design;
                 const scoreRival = ((r.ace||0)*rel.ace) + ((r.fre||0)*rel.fre) + ((r.aero||0)*rel.aero) + ((r.man||0)*rel.man);
                 const diffTotal = scoreRival > 0 ? Math.round(((scoreActual - scoreRival) / scoreRival) * 100) : 0;
-                let spyMsg = `<b>Vs ${rival.name.toUpperCase()}:</b><br>`;
-                spyMsg += `Ventaja Global: <b style="color:${diffTotal >= 0 ? 'var(--green)' : '#ff4757'}">${diffTotal >= 0 ? '+' : ''}${diffTotal}%</b><br>`;
-                spyMsg += `Diferencia: <small>${((scoreActual - scoreRival)*0.007).toFixed(3)}s por vuelta</small>`;
-                spyResult.innerHTML = spyMsg;
-            } else {
-                spyResult.innerHTML = "Rival sin datos de diseño.";
+                spyResult.innerHTML = `<b>Vs ${rival.name.toUpperCase()}:</b> Ventaja <b style="color:${diffTotal >= 0 ? 'var(--green)' : '#ff4757'}">${diffTotal >= 0 ? '+' : ''}${diffTotal}%</b>`;
             }
         });
     }
 
-    // --- 7. SEMÁFORO ---
     const sumaT = misAttrs.ace + misAttrs.fre + misAttrs.aero;
     const sumaS = misAttrs.fia + misAttrs.con + misAttrs.des;
-    let color = (sumaS > sumaT) ? "#ff4757" : (porcentaje > 85 ? "var(--green)" : "#eccc68");
-    light.style.background = color;
-    light.style.boxShadow = `0 0 15px ${color}`;
+    let colorSem = (sumaS > sumaT) ? "#ff4757" : (porcentaje > 85 ? "var(--green)" : "#eccc68");
+    light.style.background = colorSem;
+    light.style.boxShadow = `0 0 15px ${colorSem}`;
 }
 </script>
 </body>
