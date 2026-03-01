@@ -643,45 +643,47 @@ function actualizarDatosAdmin() {
     alert("¡Ranking actualizado!");
 }
 
-// D. Borrar Perfil de Firebase (Versión Reforzada)
+// D. Borrar Perfil de Firebase (Versión RASTREADORA)
 function resetearPerfilFirebase() {
-    const nombreAEliminar = document.getElementById('admin-nombre').value.trim();
+    const nombreEscrito = document.getElementById('admin-nombre').value.trim().toLowerCase();
     
-    if (!nombreAEliminar) {
-        alert("⚠️ Comisario, escriba el nombre del manager en el cuadro de texto para resetear su perfil.");
+    if (!nombreEscrito) {
+        alert("⚠️ Comisario, escriba el nombre del manager para resetear su perfil.");
         return;
     }
 
-    if (confirm(`¿Estás seguro de ELIMINAR el perfil visual de "${nombreAEliminar}"? \n\nEsto borrará su ficha de la web pero NO sus puntos del ranking.`)) {
-        
-        // Buscamos en la base de datos de perfiles
-        db.ref('perfiles').once('value', (snapshot) => {
-            let encontrado = false;
-            
-            snapshot.forEach((childSnapshot) => {
-                const datos = childSnapshot.val();
-                
-                // Comparamos limpiando espacios y mayúsculas
-                if (datos.nombre && datos.nombre.trim().toLowerCase() === nombreAEliminar.toLowerCase()) {
-                    encontrado = true;
-                    
-                    // Borramos el nodo exacto usando su ID único (key)
-                    db.ref('perfiles/' + childSnapshot.key).remove()
-                        .then(() => {
-                            alert(`✅ Perfil de ${nombreAEliminar} reseteado con éxito de la web.`);
-                            document.getElementById('admin-nombre').value = ""; // Limpia el buscador
-                        })
-                        .catch((error) => {
-                            alert("❌ Error en los pits (Firebase): " + error.message);
-                        });
-                }
-            });
+    // Accedemos a la base de datos de perfiles
+    db.ref('perfiles').once('value', (snapshot) => {
+        let encontrado = false;
+        let idABorrar = null;
+        let nombreRealEncontrado = "";
 
-            if (!encontrado) {
-                alert(`❓ No se encontró a "${nombreAEliminar}". Asegúrate de escribir el nombre tal cual aparece en su ficha.`);
+        snapshot.forEach((childSnapshot) => {
+            const datos = childSnapshot.val();
+            // Limpiamos el nombre de la base de datos de posibles espacios invisibles
+            const nombreEnDB = datos.nombre ? datos.nombre.trim().toLowerCase() : "";
+
+            // Si el nombre escrito está contenido en el nombre de la DB o viceversa
+            if (nombreEnDB.includes(nombreEscrito) || nombreEscrito.includes(nombreEnDB)) {
+                encontrado = true;
+                idABorrar = childSnapshot.key;
+                nombreRealEncontrado = datos.nombre;
             }
         });
-    }
+
+        if (encontrado) {
+            if (confirm(`¿ELIMINAR el perfil de "${nombreRealEncontrado}" de la web?\n\n(ID detectado: ${idABorrar})`)) {
+                db.ref('perfiles/' + idABorrar).remove()
+                    .then(() => {
+                        alert(`✅ ¡Hecho! El perfil de ${nombreRealEncontrado} ha sido borrado.`);
+                        document.getElementById('admin-nombre').value = "";
+                    })
+                    .catch((e) => alert("❌ Error: " + e.message));
+            }
+        } else {
+            alert(`❓ No hubo suerte. En la base de datos no hay nadie que se llame parecido a "${nombreEscrito}".`);
+        }
+    });
 }
 // E. Reset Temporada
 function resetTemporada() {
