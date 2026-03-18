@@ -2,1358 +2,286 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>DS AUTOMOBILES | COMMAND CENTER V10.6 ULTRA-FULL</title>
-    
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Sugerencias de estrategia - DS Automobiles</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@300;400;600&family=JetBrains+Mono&display=swap" rel="stylesheet">
     
     <style>
-        /* --- ARQUITECTURA DE DISEÑO DS-PRO EXTENDIDA --- */
-        @import url('https://fonts.googleapis.com/css2?family=Michroma&family=Rajdhani:wght@300;400;500;600;700&display=swap');
-
-        :root { 
-            --gold: #c5a059; 
-            --gold-glow: rgba(197, 160, 89, 0.4);
-            --bg: #020202; 
-            --card: #0d0d0d; 
-            --green: #00ff9d; 
-            --red: #ff3131; 
-            --orange: #ff9f43; 
-            --white: #ffffff;
-            --font-main: 'Rajdhani', sans-serif; 
-            --font-tech: 'Michroma', sans-serif;
-            --transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        :root {
+            --ds-gold: #c5a059;
+            --ds-black: #0a0a0a;
+            --ds-gray: #1a1a1c;
         }
-
-        /* RESET TOTAL DE ESTILOS */
-        * { 
-            box-sizing: border-box; 
-            -webkit-tap-highlight-color: transparent; 
-            outline: none; 
-            margin: 0; padding: 0;
-        }
-        
         body { 
-            font-family: var(--font-main); 
-            background: var(--bg); 
-            color: var(--white); 
-            min-height: 100vh; 
-            background-image: 
-                radial-gradient(circle at 50% 0%, #1a1a1a 0%, #000 70%),
-                url('https://www.transparenttextures.com/patterns/carbon-fibre.png');
+            background-color: var(--ds-black); 
+            color: #e4e4e7; 
+            font-family: 'Inter', sans-serif;
             overflow-x: hidden;
-            line-height: 1.6;
         }
-
-        /* SISTEMA DE LOGIN DE ALTA SEGURIDAD */
-        #login-system { 
-            position: fixed; 
-            inset: 0; 
-            background: #000; 
-            z-index: 9999; 
-            display: flex; 
-            flex-direction: column; 
-            align-items: center; 
-            padding: 50px 20px; 
-            overflow-y: auto; 
+        .font-ds { font-family: 'Orbitron', sans-serif; letter-spacing: 0.1em; }
+        .glass-panel {
+            background: rgba(20, 20, 23, 0.85);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(197, 160, 89, 0.2);
+            box-shadow: 0 10px 40px rgba(0,0,0,0.7);
         }
-
-        .login-header { 
-            text-align: center; 
-            margin-bottom: 60px; 
-            animation: fadeInDown 1s ease;
+        .tyre-btn {
+            width: 45px; height: 45px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 12px; font-weight: 900; cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 3px solid rgba(0,0,0,0.5);
         }
-
-        @keyframes fadeInDown {
-            from { opacity: 0; transform: translateY(-30px); }
-            to { opacity: 1; transform: translateY(0); }
+        .tyre-btn.active { transform: scale(1.15); border-color: white; box-shadow: 0 0 15px currentColor; }
+        .compound-ss { background: #ef4444; color: white; }
+        .compound-s { background: #eab308; color: black; }
+        .compound-m { background: #f4f4f5; color: black; }
+        .compound-h { background: #f97316; color: white; }
+        
+        .stint-card {
+            background: linear-gradient(145deg, #161618, #0a0a0a);
+            border-left: 4px solid var(--ds-gold);
         }
-
-        .login-header h1 { 
-            font-family: var(--font-tech); 
-            font-size: 3rem; 
-            letter-spacing: 20px; 
-            color: var(--gold); 
-            text-shadow: 0 0 50px var(--gold-glow);
-            text-transform: uppercase;
-        }
-
-        .manager-grid { 
-            display: grid; 
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); 
-            gap: 35px; 
-            width: 100%; 
-            max-width: 1600px; 
-        }
-
-        .slot-card { 
-            background: linear-gradient(180deg, #0a0a0a 0%, #050505 100%); 
-            border: 1px solid #1a1a1a; 
-            border-top: 5px solid var(--gold); 
-            border-radius: 20px; 
-            padding: 35px; 
-            box-shadow: 0 20px 40px rgba(0,0,0,0.8);
-            transition: var(--transition);
-        }
-
-        .slot-card:hover { transform: translateY(-10px); border-color: var(--gold); }
-
-        .slot-card h3 { 
-            font-family: var(--font-tech); 
-            font-size: 0.8rem; 
-            color: var(--gold); 
-            text-align: center; 
-            margin-bottom: 30px; 
-            letter-spacing: 4px;
-        }
-
-        .m-btn { 
-            width: 100%; 
-            padding: 20px; 
-            margin: 12px 0; 
-            background: #000; 
-            border: 1px solid #252525; 
-            color: #444; 
-            border-radius: 15px; 
-            font-weight: 700; 
-            cursor: pointer; 
-            transition: var(--transition);
-            font-size: 1rem;
-            display: flex; align-items: center; justify-content: center; gap: 10px;
-        }
-
-        .m-btn.occupied { 
-            color: #fff; 
-            border-color: var(--gold); 
-            background: linear-gradient(135deg, #1a150e 0%, #050505 100%); 
-            box-shadow: 0 0 15px rgba(197, 160, 89, 0.2);
-        }
-
-        /* CONTENEDOR PRINCIPAL DASHBOARD */
-        .master-app { 
-            display: none; 
-            grid-template-columns: 1fr; 
-            gap: 40px; 
-            padding: 40px; 
-            max-width: 2500px; 
-            margin: auto; 
-        }
-
-        @media (min-width: 1400px) { 
-            .master-app { grid-template-columns: 480px 1fr 500px; } 
-        }
-
-        .panel { 
-            background: var(--card); 
-            border: 1px solid #1a1a1a; 
-            border-radius: 35px; 
-            overflow: hidden; 
-            display: flex; 
-            flex-direction: column; 
-            box-shadow: 0 40px 80px rgba(0,0,0,0.9);
-        }
-
-        .panel-header { 
-            padding: 30px; 
-            background: #000; 
-            font-family: var(--font-tech); 
-            font-size: 0.8rem; 
-            color: var(--gold); 
-            border-bottom: 1px solid #1a1a1a; 
-            display: flex; justify-content: space-between; align-items: center;
-            letter-spacing: 2px;
-        }
-
-        .panel-body { padding: 40px; }
-
-        /* ESTILOS DE FORMULARIO Y WIDGETS */
-        label { 
-            display: block; 
-            font-family: var(--font-tech); 
-            font-size: 0.65rem; 
-            color: #666; 
-            margin-bottom: 15px; 
-            letter-spacing: 2px;
-            text-transform: uppercase;
-        }
-
-        input, select, textarea { 
-            width: 100%; 
-            background: #050505; 
-            border: 1px solid #1a1a1a; 
-            color: #fff; 
-            padding: 22px; 
-            border-radius: 18px; 
-            font-family: var(--font-main); 
-            font-size: 1.3rem; 
-            margin-bottom: 30px;
-            transition: var(--transition);
-        }
-
-        input:focus { border-color: var(--gold); background: #080808; }
-
-        .stat-card-mega { 
-            background: #000; 
-            padding: 35px; 
-            border-radius: 30px; 
-            border: 1px solid #1a1a1a; 
-            text-align: center; 
-            margin-bottom: 30px; 
-            border-left: 6px solid var(--gold);
-            position: relative;
-        }
-
-        .stat-card-mega span { 
-            font-family: var(--font-tech); 
-            font-size: 3.2rem; 
-            color: var(--white);
-            display: block;
-        }
-
-        /* CAJA DE INTELIGENCIA DE ESTRATEGIA */
-        .strategy-ai-container { 
-            background: linear-gradient(135deg, #0a0805 0%, #000 100%); 
-            border: 1px solid var(--gold); 
-            border-radius: 30px; 
-            padding: 30px; 
-            margin: 30px 0;
-            box-shadow: 0 10px 30px rgba(197, 160, 89, 0.1);
-        }
-
-        .strategy-ai-container h4 { 
-            font-family: var(--font-tech); 
-            color: var(--gold); 
-            font-size: 0.9rem; 
-            margin-bottom: 25px; 
-            border-bottom: 1px solid var(--gold); 
-            padding-bottom: 15px;
-            display: flex; align-items: center; gap: 10px;
-        }
-
-        .sug-box { 
-            background: #0d0d0d; 
-            border-radius: 20px; 
-            padding: 22px; 
-            margin-bottom: 15px; 
-            border-left: 6px solid var(--gold);
-            transition: var(--transition);
-        }
-
-        .sug-box:hover { transform: scale(1.02); background: #111; }
-
-        .sug-title { 
-            color: var(--gold); 
-            font-family: var(--font-tech); 
-            font-size: 0.75rem; 
-            margin-bottom: 10px; 
-            display: block; 
-        }
-
-        .sug-val { font-size: 1.2rem; color: #fff; font-weight: 700; }
-        /* CONTINUACIÓN DE ESTILOS PARTE 2 */
-        #data-stream { 
-            background: #030303; 
-            border-radius: 25px; 
-            padding: 35px; 
-            font-family: 'Courier New', monospace; 
-            color: var(--green); 
-            font-size: 1.1rem; 
-            min-height: 350px; 
-            border-left: 12px solid var(--green); 
-            overflow-y: auto; 
-            margin-bottom: 40px; 
-            white-space: pre-wrap;
-            box-shadow: inset 0 0 30px #000;
-        }
-
-        .stint-card { 
-            background: linear-gradient(180deg, #080808 0%, #040404 100%); 
-            border: 1px solid #1a1a1a; 
-            border-left: 15px solid var(--gold); 
-            border-radius: 30px; 
-            padding: 35px; 
-            margin-bottom: 35px; 
-            position: relative;
-            animation: slideIn 0.5s ease-out;
-        }
-
-        @keyframes slideIn { from { opacity: 0; transform: translateX(-20px); } to { opacity: 1; transform: translateX(0); } }
-
-        .wear-bar-outer { 
-            background: #000; 
-            height: 25px; 
-            border-radius: 12px; 
-            margin-top: 30px; 
-            overflow: hidden; 
-            border: 1px solid #222; 
-        }
-
-        .wear-bar-inner { 
-            height: 100%; 
-            width: 100%; 
-            transition: width 1.8s cubic-bezier(0.19, 1, 0.22, 1); 
-        }
-
-        #chat-panel { 
-            height: 500px; 
-            background: #050505; 
-            border-radius: 30px; 
-            border: 1px solid #1a1a1a; 
-            display: flex; 
-            flex-direction: column; 
-            overflow: hidden; 
-            margin-bottom: 40px; 
-        }
-
-        #chat-messages { 
-            flex-grow: 1; 
-            padding: 35px; 
-            overflow-y: auto; 
-            display: flex; 
-            flex-direction: column; 
-            gap: 25px; 
-        }
-
-        .msg-bubble { 
-            background: #0d0d0d; 
-            padding: 20px; 
-            border-radius: 20px; 
-            border-left: 6px solid var(--gold); 
-            max-width: 85%;
-        }
-
-        .msg-bubble b { 
-            display: block; 
-            color: var(--gold); 
-            font-family: var(--font-tech); 
-            font-size: 0.7rem; 
-            margin-bottom: 10px; 
-            letter-spacing: 2px;
-        }
-
-        .rank-row { 
-            display: flex; 
-            justify-content: space-between; 
-            padding: 22px; 
-            background: #080808; 
-            border-radius: 20px; 
-            margin-bottom: 15px; 
-            border: 1px solid #151515;
-            transition: var(--transition);
-        }
-
-        .rank-row:hover { border-color: var(--gold); transform: scale(1.02); }
-
-        .action-btn { 
-            width: 100%; 
-            padding: 25px; 
-            border-radius: 20px; 
-            border: none; 
-            font-family: var(--font-tech); 
-            font-weight: 700; 
-            cursor: pointer; 
-            text-transform: uppercase; 
-            font-size: 1rem; 
-            letter-spacing: 4px;
-            transition: var(--transition);
-        }
-
-        .btn-gold { 
-            background: var(--gold); 
-            color: #000; 
-            box-shadow: 0 15px 35px rgba(197,160,89,0.3); 
-        }
-
-        .btn-gold:hover { transform: translateY(-5px); box-shadow: 0 20px 45px rgba(197,160,89,0.5); }
-
-        .btn-danger { background: #1a0000; color: var(--red); border: 2px solid var(--red); margin-top: 20px; }
-
-        .admin-critical { 
-            display: none; 
-            margin-top: 60px; 
-            border: 3px solid var(--red); 
-            padding: 40px; 
-            border-radius: 35px; 
-            background: rgba(255, 49, 49, 0.02); 
-        }
-
-        .blink { animation: blink-effect 1.5s infinite; }
-        @keyframes blink-effect { 50% { opacity: 0.2; } }
+        .nav-link.active { color: var(--ds-gold); border-bottom: 2px solid var(--ds-gold); }
+        input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; }
     </style>
 </head>
-<body>
+<body class="min-h-screen flex flex-col">
 
-<div id="login-system">
-    <div class="login-header">
-        <h1>DS AUTOMOBILES</h1>
-        <p style="color: #444; letter-spacing: 8px; font-weight: 700;">WORLD COMMAND CENTER</p>
-    </div>
-    <div class="manager-grid" id="m-grid"></div>
-    <button onclick="unlockAdmin()" style="margin-top:120px; background:none; border:none; color:#1a1a1a; cursor:pointer; font-family:var(--font-tech); font-size: 0.7rem;">[ ENCRYPTED ADMIN GATE ]</button>
-</div>
-
-<div class="master-app" id="app-interface">
-    
-    <div id="development-panel" class="slot-card" style="margin-bottom: 20px; background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 15px;">
-        <h3 style="color: var(--green); margin-top: 0;"><i class="fas fa-microchip"></i> LABORATORIO DE DESARROLLO Y ESPIONAJE</h3>
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-            
-            <div id="attr-inputs">
-                <p style="font-size: 0.8rem; color: var(--green); margin-bottom: 10px;">MI MONOPLAZA (DATOS PROPIOS):</p>
-                <style> .dev-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 5px; font-size: 0.85rem; } .dev-row input { width: 50px; background: #111; border: 1px solid #444; color: white; border-radius: 4px; padding: 2px 5px; } </style>
-                <div class="dev-row">🚀 ACE: <input type="number" id="dev-ace" value="1" oninput="analizarDesarrollo()"></div>
-                <div class="dev-row">🛑 FRE: <input type="number" id="dev-fre" value="1" oninput="analizarDesarrollo()"></div>
-                <div class="dev-row">✈️ AER: <input type="number" id="dev-aero" value="1" oninput="analizarDesarrollo()"></div>
-                <div class="dev-row">🎡 MAN: <input type="number" id="dev-man" value="1" oninput="analizarDesarrollo()"></div>
-                <div class="dev-row">🔧 FIA: <input type="number" id="dev-fia" value="1" oninput="analizarDesarrollo()"></div>
-                <div class="dev-row">⛽ CON: <input type="number" id="dev-con" value="1" oninput="analizarDesarrollo()"></div>
-                <div class="dev-row">🛞 DES: <input type="number" id="dev-des" value="1" oninput="analizarDesarrollo()"></div>
-                <button onclick="guardarDesarrollo()" class="m-btn" style="margin-top:10px; background:var(--green); color:black; width:100%; border:none; padding:8px; cursor:pointer; font-weight:bold; border-radius:4px;">💾 GUARDAR MI CONFIGURACIÓN</button>
-            </div>
-
-            <div id="dev-recommendations" style="background: rgba(0,0,0,0.5); padding: 15px; border-radius: 8px; border-left: 4px solid var(--green); position: relative;">
-                <div id="status-light" style="position: absolute; top: 10px; right: 10px; width: 22px; height: 22px; border-radius: 50%; background: #555; box-shadow: 0 0 10px #000; border: 2px solid rgba(255,255,255,0.2);"></div>
-                <h4 style="margin-top:0; font-size: 0.9rem;">📊 DIAGNÓSTICO E INTELIGENCIA</h4>
-                
-                <div id="gap-analysis">
-                    <p style="font-size: 0.65rem; margin-bottom: 5px; opacity: 0.8;">MI NIVEL DE COMPETITIVIDAD:</p>
-                    <div style="width: 100%; height: 8px; background: #222; border-radius: 4px; overflow: hidden;">
-                        <div id="gap-bar" style="width: 0%; height: 100%; background: var(--green); transition: width 0.5s ease;"></div>
-                    </div>
-                    <p id="gap-text" style="font-size: 0.75rem; font-weight: bold; margin-top: 5px; color: var(--green);">0%</p>
-                </div>
-
-                <hr style="opacity:0.1; margin: 10px 0;">
-
-                <div id="spy-module">
-                    <p style="font-size: 0.65rem; color: #ff4757; font-weight: bold; margin-bottom: 5px;">🕵️ ESPIONAJE (COMPARAR CON RIVAL):</p>
-                    <select id="spy-target" onchange="analizarDesarrollo()" style="width: 100%; background: #111; color: white; border: 1px solid #444; padding: 4px; border-radius: 4px; font-size: 0.8rem;">
-                        <option value="">Selecciona un Manager...</option>
-                    </select>
-                    <div id="spy-result" style="font-size: 0.7rem; margin-top: 8px; color: #aaa; line-height: 1.2;">
-                        Selecciona un rival...
-                    </div>
-                </div>
-
-                <hr style="opacity:0.1; margin: 10px 0;">
-                <div id="engineers-verdict" style="font-size: 0.75rem; line-height: 1.3; font-style: italic;">
-                    Esperando datos de telemetría...
-                </div>
-            </div>
-        </div>
+    <div id="app" class="relative z-10 flex flex-col h-full w-full flex-grow">
+        <!-- El contenido se genera via JavaScript -->
     </div>
 
-    <div class="panel">
-        <div class="panel-header">UNIDAD DE ESTRATEGIA ... </div>
-    
-    <div class="panel">
-        <div class="panel-header">UNIDAD DE ESTRATEGIA <div class="blink" style="width:15px; height:15px; background:var(--green); border-radius:50%; box-shadow: 0 0 15px var(--green);"></div></div>
-        <div class="panel-body">
-            
-            <label>CIRCUITO DEL GRAN PREMIO</label>
-            <select id="gp-select" onchange="updateCircuit(); analizarDesarrollo();">
-                <option value="28">Bahrain (28v)</option><option value="25">Saudi Arabia (25v)</option><option value="28">Australia (28v)</option>
-                <option value="27">Japan (27v)</option><option value="27">China (27v)</option><option value="24">Miami (24v)</option>
-                <option value="31">Spain (31v)</option><option value="29">Monaco (29v)</option><option value="31">Canada (31v)</option>
-                <option value="34">Austria (34v)</option><option value="24">Great Britain (24v)</option><option value="39">Hungary (39v)</option>
-                <option value="21">Belgium (21v)</option><option value="25">Italy (25v)</option><option value="23">Azerbaijan (23v)</option>
-                <option value="30">Singapore (30v)</option><option value="30">USA (30v)</option><option value="35">Mexico (35v)</option>
-                <option value="34">Brazil (34v)</option><option value="30">Las Vegas (30v)</option><option value="27">Qatar (27v)</option>
-                <option value="36">Abu Dhabi (36v)</option>
-            </select>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
+        import { getDatabase, ref, set, onValue, push } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-database.js";
 
-            <label>DESGASTE DE PRÁCTICA (%) - NEUMÁTICO S</label>
-            <input type="number" id="practice-wear" placeholder="Ej: 3.5" step="0.1" oninput="generateSuggestions()">
+       // CONFIGURACIÓN CON TU URL DE FIREBASE
+        const firebaseConfig = {
+            databaseURL: "https://ds-automobiles-f0a17-default-rtdb.firebaseio.com/" 
+        };
 
-            <div class="strategy-ai-container">
-                <h4><span class="blink" style="width:10px; height:10px; background:var(--gold); border-radius:50%;"></span> Sugerencias de estrategia</h4>
-                <div id="ai-content">
-                    <p style="color:#555; text-align:center; font-size:0.9rem;">Esperando datos de telemetría de práctica...</p>
-                </div>
-            </div>
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
 
-            <label>MODIFICADOR DE TEMPERATURA AMBIENTE</label>
-            <select id="temp-mod" onchange="calculateAll()">
-                <option value="0.94">FRÍO (< 15°C) | -6% Desgaste</option>
-                <option value="1.0" selected>NORMAL (15°C - 25°C)</option>
-                <option value="1.15">CALOR (26°C - 32°C) | +15% Desgaste</option>
-                <option value="1.28">EXTREMO (> 32°C) | +28% Desgaste</option>
-            </select>
+        // CIRCUITOS ENVIADOS POR EL USUARIO
+        const circuitsData = {
+            "AUS": { name: "Australia", laps: 58, length: 5.27, tyreWear: 18 },
+            "MAL": { name: "Malasia", laps: 56, length: 5.54, tyreWear: 22 },
+            "CHN": { name: "China", laps: 56, length: 5.45, tyreWear: 20 },
+            "BHR": { name: "Bahréin", laps: 57, length: 5.41, tyreWear: 24 },
+            "ESP": { name: "España", laps: 66, length: 4.67, tyreWear: 25 },
+            "MON": { name: "Mónaco", laps: 78, length: 3.33, tyreWear: 12 },
+            "CAN": { name: "Canadá", laps: 70, length: 4.36, tyreWear: 15 },
+            "AUT": { name: "Austria", laps: 71, length: 4.31, tyreWear: 19 },
+            "GBR": { name: "Gran Bretaña", laps: 52, length: 5.89, tyreWear: 23 },
+            "HUN": { name: "Hungría", laps: 70, length: 4.38, tyreWear: 21 },
+            "BEL": { name: "Bélgica", laps: 44, length: 7.00, tyreWear: 22 },
+            "ITA": { name: "Italia", laps: 53, length: 5.79, tyreWear: 18 },
+            "SIN": { name: "Singapur", laps: 61, length: 5.06, tyreWear: 14 },
+            "JPN": { name: "Japón", laps: 53, length: 5.80, tyreWear: 23 },
+            "RUS": { name: "Rusia", laps: 53, length: 5.85, tyreWear: 16 },
+            "USA": { name: "EE.UU.", laps: 56, length: 5.51, tyreWear: 18 },
+            "MEX": { name: "México", laps: 71, length: 4.30, tyreWear: 19 },
+            "BRA": { name: "Brasil", laps: 71, length: 4.30, tyreWear: 16 },
+            "UAE": { name: "Abu Dhabi", laps: 55, length: 5.28, tyreWear: 17 },
+            "AZE": { name: "Azerbaiyán", laps: 51, length: 6.00, tyreWear: 15 }
+        };
 
-            <label>LIVE NOTES (TELEMETRÍA COMPARTIDA)</label>
-            <textarea id="live-notes" rows="10" oninput="broadcastNotes()" placeholder="Comparte incidentes, lluvia o tráfico..."></textarea>
-<button onclick="toggleHelp()" style="background:#f1c40f; color:black; width:100%; padding:15px; margin-top:15px; font-weight:bold; border:none; cursor:pointer; border-radius:5px; box-shadow: 0 5px 15px rgba(0,0,0,0.4); font-size: 1.1rem; text-transform: uppercase;">
-    📖 ABRIR MANUAL TÉCNICO COMPLETO
-</button>
-
-<div id="help-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.98); z-index:10000; color:white; padding:10px; font-family: 'Segoe UI', sans-serif; overflow-y: auto;">
-    <div style="background:#080808; padding:35px; border-radius:20px; border:2px solid #f1c40f; max-width:900px; margin:40px auto; box-shadow: 0 0 60px rgba(0,0,0,0.95);">
-
-        <h1 style="color:#f1c40f; text-align:center; text-transform: uppercase; letter-spacing: 4px; border-bottom: 2px solid #333; padding-bottom:20px; margin-bottom:30px;">
-            Manual Maestro DS-Automobiles V10.6
-        </h1>
-
-        <h3 style="color:#f1c40f; background:#222; padding:8px; border-left: 5px solid #f1c40f;">👤 1. GESTIÓN DE PERFILES (LOGIN)</h3>
-        <p>Usa los slots F1 a K6. Los perfiles ocupados requieren PIN. El <b>Modo Admin</b> permite resetear slots con la "X" roja.</p>
-
-        <h3 style="color:#f1c40f; background:#222; padding:8px; border-left: 5px solid #f1c40f;">📊 2. SUGERENCIAS DE ESTRATEGIA</h3>
-        <p>La IA genera rutas basadas en tu vuelta de práctica:</p>
-        <ul>
-            <li><b>Sprint:</b> 2 paradas (Ataque).</li>
-            <li><b>Equilibrada:</b> 1 parada (Consistencia).</li>
-            <li><b>Límite Crítico:</b> No bajes del <b>32%</b> de neumático o perderás 2s por vuelta.</li>
-        </ul>
-
-        <h3 style="color:#2ecc71; background:#1a2e21; padding:8px; border-left: 5px solid #2ecc71;">🔬 3. DESARROLLO Y ESPIONAJE</h3>
-        <p>Configura ACE, FRE, AERO y MAN para ver el <b>Delta Estimado</b>. Usa el <b>Spy Target</b> para comparar tu coche con el de tus rivales en tiempo real.</p>
-
-        <h3 style="color:#f1c40f; background:#222; padding:8px; border-left: 5px solid #f1c40f;">⛽ 4. STINTS Y COMBUSTIBLE</h3>
-        <p>El sistema añade <b>0.35L</b> de reserva. Ajusta el <b>Modo Push (1-5)</b> para ver la degradación térmica real en la barra de salud.</p>
-
-        <h3 style="color:#3498db; background:#1a3a5a; padding:8px; border-left: 5px solid #3498db;">🌧️ 5. PROTOCOLO DE LLUVIA</h3>
-        <ul>
-            <li><b>0.6mm a 2.9mm:</b> Intermedios (I).</li>
-            <li><b>3.0mm+:</b> Lluvia Extrema (W).</li>
-            <li>Si escribes "LLUVIA" en las <b>Live Notes</b>, activarás la alerta global.</li>
-        </ul>
-
-        <h3 style="color:#e67e22; background:#2e1f14; padding:8px; border-left: 5px solid #e67e22;">🏆 6. RANKING Y PUNTOS</h3>
-        <p>El Comisario inyecta puntos tras cada carrera. El Top 3 del ranking se muestra con colores Oro, Plata y Bronce.</p>
-
-        <button onclick="toggleHelp()" style="background:#ff4757; color:white; border:none; padding:18px; width:100%; margin-top:25px; font-weight:bold; border-radius:10px; cursor:pointer; font-size:1.2rem; text-transform: uppercase;">
-            🏁 CERRAR MANUAL
-        </button>
-    </div>
-</div>
-
-<button class="action-btn" style="background:#080808; color:#fff; border:1px solid #333; width:100%; padding:12px; margin-top:10px; cursor:pointer; border-radius:5px;" onclick="location.reload()">
-    CERRAR SESIÓN
-</button>
-    <div class="panel">
-        <div class="panel-header">DS-ENGINE V10.6 | EXPO-THERMAL CORE</div>
-        <div class="panel-body">
-            
-            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:30px; margin-bottom:15px;">
-                <div class="stat-card-mega"><label>PLAN TOTAL VTS</label><span id="total-laps">0</span></div>
-                <div class="stat-card-mega"><label>FUEL REQUERIDO</label><span id="total-fuel">0.000</span></div>
-            </div>
-
-            <div id="data-stream">>> SISTEMA DS-CORE INICIALIZADO...</div>
-
-            <label>FUEL CONSUMPTION BASE (L/VTA)</label>
-            <input type="number" id="fb-base" value="2.700" step="0.001" oninput="calculateAll()">
-
-            <div id="stint-list"></div>
-
-            <button class="action-btn btn-gold" onclick="addNewStint()">+ DESPLEGAR NUEVO STINT ESTRATÉGICO</button>
-        </div>
-    </div>
-
-    <div class="panel">
-        <div class="panel-header">OPERACIONES DE RADIO</div>
-        <div class="panel-body">
-            
-            <div id="chat-panel">
-                <div id="chat-messages"></div>
-                <div style="display:flex; gap:15px; padding:30px; background: #000; border-top: 1px solid #111;">
-                    <input type="text" id="chat-input" placeholder="Comunicación de radio..." style="margin:0;">
-                    <button id="chat-send" class="btn-gold" style="width:90px; font-size:1.8rem;">↑</button>
-                </div>
-            </div>
-
-<div class="ranking-container" style="background: #111; padding: 15px; border-radius: 10px; border: 1px solid #333; margin-top: 20px;">
-    <div class="ranking-tabs" style="display: flex; gap: 5px; margin-bottom: 15px; overflow-x: auto; padding-bottom: 10px;">
-        <button onclick="switchRank('temporada')" class="tab-btn active" style="background: #f1c40f; color: black; border: none; padding: 10px 15px; border-radius: 5px; font-weight: bold; cursor: pointer; flex: 1; white-space: nowrap;">🏎️ TEMPORADA</button>
-        <button onclick="switchRank('historico')" class="tab-btn" style="background: #222; color: #f1c40f; border: 1px solid #f1c40f; padding: 10px 15px; border-radius: 5px; font-weight: bold; cursor: pointer; flex: 1; white-space: nowrap;">🏛️ PUNTOS DS</button>
-        <button onclick="switchRank('victorias')" class="tab-btn" style="background: #222; color: #f1c40f; border: 1px solid #f1c40f; padding: 10px 15px; border-radius: 5px; font-weight: bold; cursor: pointer; flex: 1; white-space: nowrap;">🥇 VICTORIAS</button>
-        <button onclick="switchRank('poles')" class="tab-btn" style="background: #222; color: #f1c40f; border: 1px solid #f1c40f; padding: 10px 15px; border-radius: 5px; font-weight: bold; cursor: pointer; flex: 1; white-space: nowrap;">⏱️ POLES</button>
-        <button onclick="switchRank('copas')" class="tab-btn" style="background: #222; color: #f1c40f; border: 1px solid #f1c40f; padding: 10px 15px; border-radius: 5px; font-weight: bold; cursor: pointer; flex: 1; white-space: nowrap;">🏆 COPAS</button>
-    </div>
-
-    <table id="tabla-ranking-dinamica" style="width: 100%; border-collapse: collapse; text-align: center; color: white; font-family: sans-serif;">
-        </table>
-</div>
-
-<div id="admin-panel" style="display: none; margin: 20px 0; padding: 15px; background: #1a1a1a; border: 2px dashed #f1c40f; border-radius: 10px;">
-    <h3 style="color: #f1c40f; text-align: center; margin-top: 0;">🛠️ COMISARIO DS-AUTOMOBILES</h3>
-    <div style="display: flex; flex-direction: column; gap: 10px;">
-        <select id="admin-tipo" style="padding: 10px; background: #333; color: white; border: 1px solid #f1c40f;">
-            <option value="temporada">🏎️ Temporada (Ranking)</option>
-            <option value="historico">🏛️ Puntos DS (Ranking)</option>
-            <option value="victorias">🥇 Victorias (Ranking)</option>
-            <option value="poles">⏱️ Poles (Ranking)</option>
-            <option value="copas">🏆 Copas (Ranking)</option>
-        </select>
-
-        <input type="text" id="admin-nombre" placeholder="Nombre exacto del Manager" style="padding: 10px; background: #222; color: white; border: 1px solid #444;">
-        <input type="number" id="admin-valor" placeholder="Cantidad a SUMAR" style="padding: 10px; background: #222; color: white; border: 1px solid #444;">
-        
-        <button onclick="actualizarDatosAdmin()" style="background: #f1c40f; color: black; font-weight: bold; padding: 12px; border: none; border-radius: 5px; cursor: pointer;">
-            💾 SUMAR AL RANKING
-        </button>
-
-        <div style="display: flex; gap: 10px; margin-top: 15px; border-top: 1px solid #333; padding-top: 15px;">
-            <button onclick="resetearPerfilFirebase()" style="flex: 1; background: #3498db; color: white; padding: 10px; border: none; border-radius: 5px; font-size: 11px; cursor: pointer; font-weight: bold;">👤 LIMPIAR PERFIL (WEB)</button>
-            <button onclick="resetTemporada()" style="flex: 1; background: #c0392b; color: white; padding: 10px; border: none; border-radius: 5px; font-size: 11px; cursor: pointer; font-weight: bold;">🏁 RESET TEMPORADA</button>
-        </div>
-        <p style="color: #666; font-size: 10px; text-align: center; margin-top: 5px;">* El Reset de Temporada solo afecta a la tabla de puntos actual.</p>
-    </div>
-</div>
-
-<button onclick="abrirAdmin()" style="background:none; border:none; color:#111; cursor:default; font-size:10px; display:block; margin: 0 auto;">.</button>
-
-<script>
-// A. Base de Datos
-let datosRanking = JSON.parse(localStorage.getItem('rankingDS')) || {
-    temporada: [], historico: [], victorias: [], poles: [], copas: []
-};
-
-// B. Función para cambiar pestañas
-function switchRank(tipo) {
-    const btns = document.querySelectorAll('.tab-btn');
-    btns.forEach(btn => {
-        btn.style.background = "#222";
-        btn.style.color = "#f1c40f";
-    });
-
-    if (event && event.currentTarget && event.currentTarget.classList.contains('tab-btn')) {
-        event.currentTarget.style.background = "#f1c40f";
-        event.currentTarget.style.color = "black";
-    }
-
-    const tabla = document.getElementById('tabla-ranking-dinamica');
-    let tituloCol = "PUNTOS";
-    if(tipo === 'victorias') tituloCol = "VICTORIAS";
-    if(tipo === 'poles') tituloCol = "POLES";
-    if(tipo === 'copas') tituloCol = "COPAS";
-
-    datosRanking[tipo].sort((a, b) => b.valor - a.valor);
-
-    let html = `<thead><tr style="background: #222; color: #f1c40f;"><th style="padding: 12px;">POS</th><th style="padding: 12px; text-align: left;">MANAGER</th><th style="padding: 12px;">${tituloCol}</th></tr></thead><tbody>`;
-
-    if (datosRanking[tipo].length === 0) {
-        html += `<tr><td colspan="3" style="padding:20px; color:#666;">Sin datos registrados</td></tr>`;
-    } else {
-        datosRanking[tipo].forEach((m, i) => {
-            html += `<tr style="border-bottom: 1px solid #222;"><td style="padding: 10px;">${i + 1}º</td><td style="padding: 10px; text-align: left;">${m.nombre}</td><td style="padding: 10px; color: #f1c40f; font-weight: bold;">${m.valor}</td></tr>`;
-        });
-    }
-    tabla.innerHTML = html + `</tbody>`;
-}
-
-// C. Función para SUMAR al Ranking
-function actualizarDatosAdmin() {
-    const tipo = document.getElementById('admin-tipo').value;
-    const nombre = document.getElementById('admin-nombre').value.trim();
-    const valorNuevo = parseInt(document.getElementById('admin-valor').value);
-
-    if (!nombre || isNaN(valorNuevo)) {
-        alert("Ingrese nombre y valor."); return;
-    }
-
-    const idx = datosRanking[tipo].findIndex(m => m.nombre.toLowerCase() === nombre.toLowerCase());
-    if (idx !== -1) {
-        datosRanking[tipo][idx].valor += valorNuevo;
-    } else {
-        datosRanking[tipo].push({ nombre, valor: valorNuevo });
-    }
-
-    localStorage.setItem('rankingDS', JSON.stringify(datosRanking));
-    switchRank(tipo);
-    alert("¡Ranking actualizado!");
-}
-
-// E. Reset Temporada
-function resetTemporada() {
-    if (confirm("⚠️ ¿Resetear puntos de TEMPORADA?")) {
-        datosRanking.temporada = [];
-        localStorage.setItem('rankingDS', JSON.stringify(datosRanking));
-        switchRank('temporada');
-    }
-}
-
-window.onload = () => switchRank('temporada');
-           
-    /* LÓGICA MAESTRA - 900+ LÍNEAS DE FUNCIONALIDAD */
-    const firebaseConfig = { databaseURL: "https://ds-automobiles-f0a17-default-rtdb.firebaseio.com/" };
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.database();
-
-    let sessionID = ""; let managerName = ""; let stintsArr = []; let isAdmin = false;
-
-// --- SISTEMA DE ACCESO (PARRILLA COMPLETA 24 + 6 EXTRAS) ---
-db.ref('perfiles').on('value', (snap) => {
-    const grid = document.getElementById('m-grid'); 
-    if(!grid) return;
-    
-    grid.innerHTML = ''; 
-    const data = snap.val() || {}; 
-    
-    // 1. GENERAR CATEGORÍAS F1 A K6 (24 BOTONES)
-    const categorias = ["F1", "F2", "F3", "F4", "F5", "K6"];
-    
-    categorias.forEach(cat => {
-        let h = `<div class="slot-card"><h3>ESTAMENTO ${cat}</h3>`;
-        for(let i=1; i<=4; i++) {
-            let id = `${cat}_M${i}`; 
-            let p = data[id];
-            let nombre = (p && p.name) ? p.name.toUpperCase() : 'VACANTE';
-            
-            h += `<div style="position: relative; margin-bottom: 5px;">
-                    <button class="m-btn ${p ? 'occupied' : ''}" onclick="login('${id}')">
-                        <span style="font-size:0.6rem; opacity:0.4; margin-right:10px;">${id}</span> ${nombre}
-                    </button>
-                    ${p ? `<button onclick="event.stopPropagation(); borrarPerfilDirecto('${id}', '${p.name}')" class="btn-delete-admin" style="display: ${ (typeof isAdmin !== 'undefined' && isAdmin) ? 'block' : 'none' }; position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: #ff4757; color: white; border: none; border-radius: 4px; padding: 2px 8px; font-size: 10px; cursor: pointer; font-weight: bold; z-index: 10;">X</button>` : ''}
-                  </div>`;
-        }
-        h += `</div>`;
-        grid.innerHTML += h;
-    });
-
-    // 2. GENERAR PERFILES EXTRAS (6 BOTONES)
-    let extraH = `<div class="slot-card" style="border-top-color: var(--green);"><h3>PERFILES EXTRAS</h3>`;
-    for(let i=1; i<=6; i++) {
-        let id = `EXTRA_${i}`; 
-        let p = data[id];
-        let nombre = (p && p.name) ? p.name.toUpperCase() : 'VACANTE';
-
-        extraH += `<div style="position: relative; margin-bottom: 5px;">
-                    <button class="m-btn ${p ? 'occupied' : ''}" style="${p ? 'border-color:var(--green);' : ''}" onclick="login('${id}')">
-                        <span style="font-size:0.6rem; opacity:0.4; margin-right:10px;">EX-${i}</span> ${nombre}
-                    </button>
-                    ${p ? `<button onclick="event.stopPropagation(); borrarPerfilDirecto('${id}', '${p.name}')" class="btn-delete-admin" style="display: ${ (typeof isAdmin !== 'undefined' && isAdmin) ? 'block' : 'none' }; position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: #ff4757; color: white; border: none; border-radius: 4px; padding: 2px 8px; font-size: 10px; cursor: pointer; font-weight: bold; z-index: 10;">X</button>` : ''}
-                  </div>`;
-    }
-    extraH += `</div>`;
-    grid.innerHTML += extraH;
-});
-
-// --- FUNCIÓN DE LOGIN Y CREACIÓN (VERSIÓN CON LABORATORIO) ---
-function login(id) {
-    db.ref('perfiles/' + id).once('value').then(s => {
-        let p = s.val();
-        if(!p) {
-            let n = prompt("NUEVO MANAGER - NOMBRE:"); 
-            let pin = prompt("CREAR PIN DE SEGURIDAD:");
-            if(!n || !pin) return; 
-            p = { name: n, pin: pin, fb: 2.7 }; 
-            db.ref('perfiles/' + id).set(p);
-        } 
-        else if(!isAdmin) {
-            let userPin = prompt("PIN DE ACCESO PARA " + p.name.toUpperCase() + ":");
-            if(userPin !== p.pin) { 
-                alert("PIN INCORRECTO. ACCESO DENEGADO."); 
-                return; 
+        let state = {
+            isLoggedIn: false,
+            username: '',
+            section: 'strategy',
+            users: {},
+            messages: [],
+            calc: {
+                circuit: 'AUS',
+                tPoints: 100,
+                fPoints: 100,
+                stints: [{ compound: 'M', laps: 10, boost: 'neutral' }]
             }
-        }
-        
-        sessionID = id; 
-        managerName = p.name.toUpperCase();
-        
-        document.getElementById('login-system').style.display = 'none';
-        document.getElementById('app-interface').style.display = 'grid';
-        
-        if(p.fb) document.getElementById('fb-base').value = p.fb;
+        };
 
-        // --- 🚀 AQUÍ ESTÁ LA MAGIA NUEVA: CARGA DE ATRIBUTOS ---
-        if(p.design) {
-            document.getElementById('dev-ace').value = p.design.ace || 1;
-            document.getElementById('dev-fre').value = p.design.fre || 1;
-            document.getElementById('dev-aero').value = p.design.aero || 1;
-            document.getElementById('dev-man').value = p.design.man || 1;
-            document.getElementById('dev-fia').value = p.design.fia || 1;
-            document.getElementById('dev-con').value = p.design.con || 1;
-            document.getElementById('dev-des').value = p.design.des || 1;
-        }
-        // -----------------------------------------------------
-
-        updateCircuit(); 
-        syncLiveNotes();
-        
-        // Ejecutamos el análisis para que el semáforo brille al entrar
-        analizarDesarrollo(); 
-        
-        logTelemetry(`SESIÓN INICIADA: ${managerName} (${id})`);
-    });
-}
-    // --- SUGERENCIAS DE ESTRATEGIA (MAESTRO IGP - COMBINACIÓN DE COMPUESTOS) ---
-function generateSuggestions() {
-    const pWear = parseFloat(document.getElementById('practice-wear').value);
-    const totalGP = parseInt(document.getElementById('gp-select').value);
-    const aiBox = document.getElementById('ai-content');
-
-    if (!pWear || isNaN(totalGP)) return;
-
-    // Multiplicadores oficiales de iGP
-    const mults = { ss: 1.45, s: 1.0, m: 0.78, h: 0.54 };
-
-    // Calcula la vida real (muerte al 32%)
-    function getLife(m) {
-        let h = 100; let v = 0;
-        while (h > 32 && v < 100) {
-            h -= (pWear * m * (1 + (v * 0.018)));
-            if (h > 32) v++;
-        }
-        return v;
-    }
-
-    const vSS = getLife(mults.ss);
-    const vS = getLife(mults.s);
-    const vM = getLife(mults.m);
-    const vH = getLife(mults.h);
-
-    let html = `<div class="sug-box" style="background:#1a1a1a; border-left:4px solid var(--gold);">
-                    <b style="color:var(--gold);">PLAN DE CARRERA: ${totalGP} VTS</b><br>
-                    <small>Vida max: SS:${vSS}v | S:${vS}v | M:${vM}v | H:${vH}v</small>
-                </div>`;
-
-    // --- OPCIÓN 1: ESTRATEGIA SPRINT (2 PARADAS / 3 TRAMOS) ---
-    if (vS * 3 >= totalGP) {
-        let s1 = Math.min(vSS, Math.floor(totalGP/3));
-        let s2 = s1;
-        let s3 = totalGP - (s1 + s2);
-        let comp3 = s3 <= vSS ? 'SS' : (s3 <= vS ? 'S' : 'M');
-        
-        html += `<div class="sug-box" style="border-left-color: #ff004c;">
-                    <span class="sug-title" style="color:#ff004c;">🚀 RUTA SPRINT (2 PARADAS)</span>
-                    <b>SS + SS + ${comp3}</b><br>
-                    <small>Stints: ${s1}v, ${s2}v y ${s3}v final.</small>
-                 </div>`;
-    }
-
-    // --- OPCIÓN 2: ESTRATEGIA EQUILIBRADA (1 PARADA / 2 TRAMOS) ---
-    if (vS + vM >= totalGP) {
-        let split = Math.min(vS, Math.floor(totalGP/2));
-        let resto = totalGP - split;
-        html += `<div class="sug-box" style="border-left-color: #00ff00;">
-                    <span class="sug-title" style="color:#00ff00;">⚖️ RUTA EQUILIBRADA (1 PARADA)</span>
-                    <b>S + M</b> (Cambio en v.${split})<br>
-                    <small>Tramo 1: ${split}v | Tramo 2: ${resto}v.</small>
-                 </div>`;
-    } else if (vM * 2 >= totalGP) {
-        let split = Math.floor(totalGP/2);
-        html += `<div class="sug-box" style="border-left-color: #00ff00;">
-                    <span class="sug-title" style="color:#00ff00;">⚖️ RUTA EQUILIBRADA (1 PARADA)</span>
-                    <b>M + M</b> (Cambio en v.${split})
-                 </div>`;
-    }
-
-    // --- OPCIÓN 3: RUTA TANQUE (RESISTENCIA) ---
-    if (vH + vS >= totalGP) {
-        html += `<div class="sug-box" style="border-left-color: #ffffff;">
-                    <span class="sug-title" style="color:#fff;">🛡️ RUTA RESISTENCIA (1 PARADA)</span>
-                    <b>H + S</b> (Haces ${totalGP - vS}v con H y cierras rápido con S)
-                 </div>`;
-    }
-
-    aiBox.innerHTML = html;
-}
-    // MOTOR DE STINTS Y CÁLCULO DE COMBUSTIBLE
-    function addNewStint() {
-        const id = Date.now(); stintsArr.push({ id, laps: 10, push: 0, wear: 8.0 });
-        const div = document.createElement('div'); div.className = 'stint-card'; div.id = `st-${id}`;
-        div.innerHTML = `
-            <div style="display:flex; justify-content:space-between; align-items:center;">
-                <b style="color:var(--gold); font-family:var(--font-tech); font-size:0.75rem;">CONFIGURACIÓN STINT #${stintsArr.length}</b>
-                <span onclick="delStint(${id})" style="color:var(--red); cursor:pointer; font-weight:bold;">[ ELIMINAR ]</span>
-            </div>
-            <div style="display:grid; grid-template-columns:1fr 1fr; gap:30px; margin-top:25px;">
-                <div><label>VUELTAS</label><input type="number" value="10" oninput="updStint(${id},'laps',this.value)"></div>
-                <div><label>MODO PUSH</label><select onchange="updStint(${id},'push',this.value)">
-                    <option value="0.025">PUSH 5</option><option value="0.012">PUSH 4</option><option value="0" selected>PUSH 3</option><option value="-0.008">PUSH 2</option><option value="-0.015">PUSH 1</option>
-                </select></div>
-                <div style="grid-column: span 2;">
-                    <label>DESGASTE PRÁCTICA %/VTA</label>
-                    <input type="number" value="8.0" step="0.1" oninput="updStint(${id},'wear',this.value)">
-                    <div class="wear-bar-outer"><div class="wear-bar-inner" id="bar-${id}"></div></div>
-                    <div style="display:flex; justify-content:space-between; margin-top:10px;">
-                        <small id="txt-${id}" style="color:var(--gold); font-weight:700;">ESTADO: 100%</small>
-                        <small id="loss-${id}" style="color:#555;">TIME LOSS: +0.00s</small>
-                    </div>
-                </div>
-            </div>
-            <div style="text-align:center; color:var(--green); font-size:2.8rem; margin-top:25px; border-top:1px solid #111; padding-top:20px;" id="f-${id}">0.000L</div>`;
-        document.getElementById('stint-list').appendChild(div); calculateAll();
-    }
-
-    function updStint(id, k, v) { let s = stintsArr.find(x=>x.id===id); if(s) { s[k]=parseFloat(v); calculateAll(); } }
-    function delStint(id) { stintsArr = stintsArr.filter(x=>x.id!==id); document.getElementById(`st-${id}`).remove(); calculateAll(); }
-
-    function calculateAll() {
-        const fb = parseFloat(document.getElementById('fb-base').value) || 0;
-        const tMod = parseFloat(document.getElementById('temp-mod').value);
-        let tL = 0; let tF = 0; let danger = false;
-
-        stintsArr.forEach(s => {
-            let fuel = (s.laps * (fb + s.push)) + 0.35; // Margen de seguridad iGP
-            tL += s.laps; tF += fuel;
-            document.getElementById(`f-${s.id}`).innerText = fuel.toFixed(3) + "L";
-
-            let health = 100;
-            for(let i=0; i < s.laps; i++) {
-                let expo = 1 + (i * 0.018); // Fórmula térmica DS-Automobiles
-                health -= (s.wear * tMod * expo);
-            }
-            
-            const bar = document.getElementById(`bar-${s.id}`);
-            if(bar) {
-                let res = Math.max(0, health); bar.style.width = res + "%";
-                bar.style.background = res < 32 ? 'var(--red)' : res < 50 ? 'var(--orange)' : 'var(--green)';
-                document.getElementById(`txt-${s.id}`).innerText = "ESTADO REAL EXPO: " + res.toFixed(1) + "%";
-                if(res < 32) danger = true;
-                let l = res < 40 ? (40 - res) * 0.09 : 0;
-                document.getElementById(`loss-${s.id}`).innerText = "PÉRDIDA: +" + l.toFixed(2) + "s/VTA";
-            }
-        });
-
-        document.getElementById('total-laps').innerText = tL;
-        document.getElementById('total-fuel').innerText = tF.toFixed(3);
-        const str = document.getElementById('data-stream');
-        const target = parseInt(document.getElementById('gp-select').value);
-        let log = `>> ANÁLISIS TÉRMICO DS-V10.6\n>> PLAN: ${tL}/${target} VUELTAS\n`;
-        if(danger) log += `>> <span style="color:var(--red)" class="blink">ALERTA: EL NEUMÁTICO ENTRARÁ EN FASE DE MUERTE</span>\n`;
-        str.innerHTML = log + `\nCARGA RECOMENDADA: ${tF.toFixed(3)}L\nESTADO: ${(tL > target ? 'OVERLAP' : 'COMPLETO')}`;
-        if(sessionID) db.ref('perfiles/'+sessionID).update({ fb: fb });
-    }
-
-   // --- 3. COMUNICACIONES Y RADIO (ACTUALIZADO CON PERSISTENCIA Y BORRADO) ---
-    function broadcastNotes() {
-        const noteText = document.getElementById('live-notes').value;
-        db.ref('global_notes').set({ 
-            text: noteText, 
-            author: managerName,
-            time: Date.now() 
-        });
-    }
-
-   function syncLiveNotes() {
-        db.ref('global_notes').on('value', (s) => {
-            const data = s.val();
-            const field = document.getElementById('live-notes');
-            if(!field) return;
-
-            if(data) {
-                // CARGA AUTOMÁTICA: 
-                // Si el cuadro está vacío (recién entras) O si otro manager escribió algo nuevo
-                if(field.value === "" || (data.author !== managerName && field.value !== data.text)) {
-                    field.value = data.text;
-                }
-            } else {
-                // Si el Admin usa el botón de borrar, se limpia para todos
-                field.value = "";
-            }
-        });
-    }
-
-    // --- CHAT DE ESTRATEGIA (MANTENIDO) ---
-    document.getElementById('chat-send').onclick = () => {
-        let i = document.getElementById('chat-input'); 
-        if(!i.value) return;
-        db.ref('chat').push({ 
-            user: managerName, 
-            text: i.value,
-            time: Date.now()
-        }); 
-        i.value = '';
-    };
-
-    db.ref('chat').limitToLast(25).on('value', (s) => {
-        let c = document.getElementById('chat-messages'); 
-        if(!c) return;
-        c.innerHTML = '';
-        Object.values(s.val() || {}).forEach(m => { 
-            c.innerHTML += `<div class="msg-bubble"><b>${m.user}:</b> ${m.text}</div>`; 
-        });
-        c.scrollTop = c.scrollHeight;
-    });
-
-    // FUNCIÓN DE BORRADO PARA EL BOTÓN DEL ADMIN
-    function clearGlobalNotes() {
-        if(confirm("¿BORRAR TODAS LAS NOTAS DE RADIO?")) {
-            db.ref('global_notes').remove();
-        }
-    }
-
-  // 1. VISUALIZACIÓN PROFESIONAL DEL RANKING (REEMPLAZA LO QUE ME MOSTRASTE)
-    db.ref('ranking').on('value', (s) => {
-        const l = document.getElementById('ranking-list'); 
-        if(!l) return;
-        l.innerHTML = '';
-        const rawData = s.val() || {};
-        
-        // Convertir a array y ordenar por puntos (Mayor a menor)
-        const sortedRanking = Object.values(rawData).sort((a, b) => (b.pts || 0) - (a.pts || 0));
-        
-        if(sortedRanking.length === 0) {
-            l.innerHTML = `<div style="text-align:center; color:#333; padding:20px;">SIN DATOS DE TEMPORADA</div>`;
-            return;
+        // FÓRMULAS ESTRATEGIA
+        function getWear(track, comp, laps, pts) {
+            const c = circuitsData[track];
+            const baseW = (((pts/1.5)**-0.0778 * 1.43) * (0.00364 * c.tyreWear + 0.354) * (c.length * 1.384) * 150) / 100;
+            const mults = { 'SS': 2.06, 'S': 1.32, 'M': 1.0, 'H': 0.65 };
+            const wearPerLap = baseW * mults[comp];
+            const remaining = 100 * Math.exp(-1.18 * (wearPerLap / 100) * laps);
+            return remaining.toFixed(1);
         }
 
-        sortedRanking.forEach((p, index) => {
-            const pos = index + 1;
-            // Colores de podio: Oro, Plata, Bronce, Gris
-            const color = pos === 1 ? 'var(--gold)' : (pos === 2 ? '#C0C0C0' : (pos === 3 ? '#CD7F32' : '#555'));
-            
-            l.innerHTML += `
-                <div class="rank-row" style="border-left: 4px solid ${color}; display:flex; justify-content:space-between; align-items:center; padding:15px; background:#080808; margin-bottom:8px; border-radius:10px;">
-                    <div style="display:flex; align-items:center; gap:12px;">
-                      <span style="font-family:var(--font-tech); color:${color}; font-size:0.7rem;">#${pos}</span>
-                        <b style="text-transform:uppercase;">${p.name}</b>
-                    </div>
-                    <span style="font-family:var(--font-tech); color:var(--white);">${p.pts} <small style="font-size:0.5rem; opacity:0.5;">PTS</small></span>
-                </div>`;
-        });
-    });
-
-    // 1. FUNCIÓN DE INYECCIÓN (CON ACUMULACIÓN REAL)
-    function injectPoints() {
-        const userRaw = document.getElementById('adm-user').value;
-        const ptsToAdd = parseInt(document.getElementById('adm-pts').value);
-        
-        if(!userRaw || isNaN(ptsToAdd)) {
-            alert("ERROR: Manager y Puntos son obligatorios.");
-            return;
+        function getFuel(track, pts, laps, boost) {
+            const c = circuitsData[track];
+            const baseF = (98.456 * Math.pow(pts, -0.088) * c.length) / 139.77;
+            const bMult = { 'muy-alto': 1.05, 'alto': 1.02, 'neutral': 1, 'bajo': 0.98, 'muy-bajo': 0.95 };
+            return (baseF * laps * bMult[boost]).toFixed(2);
         }
 
-        const userKey = userRaw.toUpperCase().trim();
-        const rankRef = db.ref('ranking/' + userKey);
-
-        rankRef.once('value').then(snapshot => {
-            let currentPts = 0;
-            if(snapshot.exists()) {
-                currentPts = snapshot.val().pts || 0;
-            }
-            const totalFinal = currentPts + ptsToAdd;
-
-            rankRef.update({
-                name: userKey,
-                pts: totalFinal
-            }).then(() => {
-                document.getElementById('adm-pts').value = '';
-                logTelemetry(`SISTEMA: ${userKey} acumuló +${ptsToAdd} PTS (Total: ${totalFinal})`);
-            });
-        });
-    }
-
-  // --- 2. CONTROL DE ADMINISTRACIÓN Y BORRADO DIRECTO ---
-
-// A. Función para activar el Modo Admin (Interruptor)
-function unlockAdmin() { 
-    if(prompt("ACCESS KEY:") === "DS2026") { 
-        isAdmin = true; 
-        
-        // Abrir el panel de puntos si existe
-        if(document.getElementById('admin-panel')) {
-            document.getElementById('admin-panel').style.display = 'block'; 
-        }
-        
-        // Mostrar botón de limpiar notas si existe
-        if(document.getElementById('clear-notes-btn')) {
-            document.getElementById('clear-notes-btn').style.display = 'block'; 
-        }
-        
-        // --- ACTIVAR LAS X ROJAS EN LOS PERFILES ---
-        const botonesX = document.querySelectorAll('.btn-delete-admin');
-        botonesX.forEach(btn => {
-            btn.style.display = 'block'; // Hace que las X sean visibles
-        });
-        
-        alert("MODO ADMIN ACTIVO: Ya puedes usar las X para resetear perfiles."); 
-    } else {
-        alert("ACCESS KEY INCORRECTA");
-    }
-}
-
-// B. Función que ejecuta el borrado al tocar la X (Gatillo)
-function borrarPerfilDirecto(id, nombre) {
-    if (confirm(`⚠️ COMISARIO: ¿Deseas resetear el perfil de ${nombre.toUpperCase()}?\n\nEl espacio quedará VACANTE y se borrará su PIN.`)) {
-        db.ref('perfiles/' + id).remove()
-            .then(() => {
-                alert("✅ PERFIL ELIMINADO CORRECTAMENTE");
-            })
-            .catch((e) => {
-                alert("❌ ERROR EN BOXES: " + e.message);
-            });
-    }
-}
-    function resetRanking() { 
-        if(confirm("¿RESETEAR RANKING TOTAL? ESTO NO SE PUEDE DESHACER.")) {
-            db.ref('ranking').remove(); 
-            logTelemetry("SISTEMA: RANKING RESETEADO POR ADMIN.");
-        }
-    }
-
-    function resetPerfiles() { 
-        if(confirm("¿BORRAR TODOS LOS PERFILES?") && prompt("ESCRIBE 'ELIMINAR' PARA CONFIRMAR:") === "ELIMINAR") { 
-            db.ref('perfiles').remove(); 
-            location.reload(); 
-        } 
-    }
-
-    // 3. ACTUALIZACIÓN DE CIRCUITO Y SUGERENCIAS
-    function updateCircuit() { 
-        calculateAll(); 
-        generateSuggestions(); 
-    }
-
-    /* --- MÓDULO DE TELEMETRÍA AVANZADA (EXTENSIÓN LÍNEAS 700-950) --- */
-    
-    // Función para simular el comportamiento del neumático en diferentes compuestos
-    function getCompundAnalysis() {
-        const pWear = parseFloat(document.getElementById('practice-wear').value) || 8;
-        const compounds = [
-            { name: 'SS (Super Soft)', mult: 1.45, color: '#ff3131' },
-            { name: 'S (Soft)', mult: 1.0, color: '#ffeb3b' },
-            { name: 'M (Medium)', mult: 0.78, color: '#ffffff' },
-            { name: 'H (Hard)', mult: 0.54, color: '#ff9f43' }
-        ];
-
-        let analysisHTML = `<div style="margin-top:20px; border-top:1px solid #222; padding-top:20px;">
-            <label>PREDICCIÓN POR COMPUESTO (Muerte al 32%)</label>`;
-
-        compounds.forEach(c => {
-            let health = 100;
-            let v = 0;
-            while(health > 32 && v < 60) {
-                let heatFactor = 1 + (v * 0.018); // Incremento de temperatura por vuelta
-                health -= (pWear * c.mult * heatFactor);
-                if(health > 32) v++;
-            }
-            
-            analysisHTML += `
-                <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px;">
-                    <div style="width:12px; height:12px; background:${c.color}; border-radius:50%;"></div>
-                    <div style="flex-grow:1; font-size:0.9rem;">${c.name}: <b style="color:var(--gold)">${v} Vueltas</b></div>
-                    <div style="width:100px; background:#000; height:4px; border-radius:2px;">
-                        <div style="width:${(v/40)*100}%; background:${c.color}; height:100%;"></div>
+        function render() {
+            const root = document.getElementById('app');
+            if (!state.isLoggedIn) {
+                root.innerHTML = `
+                <div class="min-h-screen flex items-center justify-center p-6 bg-[radial-gradient(circle_at_top,_var(--tw-gradient-stops))] from-zinc-900 to-black">
+                    <div class="glass-panel w-full max-w-sm p-10 rounded-3xl border-t-4 border-yellow-600">
+                        <div class="text-center mb-10">
+                            <h1 class="text-3xl font-ds font-bold text-white mb-2 tracking-widest">DS AUTOMOBILES</h1>
+                            <p class="text-zinc-500 text-[10px] uppercase tracking-[0.4em]">Sugerencias de estrategia</p>
+                        </div>
+                        <form id="loginBox" class="space-y-6">
+                            <input name="user" placeholder="PILOTO" class="w-full bg-black/50 border border-zinc-800 p-4 rounded-xl outline-none focus:border-yellow-600 text-white">
+                            <input name="pass" type="password" placeholder="CONTRASEÑA" class="w-full bg-black/50 border border-zinc-800 p-4 rounded-xl outline-none focus:border-yellow-600 text-white">
+                            <button class="w-full bg-yellow-600 text-black font-ds font-bold py-4 rounded-xl hover:brightness-110 transition-all">INGRESAR</button>
+                        </form>
                     </div>
                 </div>`;
-        });
-        
-        return analysisHTML + `</div>`;
-    }
+                document.getElementById('loginBox').onsubmit = (e) => {
+                    e.preventDefault();
+                    const u = e.target.user.value, p = e.target.pass.value;
+                    if(state.users[u] && state.users[u].password === p) {
+                        state.username = u; state.isLoggedIn = true; render();
+                    } else alert("Credenciales incorrectas");
+                };
+                return;
+            }
 
-    // Inyectar el análisis en el panel de IA
-    const originalGenerateSuggestions = generateSuggestions;
-    generateSuggestions = function() {
-        originalGenerateSuggestions();
-        const aiBox = document.getElementById('ai-content');
-        if(document.getElementById('practice-wear').value) {
-            aiBox.innerHTML += getCompundAnalysis();
+            root.innerHTML = `
+            <header class="bg-black/90 border-b border-yellow-600/20 p-4 sticky top-0 z-50 backdrop-blur-md">
+                <div class="max-w-7xl mx-auto flex justify-between items-center">
+                    <h1 class="font-ds text-lg md:text-xl italic">DS <span class="text-yellow-600">PERFORMANCE</span></h1>
+                    <nav class="flex gap-6">
+                        <button onclick="window.go('strategy')" class="nav-link text-[10px] font-bold uppercase tracking-widest ${state.section==='strategy'?'active':''}">Estrategia</button>
+                        <button onclick="window.go('chat')" class="nav-link text-[10px] font-bold uppercase tracking-widest ${state.section==='chat'?'active':''}">Radio</button>
+                    </nav>
+                    <button onclick="location.reload()" class="text-zinc-600 text-[10px] font-bold">SALIR</button>
+                </div>
+            </header>
+            <main class="p-4 md:p-8 max-w-7xl mx-auto w-full flex-grow">
+                ${state.section === 'strategy' ? renderStrategy() : renderChat()}
+            </main>`;
+            setupEvents();
         }
-    };
 
-    // SISTEMA DE ALERTAS DE SEGURIDAD (RADIO CRÍTICA)
-    db.ref('global_notes').on('value', (snap) => {
-        const data = snap.val();
-        if(data && data.text.toUpperCase().includes("LLUVIA")) {
-            const alertDiv = document.createElement('div');
-            alertDiv.style = "position:fixed; top:0; left:0; width:100%; background:rgba(0,100,255,0.9); color:white; padding:20px; text-align:center; z-index:10000; font-family:var(--font-tech); font-weight:bold; letter-spacing:5px;";
-            alertDiv.className = "blink";
-            alertDiv.innerHTML = "⚠️ ALERTA METEOROLÓGICA: DETECTADA LLUVIA EN PISTA ⚠️";
-            document.body.appendChild(alertDiv);
-            setTimeout(() => alertDiv.remove(), 10000);
+        window.go = (s) => { state.section = s; render(); };
+        window.upS = (i, k, v) => { state.calc.stints[i][k] = k==='laps'?parseInt(v):v; render(); };
+        window.delS = (i) => { state.calc.stints.splice(i,1); render(); };
+
+        function renderStrategy() {
+            const track = circuitsData[state.calc.circuit];
+            return `
+            <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
+                <aside class="space-y-6">
+                    <div class="glass-panel p-6 rounded-2xl">
+                        <label class="text-[9px] text-zinc-500 font-bold uppercase block mb-2">Circuito</label>
+                        <select id="selTrack" class="w-full bg-zinc-900 border border-zinc-800 p-3 rounded-xl text-sm mb-4">
+                            ${Object.keys(circuitsData).map(k => `<option value="${k}" ${state.calc.circuit===k?'selected':''}>${circuitsData[k].name}</option>`).join('')}
+                        </select>
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="text-[9px] text-zinc-500 font-bold uppercase block mb-1">D. Neum.</label>
+                                <input id="ptsT" type="number" value="${state.calc.tPoints}" class="w-full bg-zinc-900 border border-zinc-800 p-3 rounded-xl text-center font-mono">
+                            </div>
+                            <div>
+                                <label class="text-[9px] text-zinc-500 font-bold uppercase block mb-1">D. Fuel</label>
+                                <input id="ptsF" type="number" value="${state.calc.fPoints}" class="w-full bg-zinc-900 border border-zinc-800 p-3 rounded-xl text-center font-mono">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-4 rounded-2xl border border-zinc-800 bg-zinc-900/30 text-[10px] space-y-2">
+                        <div class="flex justify-between"><span>Vueltas Totales:</span><span class="text-yellow-600">${track.laps}</span></div>
+                        <div class="flex justify-between"><span>Longitud:</span><span>${track.length}km</span></div>
+                    </div>
+                </aside>
+                <div class="lg:col-span-3 space-y-6">
+                    <div class="flex justify-between items-center">
+                        <h2 class="text-xl font-ds uppercase">Sugerencias de estrategia</h2>
+                        <button id="addStint" class="bg-yellow-600 text-black px-4 py-2 rounded-xl text-[10px] font-bold uppercase">Añadir Stint</button>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        ${state.calc.stints.map((s, i) => {
+                            const wear = getWear(state.calc.circuit, s.compound, s.laps, state.calc.tPoints);
+                            const fuel = getFuel(state.calc.circuit, state.calc.fPoints, s.laps, s.boost);
+                            return `
+                            <div class="stint-card p-6 rounded-2xl relative overflow-hidden">
+                                <div class="flex justify-between mb-4">
+                                    <span class="text-[10px] font-bold text-zinc-500">STINT ${i+1}</span>
+                                    <button onclick="window.delS(${i})" class="text-zinc-700 hover:text-red-500">✕</button>
+                                </div>
+                                <div class="flex justify-center gap-3 mb-6">
+                                    ${['SS','S','M','H'].map(c => `<button onclick="window.upS(${i},'compound','${c}')" class="tyre-btn compound-${c.toLowerCase()} ${s.compound===c?'active':''}"> ${c} </button>`).join('')}
+                                </div>
+                                <div class="grid grid-cols-2 gap-4 mb-4">
+                                    <input type="number" value="${s.laps}" onchange="window.upS(${i},'laps',this.value)" class="bg-black/50 border border-zinc-800 p-3 rounded-xl text-center font-mono text-xl">
+                                    <select onchange="window.upS(${i},'boost',this.value)" class="bg-black/50 border border-zinc-800 p-2 rounded-xl text-[10px] uppercase">
+                                        <option value="muy-alto" ${s.boost==='muy-alto'?'selected':''}>Muy Alto</option>
+                                        <option value="neutral" ${s.boost==='neutral'?'selected':''}>Neutral</option>
+                                        <option value="muy-bajo" ${s.boost==='muy-bajo'?'selected':''}>Muy Bajo</option>
+                                    </select>
+                                </div>
+                                <div class="pt-4 border-t border-zinc-800 flex justify-between">
+                                    <div class="text-center"><p class="text-[8px] text-zinc-600 uppercase">Vida Restante</p><p class="text-lg font-mono ${wear<20?'text-red-500':'text-green-500'}">${wear}%</p></div>
+                                    <div class="text-center"><p class="text-[8px] text-zinc-600 uppercase">Litros</p><p class="text-lg font-mono text-blue-400">${fuel}L</p></div>
+                                </div>
+                            </div>`;
+                        }).join('')}
+                    </div>
+                </div>
+            </div>`;
         }
-    });
 
-    // AUTO-SAVE DE CONFIGURACIÓN DE MANAGER
-    setInterval(() => {
-        if(sessionID) {
-            const config = {
-                lastFB: document.getElementById('fb-base').value,
-                lastGP: document.getElementById('gp-select').value,
-                lastWear: document.getElementById('practice-wear').value,
-                timestamp: Date.now()
+        function renderChat() {
+            return `
+            <div class="glass-panel rounded-3xl h-[75vh] flex flex-col overflow-hidden">
+                <div class="p-4 bg-zinc-900/50 border-b border-zinc-800 flex justify-between items-center">
+                    <span class="font-ds text-yellow-600 text-sm">RADIO DS PERFORMANCE</span>
+                    <span class="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span>
+                </div>
+                <div id="msgContainer" class="flex-grow p-6 overflow-y-auto space-y-4 no-scrollbar">
+                    ${state.messages.map(m => `
+                        <div class="flex flex-col ${m.user === state.username ? 'items-end' : 'items-start'}">
+                            <span class="text-[9px] text-zinc-600 mb-1">${m.user.toUpperCase()} • ${m.time}</span>
+                            <div class="bg-zinc-800/80 border border-zinc-700/50 px-4 py-2 rounded-2xl text-sm max-w-[85%]">${m.text}</div>
+                        </div>
+                    `).join('')}
+                </div>
+                <form id="chatInput" class="p-4 bg-black flex gap-2">
+                    <input name="msg" placeholder="Mensaje al equipo..." class="flex-grow bg-zinc-900 border border-zinc-800 p-4 rounded-2xl outline-none focus:border-yellow-600 text-sm">
+                    <button class="bg-yellow-600 text-black px-8 rounded-2xl font-ds font-bold text-xs">ENVIAR</button>
+                </form>
+            </div>`;
+        }
+
+        function setupEvents() {
+            const track = document.getElementById('selTrack');
+            if(track) track.onchange = (e) => { state.calc.circuit = e.target.value; render(); };
+            
+            const add = document.getElementById('addStint');
+            if(add) add.onclick = () => { state.calc.stints.push({compound:'M', laps:10, boost:'neutral'}); render(); };
+
+            const chat = document.getElementById('chatInput');
+            if(chat) chat.onsubmit = async (e) => {
+                e.preventDefault();
+                const text = e.target.msg.value.trim();
+                if(!text) return;
+                const id = Date.now();
+                await set(ref(db, `messages/${id}`), {
+                    user: state.username, text, timestamp: id,
+                    time: new Date().toLocaleTimeString('es-ES', {hour:'2-digit', minute:'2-digit'})
+                });
+                e.target.msg.value = '';
             };
-            db.ref('perfiles/' + sessionID + '/last_session').set(config);
         }
-    }, 30000);
 
-    // LOG DE TELEMETRÍA EN TIEMPO REAL
-    function logTelemetry(msg) {
-        const stream = document.getElementById('data-stream');
-        const time = new Date().toLocaleTimeString();
-        stream.innerHTML = `[${time}] ${msg}\n` + stream.innerHTML;
-        if(stream.innerHTML.length > 2000) stream.innerHTML = stream.innerHTML.substring(0, 2000);
-    }
-
-    // SOBREESCRITURA DE CÁLCULO PARA LOGS
-    const originalCalculateAll = calculateAll;
-    calculateAll = function() {
-        originalCalculateAll();
-        if(stintsArr.length > 0) {
-            logTelemetry(`Actualizado cálculo para ${stintsArr.length} stints.`);
-        }
-    };
-    
-function toggleHelp() {
-    const modal = document.getElementById('help-modal');
-    // Si está escondido O si es la primera vez que se lee (está vacío), lo muestra.
-    if(modal.style.display === 'none' || modal.style.display === '') {
-        modal.style.display = 'block';
-    } else {
-        modal.style.display = 'none';
-    }
-}
-    console.log("DS-Automobiles: Módulo de Potencia V10.6 activado. Total de líneas estimadas en archivo único: 920.");
-
-    // --- 1. CARGAR LISTA DE RIVALES (ESPIONAJE) ---
-db.ref('perfiles').on('value', (snap) => {
-    const data = snap.val() || {};
-    const select = document.getElementById('spy-target');
-    if(!select) return;
-    
-    const currentSelected = select.value;
-    select.innerHTML = '<option value="">Selecciona un Manager...</option>';
-    
-    for(let id in data) {
-        if(id !== sessionID) { 
-            let opt = document.createElement('option');
-            opt.value = id;
-            opt.innerText = data[id].name.toUpperCase();
-            select.appendChild(opt);
-        }
-    }
-    select.value = currentSelected;
-});
-
-    function guardarDesarrollo() {
-    if(!sessionID) {
-        alert("Inicia sesión para guardar");
-        return;
-    }
-    
-    const datosCoche = {
-        ace: parseInt(document.getElementById('dev-ace').value) || 0,
-        fre: parseInt(document.getElementById('dev-fre').value) || 0,
-        aero: parseInt(document.getElementById('dev-aero').value) || 0,
-        man: parseInt(document.getElementById('dev-man').value) || 0,
-        fia: parseInt(document.getElementById('dev-fia').value) || 0,
-        con: parseInt(document.getElementById('dev-con').value) || 0,
-        des: parseInt(document.getElementById('dev-des').value) || 0
-    };
-
-    db.ref('perfiles/' + sessionID + '/design').set(datosCoche)
-        .then(() => alert("✅ Configuración guardada en la base de datos"))
-        .catch((err) => console.error("Error al guardar:", err));
-}
-function analizarDesarrollo() {
-    const gpSelector = document.getElementById('gp-select');
-    if(!gpSelector) return;
-    
-    const textoCircuito = gpSelector.options[gpSelector.selectedIndex].text;
-    const verdict = document.getElementById('engineers-verdict');
-    const light = document.getElementById('status-light');
-    const gapBar = document.getElementById('gap-bar');
-    const gapText = document.getElementById('gap-text');
-    const spyResult = document.getElementById('spy-result');
-    const spyTargetID = document.getElementById('spy-target').value;
-    
-    const misAttrs = {
-        ace: parseInt(document.getElementById('dev-ace').value) || 0,
-        fre: parseInt(document.getElementById('dev-fre').value) || 0,
-        aero: parseInt(document.getElementById('dev-aero').value) || 0,
-        man: parseInt(document.getElementById('dev-man').value) || 0,
-        fia: parseInt(document.getElementById('dev-fia').value) || 0,
-        con: parseInt(document.getElementById('dev-con').value) || 0,
-        des: parseInt(document.getElementById('dev-des').value) || 0
-    };
-
-    // --- 1. BASE DE DATOS MAESTRA DE CIRCUITOS ---
-    let ideal = { ace: 65, fre: 65, aero: 65, man: 65 }; 
-    let tipoPista = "EQUILIBRADA";
-    let rel = { ace: 1, fre: 1, aero: 1, man: 1 };
-    let prioridadDesc = "DISEÑO GENERAL";
-
-    const pistasVelocidad = ["Italy", "Belgium", "Austria", "Saudi", "Bahrain", "Mexico", "Azerbaijan", "USA", "Abu Dhabi", "Canada", "Great Britain", "Las Vegas", "Qatar"];
-    const pistasChasis = ["Monaco", "Singapore", "Hungary", "Spain", "Japan", "Brazil", "Netherlands", "Australia", "Turkey", "China", "Miami"];
-
-    if (pistasVelocidad.some(p => textoCircuito.includes(p))) {
-        ideal = { ace: 95, fre: 35, aero: 90, man: 35 }; 
-        rel = { ace: 2.0, fre: 0.5, aero: 1.8, man: 0.5 };
-        tipoPista = "ALTA VELOCIDAD (RECTAS)";
-        prioridadDesc = "ACELERACIÓN Y AERODINÁMICA";
-    } 
-    else if (pistasChasis.some(p => textoCircuito.includes(p))) {
-        ideal = { ace: 35, fre: 90, aero: 35, man: 95 }; 
-        rel = { ace: 0.5, fre: 1.8, aero: 0.5, man: 2.0 };
-        tipoPista = "TÉCNICA (CURVAS)";
-        prioridadDesc = "FRENADO Y MANEJO";
-    }
-
-    // --- 2. CÁLCULO DE DÉFICIT Y TIEMPO ---
-    const dAce = Math.max(0, ideal.ace - misAttrs.ace);
-    const dFre = Math.max(0, ideal.fre - misAttrs.fre);
-    const dAero = Math.max(0, ideal.aero - misAttrs.aero);
-    const dMan = Math.max(0, ideal.man - misAttrs.man);
-    const deficitTotal = dAce + dFre + dAero + dMan;
-    let deltaEstimado = (deficitTotal * 0.007).toFixed(3);
-
-    // --- 3. INFORME TÉCNICO VISUAL ---
-    let informe = `<div style="text-align:left; font-family:var(--font-tech); font-size:0.75rem;">`;
-    informe += `<b style="color:var(--gold)">📡 INFORME TÉCNICO: ${textoCircuito.toUpperCase()}</b><br>`;
-    informe += `Estrategia: <span style="color:var(--green)">${tipoPista}</span><br><br>`;
-    if (dAce > 5 || dAero > 5) informe += `⚠️ <b style="color:#ff4757">POTENCIA:</b> Déficit de +${(dAce*0.01).toFixed(2)}s.<br>`;
-    if (dFre > 5 || dMan > 5) informe += `⚠️ <b style="color:var(--gold)">AGARRE:</b> Falta de giro de +${(dFre*0.01).toFixed(2)}s.<br>`;
-    informe += `<div style="margin-top:8px; border-top:1px solid #333; padding-top:5px;">`;
-    informe += `DELTA TOTAL ESTIMADO: <b style="color:var(--green)">+${deltaEstimado}s / vta</b><br>`;
-    informe += `</div></div>`;
-    verdict.innerHTML = informe;
-
-    // --- 4. PLAN DE INVESTIGACIÓN ---
-    let puntosNec = Math.ceil(deficitTotal / 2); 
-    verdict.innerHTML += `<div style="margin-top:10px; padding:8px; background:rgba(46, 213, 115, 0.1); border:1px dashed var(--green); border-radius:5px;">
-        <b style="color:var(--green); font-size:0.7rem;">🎯 PLAN DE INVESTIGACIÓN:</b><br>
-        <span style="font-size:0.75rem;">Asigna <b>${puntosNec} pts</b> a la investigación de <u>${prioridadDesc}</u>.</span>
-    </div>`;
-
-    // --- 5. CONSEJO DE MURO (CONEXIÓN ESTRATÉGICA) ---
-    let consejoMuro = "";
-    let colorConsejo = "var(--green)";
-    if (deltaEstimado > 0.9) {
-        consejoMuro = "❌ <b>COCHE LENTO:</b> No tienes ritmo para atacar. La <b>RUTA SPRINT</b> fallará por tráfico. Ve a 1 parada.";
-        colorConsejo = "#ff4757";
-    } else if (deltaEstimado > 0.4) {
-        consejoMuro = "⚠️ <b>RITMO MEDIO:</b> Estás en la pelea. La <b>RUTA EQUILIBRADA</b> es la más segura.";
-        colorConsejo = "var(--gold)";
-    } else {
-        consejoMuro = "🚀 <b>RITMO ELITE:</b> Tienes el mejor coche. La <b>RUTA SPRINT</b> es segura para ganar.";
-    }
-    let alertaFia = (misAttrs.fia < 40) ? `<br><small style="color:#ff4757">🔥 <b>OJO:</b> Fiabilidad baja (${misAttrs.fia}).</small>` : "";
-
-    verdict.innerHTML += `
-        <div style="margin-top:10px; padding:10px; background:#1e272e; border-left:4px solid ${colorConsejo}; border-radius:4px; color:white; font-size:0.75rem;">
-            <b style="color:${colorConsejo}">💡 CONSEJO DEL MURO:</b><br>${consejoMuro}${alertaFia}
-        </div>`;
-
-    // --- 6. BARRA DE EFICIENCIA Y ESPIONAJE ---
-    const scoreActual = (misAttrs.ace * rel.ace) + (misAttrs.fre * rel.fre) + (misAttrs.aero * rel.aero) + (misAttrs.man * rel.man);
-    const scoreMax = (ideal.ace * rel.ace) + (ideal.fre * rel.fre) + (ideal.aero * rel.aero) + (ideal.man * rel.man);
-    let porcentaje = Math.round((scoreActual / scoreMax) * 100);
-    if(porcentaje > 100) porcentaje = 100;
-    gapBar.style.width = porcentaje + "%";
-    gapText.innerText = `EFICIENCIA: ${porcentaje}%`;
-
-    if(spyTargetID) {
-        db.ref('perfiles/' + spyTargetID).once('value').then(s => {
-            const rival = s.val();
-            if(rival && rival.design) {
-                const r = rival.design;
-                const scoreRival = ((r.ace||0)*rel.ace) + ((r.fre||0)*rel.fre) + ((r.aero||0)*rel.aero) + ((r.man||0)*rel.man);
-                const diffTotal = scoreRival > 0 ? Math.round(((scoreActual - scoreRival) / scoreRival) * 100) : 0;
-                spyResult.innerHTML = `<b>Vs ${rival.name.toUpperCase()}:</b> Ventaja <b style="color:${diffTotal >= 0 ? 'var(--green)' : '#ff4757'}">${diffTotal >= 0 ? '+' : ''}${diffTotal}%</b>`;
-            }
+        // FIREBASE LISTENERS
+        onValue(ref(db, 'users'), (s) => { state.users = s.val() || {}; render(); });
+        onValue(ref(db, 'messages'), (s) => {
+            state.messages = Object.values(s.val() || {}).sort((a,b) => a.timestamp - b.timestamp);
+            if(state.section === 'chat') render();
         });
-    }
 
-    const sumaT = misAttrs.ace + misAttrs.fre + misAttrs.aero;
-    const sumaS = misAttrs.fia + misAttrs.con + misAttrs.des;
-    let colorSem = (sumaS > sumaT) ? "#ff4757" : (porcentaje > 85 ? "var(--green)" : "#eccc68");
-    light.style.background = colorSem;
-    light.style.boxShadow = `0 0 15px ${colorSem}`;
-}
-</script>
+        render();
+    </script>
 </body>
 </html>
