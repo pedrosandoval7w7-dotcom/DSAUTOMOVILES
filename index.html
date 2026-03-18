@@ -27,11 +27,11 @@
             box-shadow: 0 20px 50px rgba(0,0,0,0.9);
         }
         .tyre-btn {
-            width: 46px; height: 46px; border-radius: 50%;
+            width: 40px; height: 40px; border-radius: 50%;
             display: flex; align-items: center; justify-content: center;
-            font-size: 12px; font-weight: 900; cursor: pointer;
+            font-size: 10px; font-weight: 900; cursor: pointer;
             transition: all 0.2s ease;
-            border: 3px solid rgba(0,0,0,0.6);
+            border: 2px solid rgba(0,0,0,0.6);
         }
         .tyre-btn.active { transform: scale(1.1); border-color: white; box-shadow: 0 0 15px currentColor; }
         .compound-ss { background: #ef4444; color: white; }
@@ -49,9 +49,20 @@
         input, select {
             background: rgba(0,0,0,0.3);
             border: 1px solid rgba(255,255,255,0.1);
-            transition: border 0.3s ease;
         }
         input:focus { border-color: var(--ds-gold) !important; outline: none; }
+
+        .push-1 { color: #60a5fa; } 
+        .push-2 { color: #93c5fd; } 
+        .push-3 { color: #ffffff; } 
+        .push-4 { color: #fb923c; } 
+        .push-5 { color: #ef4444; }
+
+        .summary-bar {
+            background: rgba(10, 10, 10, 0.95);
+            border-top: 2px solid var(--ds-gold);
+            backdrop-filter: blur(15px);
+        }
     </style>
 </head>
 <body class="flex flex-col">
@@ -66,7 +77,6 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
         import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-database.js";
 
-        // CONFIGURACIÓN DE TU FIREBASE
         const firebaseConfig = {
             databaseURL: "https://ds-automobiles-f0a17-default-rtdb.firebaseio.com/" 
         };
@@ -74,7 +84,6 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
-        // CIRCUITOS iGP MANAGER PROPORCIONADOS
         const circuitsData = {
             "AUS": { name: "Australia", laps: 58, length: 5.27, tyreWear: 18 },
             "MAL": { name: "Malasia", laps: 56, length: 5.54, tyreWear: 22 },
@@ -100,7 +109,7 @@
 
         let state = {
             isLoggedIn: false,
-            authView: 'login', // 'login' o 'register'
+            authView: 'login',
             username: '',
             section: 'strategy',
             users: {},
@@ -109,34 +118,40 @@
                 circuit: 'AUS',
                 tPoints: 100,
                 fPoints: 100,
-                stints: [{ compound: 'M', laps: 10, boost: 'neutral' }]
+                stints: [{ compound: 'M', laps: 10, boost: '3' }] 
             }
         };
 
-        // FÓRMULAS DE CÁLCULO
-        function getWear(track, comp, laps, pts) {
+        const pushMultipliers = {
+            '1': { fuel: 0.93, wear: 0.85, label: 'Muy Bajo (1)', class: 'push-1' },
+            '2': { fuel: 0.97, wear: 0.92, label: 'Bajo (2)', class: 'push-2' },
+            '3': { fuel: 1.00, wear: 1.00, label: 'Neutral (3)', class: 'push-3' },
+            '4': { fuel: 1.03, wear: 1.12, label: 'Alto (4)', class: 'push-4' },
+            '5': { fuel: 1.07, wear: 1.25, label: 'Muy Alto (5)', class: 'push-5' }
+        };
+
+        // FÓRMULA QUE CONSIDERA LOS PUNTOS DE ATRIBUTO (pts)
+        function getWear(track, comp, laps, pts, boost) {
             const c = circuitsData[track];
+            const pushEffect = pushMultipliers[boost].wear;
+            // El valor 'pts' afecta directamente la base del desgaste
             const baseW = (((pts/1.5)**-0.0778 * 1.43) * (0.00364 * c.tyreWear + 0.354) * (c.length * 1.384) * 150) / 100;
             const mults = { 'SS': 2.06, 'S': 1.32, 'M': 1.0, 'H': 0.65 };
-            const wearPerLap = baseW * mults[comp];
+            const wearPerLap = baseW * mults[comp] * pushEffect;
             const remaining = 100 * Math.exp(-1.18 * (wearPerLap / 100) * laps);
-            return remaining.toFixed(1);
+            return parseFloat(remaining);
         }
 
         function getFuel(track, pts, laps, boost) {
             const c = circuitsData[track];
+            const pushEffect = pushMultipliers[boost].fuel;
             const baseF = (98.456 * Math.pow(pts, -0.088) * c.length) / 139.77;
-            const bMult = { 'muy-alto': 1.05, 'alto': 1.02, 'neutral': 1, 'bajo': 0.98, 'muy-bajo': 0.95 };
-            return (baseF * laps * bMult[boost]).toFixed(2);
+            return parseFloat((baseF * laps * pushEffect));
         }
 
         function render() {
             const root = document.getElementById('app');
-            
-            if (!state.isLoggedIn) {
-                renderAuth(root);
-                return;
-            }
+            if (!state.isLoggedIn) { renderAuth(root); return; }
 
             root.innerHTML = `
             <header class="bg-black border-b border-zinc-800 p-4 sticky top-0 z-50">
@@ -149,9 +164,10 @@
                     <button onclick="location.reload()" class="text-zinc-600 text-[10px] font-bold uppercase">Salir</button>
                 </div>
             </header>
-            <main class="p-4 md:p-8 max-w-7xl mx-auto w-full flex-grow overflow-y-auto no-scrollbar pb-20">
+            <main class="p-4 md:p-8 max-w-7xl mx-auto w-full flex-grow overflow-y-auto no-scrollbar pb-32">
                 ${state.section === 'strategy' ? renderStrategy() : renderChat()}
-            </main>`;
+            </main>
+            ${state.section === 'strategy' ? renderTotalBar() : ''}`;
             setupEvents();
         }
 
@@ -159,114 +175,149 @@
             const isLogin = state.authView === 'login';
             root.innerHTML = `
             <div class="min-h-screen flex items-center justify-center p-6 bg-black relative">
-                <div class="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-zinc-900 via-black to-black opacity-50"></div>
-                <div class="glass-panel w-full max-w-sm p-10 rounded-3xl border-t-4 border-yellow-600 relative z-10">
+                <div class="glass-panel w-full max-w-sm p-10 rounded-3xl border-t-4 border-yellow-600">
                     <div class="text-center mb-8">
                         <h1 class="text-3xl font-ds font-bold text-white mb-2 tracking-widest uppercase">DS Automobiles</h1>
-                        <p class="text-zinc-500 text-[10px] uppercase tracking-[0.3em]">${isLogin ? 'Pit Wall Login' : 'Registro de Manager'}</p>
+                        <p class="text-zinc-500 text-[10px] uppercase tracking-[0.3em]">${isLogin ? 'Acceso Pit Wall' : 'Nuevo Registro'}</p>
                     </div>
-                    
                     <form id="authForm" class="space-y-5">
-                        <input name="user" placeholder="NOMBRE DE USUARIO" class="w-full p-4 rounded-xl text-white uppercase font-bold text-sm bg-black/40 border border-zinc-800" required>
-                        <input name="pass" type="password" placeholder="CONTRASEÑA" class="w-full p-4 rounded-xl text-white text-sm bg-black/40 border border-zinc-800" required>
-                        <button class="w-full bg-yellow-600 text-black font-ds font-bold py-4 rounded-xl hover:brightness-110 transition-all uppercase text-xs tracking-widest">
-                            ${isLogin ? 'Entrar' : 'Crear Perfil'}
+                        <input name="user" placeholder="USUARIO" class="w-full p-4 rounded-xl text-white uppercase font-bold text-sm bg-black/40 border border-zinc-800" required>
+                        <input name="pass" type="password" placeholder="PASSWORD" class="w-full p-4 rounded-xl text-white text-sm bg-black/40 border border-zinc-800" required>
+                        <button class="w-full bg-yellow-600 text-black font-ds font-bold py-4 rounded-xl uppercase text-xs">
+                            ${isLogin ? 'Conectar' : 'Crear'}
                         </button>
                     </form>
-
-                    <div class="mt-8 text-center">
-                        <button onclick="window.switchAuth()" class="text-[10px] text-zinc-500 hover:text-yellow-600 uppercase tracking-widest transition-colors font-bold">
-                            ${isLogin ? '¿No tienes cuenta? Regístrate aquí' : '¿Ya tienes cuenta? Inicia sesión'}
-                        </button>
-                    </div>
+                    <button onclick="window.switchAuth()" class="w-full mt-6 text-[10px] text-zinc-500 uppercase font-bold">${isLogin ? 'Registrar perfil' : 'Volver al login'}</button>
                 </div>
             </div>`;
-
             document.getElementById('authForm').onsubmit = async (e) => {
                 e.preventDefault();
                 const u = e.target.user.value.trim().toLowerCase();
                 const p = e.target.pass.value;
-
                 if (isLogin) {
-                    // Busca en 'perfiles' según tu imagen
-                    if(state.users[u] && state.users[u].password === p) {
-                        state.username = u; state.isLoggedIn = true; render();
-                    } else {
-                        alert("Error: Usuario o contraseña incorrectos.");
-                    }
+                    if(state.users[u] && state.users[u].password === p) { state.username = u; state.isLoggedIn = true; render(); }
+                    else { alert("Datos incorrectos"); }
                 } else {
-                    if (state.users[u]) {
-                        alert("Este nombre de usuario ya está en uso.");
-                    } else {
-                        await set(ref(db, `perfiles/${u}`), { password: p, timestamp: Date.now() });
-                        alert("¡Perfil creado! Ahora puedes iniciar sesión.");
-                        state.authView = 'login';
-                        render();
-                    }
+                    await set(ref(db, `perfiles/${u}`), { password: p });
+                    state.authView = 'login'; render();
                 }
             };
         }
 
-        window.switchAuth = () => {
-            state.authView = state.authView === 'login' ? 'register' : 'login';
-            render();
-        };
+        function renderTotalBar() {
+            let totalLaps = 0;
+            let totalFuel = 0;
+            state.calc.stints.forEach(s => {
+                totalLaps += parseInt(s.laps) || 0;
+                totalFuel += getFuel(state.calc.circuit, state.calc.fPoints, s.laps, s.boost);
+            });
+            const circuitMax = circuitsData[state.calc.circuit].laps;
+            const diff = circuitMax - totalLaps;
 
+            return `
+            <div class="summary-bar fixed bottom-0 left-0 w-full p-5 z-50 flex justify-around items-center">
+                <div class="text-center">
+                    <p class="text-[9px] text-zinc-500 uppercase font-bold mb-1 tracking-widest">Total Vueltas</p>
+                    <p class="text-xl font-ds ${totalLaps > circuitMax ? 'text-red-500' : 'text-white'}">${totalLaps} <span class="text-zinc-600 text-xs">/ ${circuitMax}</span></p>
+                </div>
+                <div class="text-center">
+                    <p class="text-[9px] text-zinc-500 uppercase font-bold mb-1 tracking-widest">Fuel Requerido</p>
+                    <p class="text-xl font-ds text-blue-400">${totalFuel.toFixed(2)}L</p>
+                </div>
+                <div class="text-center">
+                    <p class="text-[9px] text-zinc-500 uppercase font-bold mb-1 tracking-widest">Delta Final</p>
+                    <p class="text-xl font-ds ${diff === 0 ? 'text-green-500' : 'text-zinc-400'}">${diff > 0 ? '+'+diff : diff}</p>
+                </div>
+            </div>`;
+        }
+
+        window.switchAuth = () => { state.authView = state.authView === 'login' ? 'register' : 'login'; render(); };
         window.go = (s) => { state.section = s; render(); };
-        window.upS = (i, k, v) => { state.calc.stints[i][k] = k==='laps'?parseInt(v):v; render(); };
+        window.upS = (i, k, v) => { state.calc.stints[i][k] = v; render(); };
         window.delS = (i) => { state.calc.stints.splice(i,1); render(); };
 
         function renderStrategy() {
-            const track = circuitsData[state.calc.circuit];
             return `
             <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
                 <aside class="space-y-6">
                     <div class="glass-panel p-6 rounded-2xl">
-                        <label class="text-[9px] text-zinc-500 font-bold uppercase block mb-2 tracking-widest">G.P. Seleccionado</label>
-                        <select id="selTrack" class="w-full p-3 rounded-xl text-sm mb-4 text-white bg-zinc-900 border border-zinc-800">
+                        <label class="text-[9px] text-zinc-500 font-bold uppercase block mb-2 tracking-widest">Configuración Coche</label>
+                        <select id="selTrack" class="w-full p-3 rounded-xl text-sm mb-6 text-white bg-zinc-900 border border-zinc-800">
                             ${Object.keys(circuitsData).map(k => `<option value="${k}" ${state.calc.circuit===k?'selected':''}>${circuitsData[k].name}</option>`).join('')}
                         </select>
-                        <div class="grid grid-cols-2 gap-3">
+                        
+                        <div class="space-y-4">
                             <div>
-                                <label class="text-[9px] text-zinc-500 font-bold uppercase block mb-1">Puntos Neum.</label>
-                                <input id="ptsT" type="number" value="${state.calc.tPoints}" class="w-full p-3 rounded-xl text-center font-mono bg-zinc-900 border border-zinc-800">
+                                <div class="flex justify-between items-center mb-1">
+                                    <label class="text-[9px] text-zinc-500 font-bold uppercase">Puntos Neumático</label>
+                                    <span class="text-[10px] text-yellow-600 font-mono">${state.calc.tPoints}</span>
+                                </div>
+                                <input id="ptsT" type="range" min="1" max="100" value="${state.calc.tPoints}" class="w-full h-1 bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-yellow-600">
                             </div>
+                            
                             <div>
-                                <label class="text-[9px] text-zinc-500 font-bold uppercase block mb-1">Puntos Fuel</label>
-                                <input id="ptsF" type="number" value="${state.calc.fPoints}" class="w-full p-3 rounded-xl text-center font-mono bg-zinc-900 border border-zinc-800">
+                                <div class="flex justify-between items-center mb-1">
+                                    <label class="text-[9px] text-zinc-500 font-bold uppercase">Puntos Combustible</label>
+                                    <span class="text-[10px] text-blue-400 font-mono">${state.calc.fPoints}</span>
+                                </div>
+                                <input id="ptsF" type="range" min="1" max="100" value="${state.calc.fPoints}" class="w-full h-1 bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-blue-400">
                             </div>
                         </div>
                     </div>
                 </aside>
+
                 <div class="lg:col-span-3 space-y-6">
                     <div class="flex justify-between items-center">
-                        <h2 class="text-xl font-ds uppercase tracking-tight">Sugerencias de estrategia</h2>
-                        <button id="addStint" class="bg-yellow-600 text-black px-5 py-2 rounded-xl text-[10px] font-bold uppercase">Añadir Stint</button>
+                        <h2 class="text-xl font-ds uppercase tracking-tighter">Plan de Carrera</h2>
+                        <button id="addStint" class="bg-yellow-600 text-black px-6 py-2.5 rounded-xl text-[10px] font-bold uppercase hover:bg-yellow-500 transition-colors">Nueva Parada</button>
                     </div>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         ${state.calc.stints.map((s, i) => {
-                            const wear = getWear(state.calc.circuit, s.compound, s.laps, state.calc.tPoints);
+                            // AQUÍ SE PASA state.calc.tPoints PARA EL CÁLCULO
+                            const wear = getWear(state.calc.circuit, s.compound, s.laps, state.calc.tPoints, s.boost);
                             const fuel = getFuel(state.calc.circuit, state.calc.fPoints, s.laps, s.boost);
+                            const pInfo = pushMultipliers[s.boost];
+                            
                             return `
-                            <div class="stint-card p-6 rounded-2xl relative">
+                            <div class="stint-card p-6 rounded-2xl relative shadow-2xl">
                                 <div class="flex justify-between mb-4 items-center">
                                     <span class="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Stint ${i+1}</span>
-                                    <button onclick="window.delS(${i})" class="text-zinc-800 hover:text-red-500 transition-colors">✕</button>
+                                    <button onclick="window.delS(${i})" class="text-zinc-700 hover:text-red-500 transition-colors">✕</button>
                                 </div>
                                 <div class="flex justify-center gap-3 mb-6">
-                                    ${['SS','S','M','H'].map(c => `<button onclick="window.upS(${i},'compound','${c}')" class="tyre-btn compound-${c.toLowerCase()} ${s.compound===c?'active':''}"> ${c} </button>`).join('')}
+                                    ${['SS','S','M','H'].map(c => `
+                                        <button onclick="window.upS(${i},'compound','${c}')" 
+                                            class="tyre-btn compound-${c.toLowerCase()} ${s.compound===c?'active':''}">
+                                            ${c}
+                                        </button>`).join('')}
                                 </div>
-                                <div class="grid grid-cols-2 gap-4 mb-4">
-                                    <input type="number" value="${s.laps}" onchange="window.upS(${i},'laps',this.value)" class="p-3 rounded-xl text-center font-mono text-xl text-white bg-black border border-zinc-800">
-                                    <select onchange="window.upS(${i},'boost',this.value)" class="p-2 rounded-xl text-[10px] uppercase text-white bg-black border border-zinc-800">
-                                        <option value="muy-alto" ${s.boost==='muy-alto'?'selected':''}>Empuje ++</option>
-                                        <option value="neutral" ${s.boost==='neutral'?'selected':''}>Neutral</option>
-                                        <option value="muy-bajo" ${s.boost==='muy-bajo'?'selected':''}>Empuje --</option>
-                                    </select>
-                                </div>
-                                <div class="pt-4 border-t border-zinc-900 flex justify-between items-center">
-                                    <div class="text-center"><p class="text-[8px] text-zinc-600 uppercase mb-1">Vida Neum.</p><p class="text-xl font-mono ${wear<20?'text-red-500 animate-pulse':'text-green-500'} font-bold">${wear}%</p></div>
-                                    <div class="text-center"><p class="text-[8px] text-zinc-600 uppercase mb-1">Fuel</p><p class="text-xl font-mono text-blue-400 font-bold">${fuel}L</p></div>
+                                <div class="space-y-4">
+                                    <div class="grid grid-cols-2 gap-4">
+                                        <div>
+                                            <label class="text-[8px] text-zinc-600 uppercase mb-1 block">Vueltas</label>
+                                            <input type="number" value="${s.laps}" onchange="window.upS(${i},'laps',this.value)" class="w-full p-3 rounded-xl text-center font-mono text-xl text-white bg-black border border-zinc-800">
+                                        </div>
+                                        <div>
+                                            <label class="text-[8px] text-zinc-600 uppercase mb-1 block">Empuje iGP</label>
+                                            <select onchange="window.upS(${i},'boost',this.value)" class="w-full p-3 rounded-xl text-[9px] uppercase text-white bg-black border border-zinc-800 font-bold ${pInfo.class}">
+                                                ${Object.entries(pushMultipliers).map(([val, info]) => `<option value="${val}" ${s.boost===val?'selected':''}>${info.label}</option>`).join('')}
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="pt-4 border-t border-zinc-800 flex justify-between items-center">
+                                        <div class="text-center">
+                                            <p class="text-[8px] text-zinc-600 uppercase mb-1">Vida Final</p>
+                                            <p class="text-xl font-mono ${wear<20?'text-red-500 animate-pulse':'text-green-500'} font-bold">${wear.toFixed(1)}%</p>
+                                        </div>
+                                        <div class="text-center">
+                                            <p class="text-[8px] text-zinc-600 uppercase mb-1">Consumo</p>
+                                            <p class="text-xl font-mono text-blue-400 font-bold">${fuel.toFixed(2)}L</p>
+                                        </div>
+                                    </div>
+                                    <div class="text-[9px] text-zinc-700 font-bold uppercase text-center mt-2 tracking-tighter">
+                                        ${s.boost > 3 ? '⚠️ DESGASTE ACELERADO' : s.boost < 3 ? '❄️ PROTECCIÓN TÉRMICA' : '✓ RITMO NOMINAL'}
+                                    </div>
                                 </div>
                             </div>`;
                         }).join('')}
@@ -277,23 +328,21 @@
 
         function renderChat() {
             return `
-            <div class="glass-panel rounded-3xl h-[70vh] flex flex-col overflow-hidden">
-                <div class="p-4 bg-zinc-900 border-b border-zinc-800 flex justify-between items-center">
+            <div class="glass-panel rounded-3xl h-[75vh] flex flex-col overflow-hidden">
+                <div class="p-4 bg-zinc-900 border-b border-zinc-800">
                     <span class="font-ds text-yellow-600 text-xs tracking-widest uppercase">Box Radio DS Automobiles</span>
-                    <span class="w-2 h-2 rounded-full bg-red-600 animate-pulse"></span>
                 </div>
                 <div id="msgContainer" class="flex-grow p-6 overflow-y-auto space-y-4 no-scrollbar bg-black/40">
                     ${state.messages.map(m => `
                         <div class="flex flex-col ${m.user === state.username ? 'items-end' : 'items-start'}">
-                            <span class="text-[9px] text-zinc-600 mb-1 uppercase font-black tracking-tighter">${m.user}</span>
-                            <div class="bg-zinc-800/80 border border-zinc-700/50 px-5 py-2.5 rounded-2xl text-sm max-w-[80%] shadow-lg">${m.text}</div>
+                            <span class="text-[9px] text-zinc-600 mb-1 uppercase font-black">${m.user}</span>
+                            <div class="bg-zinc-800 px-4 py-2 rounded-2xl text-sm max-w-[80%] shadow-lg text-white border border-zinc-700/30">${m.text}</div>
                         </div>
                     `).join('')}
-                    ${state.messages.length === 0 ? '<div class="h-full flex items-center justify-center text-zinc-800 font-ds text-[10px] uppercase">Sin mensajes</div>' : ''}
                 </div>
                 <form id="chatInput" class="p-4 bg-black flex gap-2 border-t border-zinc-900">
-                    <input name="msg" placeholder="Instrucciones al equipo..." class="flex-grow p-4 rounded-2xl outline-none text-sm text-white bg-zinc-900 border border-zinc-800" autocomplete="off">
-                    <button class="bg-yellow-600 text-black px-8 rounded-2xl font-ds font-bold text-xs uppercase hover:bg-yellow-500 transition-all">Enviar</button>
+                    <input name="msg" placeholder="Enviar mensaje al equipo..." class="flex-grow p-4 rounded-2xl outline-none text-sm text-white bg-zinc-900 border border-zinc-800" autocomplete="off">
+                    <button class="bg-yellow-600 text-black px-6 rounded-2xl font-ds font-bold text-xs uppercase hover:bg-yellow-500 transition-all">Enviar</button>
                 </form>
             </div>`;
         }
@@ -301,43 +350,32 @@
         function setupEvents() {
             const track = document.getElementById('selTrack');
             if(track) track.onchange = (e) => { state.calc.circuit = e.target.value; render(); };
+            
             const pT = document.getElementById('ptsT');
-            if(pT) pT.onchange = (e) => { state.calc.tPoints = parseInt(e.target.value); render(); };
+            if(pT) pT.oninput = (e) => { state.calc.tPoints = parseInt(e.target.value); render(); };
+            
             const pF = document.getElementById('ptsF');
-            if(pF) pF.onchange = (e) => { state.calc.fPoints = parseInt(e.target.value); render(); };
+            if(pF) pF.oninput = (e) => { state.calc.fPoints = parseInt(e.target.value); render(); };
+            
             const add = document.getElementById('addStint');
-            if(add) add.onclick = () => { state.calc.stints.push({compound:'M', laps:10, boost:'neutral'}); render(); };
+            if(add) add.onclick = () => { state.calc.stints.push({compound:'M', laps:10, boost:'3'}); render(); };
 
             const chat = document.getElementById('chatInput');
             if(chat) chat.onsubmit = async (e) => {
                 e.preventDefault();
                 const text = e.target.msg.value.trim();
                 if(!text) return;
-                const id = Date.now();
-                await set(ref(db, `chat/${id}`), {
-                    user: state.username, text, timestamp: id,
-                    time: new Date().toLocaleTimeString('es-ES', {hour:'2-digit', minute:'2-digit'})
-                });
+                await set(ref(db, `chat/${Date.now()}`), { user: state.username, text, timestamp: Date.now() });
                 e.target.msg.value = '';
             };
         }
 
-        // LISTENERS DE FIREBASE (CONECTADOS A TU ESTRUCTURA)
-        onValue(ref(db, 'perfiles'), (s) => { 
-            state.users = s.val() || {}; 
-            if(!state.isLoggedIn) render(); 
-        });
-
+        onValue(ref(db, 'perfiles'), (s) => { state.users = s.val() || {}; if(!state.isLoggedIn) render(); });
         onValue(ref(db, 'chat'), (s) => {
             const data = s.val() || {};
             state.messages = Object.values(data).sort((a,b) => a.timestamp - b.timestamp);
-            if(state.section === 'chat') {
-                render();
-                const container = document.getElementById('msgContainer');
-                if(container) container.scrollTop = container.scrollHeight;
-            }
+            if(state.section === 'chat') { render(); const c = document.getElementById('msgContainer'); if(c) c.scrollTop = c.scrollHeight; }
         });
-
         render();
     </script>
 </body>
