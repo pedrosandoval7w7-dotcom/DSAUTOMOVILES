@@ -63,6 +63,11 @@
             border-top: 2px solid var(--ds-gold);
             backdrop-filter: blur(15px);
         }
+
+        .tab-btn.active {
+            background: var(--ds-gold);
+            color: black;
+        }
     </style>
 </head>
 <body class="flex flex-col">
@@ -75,7 +80,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
-        import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-database.js";
+        import { getDatabase, ref, set, onValue, remove, update } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-database.js";
 
         const firebaseConfig = {
             databaseURL: "https://ds-automobiles-f0a17-default-rtdb.firebaseio.com/" 
@@ -84,7 +89,6 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
-        // Lista actualizada al 50% de vueltas (Estandar iGP Manager)
         const circuitsData = {
             "AUS": { name: "Australia", laps: 29, length: 5.27, tyreWear: 18 },
             "MAL": { name: "Malasia", laps: 28, length: 5.54, tyreWear: 22 },
@@ -113,6 +117,7 @@
             authView: 'login',
             username: '',
             section: 'strategy',
+            rankingTab: 'puntos',
             users: {},
             messages: [],
             calc: {
@@ -156,18 +161,31 @@
             <header class="bg-black border-b border-zinc-800 p-4 sticky top-0 z-50">
                 <div class="max-w-7xl mx-auto flex justify-between items-center">
                     <h1 class="font-ds text-lg italic tracking-tighter text-yellow-600">DS PERFORMANCE</h1>
-                    <nav class="flex gap-8">
+                    <nav class="flex gap-4 md:gap-8">
                         <button onclick="window.go('strategy')" class="nav-link text-[10px] font-bold uppercase tracking-widest ${state.section==='strategy'?'active':''}">Estrategia</button>
+                        <button onclick="window.go('ranking')" class="nav-link text-[10px] font-bold uppercase tracking-widest ${state.section==='ranking'?'active':''}">Ranking</button>
                         <button onclick="window.go('chat')" class="nav-link text-[10px] font-bold uppercase tracking-widest ${state.section==='chat'?'active':''}">Radio</button>
                     </nav>
-                    <button onclick="location.reload()" class="text-zinc-600 text-[10px] font-bold uppercase">Salir</button>
+                    <div class="flex items-center gap-3">
+                        <span class="text-[9px] text-zinc-500 uppercase font-bold">${state.username}</span>
+                        <button onclick="location.reload()" class="text-zinc-600 text-[10px] font-bold uppercase">Salir</button>
+                    </div>
                 </div>
             </header>
             <main class="p-4 md:p-8 max-w-7xl mx-auto w-full flex-grow overflow-y-auto no-scrollbar pb-32">
-                ${state.section === 'strategy' ? renderStrategy() : renderChat()}
+                ${renderCurrentSection()}
             </main>
             ${state.section === 'strategy' ? renderTotalBar() : ''}`;
             setupEvents();
+        }
+
+        function renderCurrentSection() {
+            switch(state.section) {
+                case 'strategy': return renderStrategy();
+                case 'ranking': return renderRanking();
+                case 'chat': return renderChat();
+                default: return renderStrategy();
+            }
         }
 
         function renderAuth(root) {
@@ -197,11 +215,95 @@
                     if(state.users[u] && state.users[u].password === p) { state.username = u; state.isLoggedIn = true; render(); }
                     else { alert("Datos incorrectos"); }
                 } else {
-                    await set(ref(db, `perfiles/${u}`), { password: p });
+                    await set(ref(db, `perfiles/${u}`), { 
+                        password: p, 
+                        stats: { puntos: 0, victorias: 0, podios: 0, poles: 0, copas: 0 } 
+                    });
                     state.authView = 'login'; render();
                 }
             };
         }
+
+        function renderRanking() {
+            const tabs = ['puntos', 'victorias', 'podios', 'poles', 'copas'];
+            const isAdmin = state.username === 'admin'; // SOLO EL USUARIO 'admin' PODRÁ ACTUALIZAR
+            
+            const usersList = Object.entries(state.users)
+                .map(([id, data]) => ({ id, ...data, score: data.stats?.[state.rankingTab] || 0 }))
+                .sort((a, b) => b.score - a.score);
+
+            return `
+            <div class="space-y-8 animate-in fade-in duration-500">
+                <div class="flex flex-col md:flex-row justify-between items-center gap-4">
+                    <div class="text-center md:text-left">
+                        <h2 class="text-2xl font-ds uppercase tracking-tighter">Muro de la Fama</h2>
+                        ${isAdmin ? '<span class="text-[9px] text-yellow-600 font-bold uppercase">Modo Administrador Activo</span>' : ''}
+                    </div>
+                    <div class="flex flex-wrap justify-center gap-2">
+                        ${tabs.map(t => `
+                            <button onclick="window.setRankingTab('${t}')" 
+                                class="tab-btn px-4 py-2 rounded-lg text-[10px] font-bold uppercase border border-zinc-800 transition-all ${state.rankingTab === t ? 'active' : 'bg-zinc-900 text-zinc-500'}">
+                                ${t}
+                            </button>
+                        `).join('')}
+                    </div>
+                </div>
+
+                <div class="glass-panel rounded-3xl overflow-hidden border border-zinc-800">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-zinc-900/50 text-zinc-500 text-[10px] uppercase font-bold tracking-widest border-b border-zinc-800">
+                                <th class="p-5">Pos</th>
+                                <th class="p-5">Manager</th>
+                                <th class="p-5 text-right capitalize">${state.rankingTab}</th>
+                                ${isAdmin ? '<th class="p-5 text-center">Acciones</th>' : ''}
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-zinc-900">
+                            ${usersList.map((u, i) => `
+                                <tr class="hover:bg-white/5 transition-colors">
+                                    <td class="p-5">
+                                        <span class="w-8 h-8 rounded-full flex items-center justify-center font-ds text-xs ${i===0?'bg-yellow-600 text-black':i===1?'bg-zinc-300 text-black':i===2?'bg-orange-700 text-white':'bg-zinc-800 text-zinc-500'}">
+                                            ${i+1}
+                                        </span>
+                                    </td>
+                                    <td class="p-5 font-bold uppercase tracking-tight text-sm">${u.id}</td>
+                                    <td class="p-5 text-right font-ds text-yellow-600 text-lg">${u.score}</td>
+                                    ${isAdmin ? `
+                                    <td class="p-5">
+                                        <div class="flex justify-center items-center gap-3">
+                                            <button onclick="window.adjustStat('${u.id}', 1)" class="bg-zinc-800 hover:bg-green-600 w-8 h-8 rounded-lg flex items-center justify-center text-sm font-bold transition-all">+</button>
+                                            <button onclick="window.adjustStat('${u.id}', -1)" class="bg-zinc-800 hover:bg-red-600 w-8 h-8 rounded-lg flex items-center justify-center text-sm font-bold transition-all">-</button>
+                                            <button onclick="window.deleteManager('${u.id}')" class="ml-4 text-zinc-600 hover:text-red-500 text-[10px] uppercase font-bold transition-colors">Eliminar</button>
+                                        </div>
+                                    </td>` : ''}
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="text-center">
+                    <p class="text-[9px] text-zinc-600 uppercase tracking-widest">DS PERFORMANCE - DATOS ACUMULATIVOS EN TIEMPO REAL</p>
+                </div>
+            </div>`;
+        }
+
+        window.setRankingTab = (t) => { state.rankingTab = t; render(); };
+
+        window.adjustStat = async (userId, delta) => {
+            if(state.username !== 'admin') return;
+            const current = state.users[userId].stats?.[state.rankingTab] || 0;
+            const newVal = Math.max(0, current + delta);
+            await update(ref(db, `perfiles/${userId}/stats`), { [state.rankingTab]: newVal });
+        };
+
+        window.deleteManager = async (userId) => {
+            if(state.username !== 'admin') return;
+            if(confirm(`¿Deseas eliminar permanentemente a ${userId}?`)) {
+                await remove(ref(db, `perfiles/${userId}`));
+            }
+        };
 
         function renderTotalBar() {
             let totalLaps = 0;
@@ -324,8 +426,9 @@
         function renderChat() {
             return `
             <div class="glass-panel rounded-3xl h-[75vh] flex flex-col overflow-hidden">
-                <div class="p-4 bg-zinc-900 border-b border-zinc-800">
+                <div class="p-4 bg-zinc-900 border-b border-zinc-800 flex justify-between items-center">
                     <span class="font-ds text-yellow-600 text-xs tracking-widest uppercase">Box Radio DS Automobiles</span>
+                    <span class="text-[8px] text-zinc-600 uppercase">Encriptación Activa</span>
                 </div>
                 <div id="msgContainer" class="flex-grow p-6 overflow-y-auto space-y-4 no-scrollbar bg-black/40">
                     ${state.messages.map(m => `
@@ -365,7 +468,7 @@
             };
         }
 
-        onValue(ref(db, 'perfiles'), (s) => { state.users = s.val() || {}; if(!state.isLoggedIn) render(); });
+        onValue(ref(db, 'perfiles'), (s) => { state.users = s.val() || {}; render(); });
         onValue(ref(db, 'chat'), (s) => {
             const data = s.val() || {};
             state.messages = Object.values(data).sort((a,b) => a.timestamp - b.timestamp);
