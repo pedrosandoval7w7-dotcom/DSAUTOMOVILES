@@ -84,27 +84,28 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
+        // Lista actualizada al 50% de vueltas (Estandar iGP Manager)
         const circuitsData = {
-            "AUS": { name: "Australia", laps: 58, length: 5.27, tyreWear: 18 },
-            "MAL": { name: "Malasia", laps: 56, length: 5.54, tyreWear: 22 },
-            "CHN": { name: "China", laps: 56, length: 5.45, tyreWear: 20 },
-            "BHR": { name: "Bahréin", laps: 57, length: 5.41, tyreWear: 24 },
-            "ESP": { name: "España", laps: 66, length: 4.67, tyreWear: 25 },
-            "MON": { name: "Mónaco", laps: 78, length: 3.33, tyreWear: 12 },
-            "CAN": { name: "Canadá", laps: 70, length: 4.36, tyreWear: 15 },
-            "AUT": { name: "Austria", laps: 71, length: 4.31, tyreWear: 19 },
-            "GBR": { name: "Gran Bretaña", laps: 52, length: 5.89, tyreWear: 23 },
-            "HUN": { name: "Hungría", laps: 70, length: 4.38, tyreWear: 21 },
-            "BEL": { name: "Bélgica", laps: 44, length: 7.00, tyreWear: 22 },
-            "ITA": { name: "Italia", laps: 53, length: 5.79, tyreWear: 18 },
-            "SIN": { name: "Singapur", laps: 61, length: 5.06, tyreWear: 14 },
-            "JPN": { name: "Japón", laps: 53, length: 5.80, tyreWear: 23 },
-            "RUS": { name: "Rusia", laps: 53, length: 5.85, tyreWear: 16 },
-            "USA": { name: "EE.UU.", laps: 56, length: 5.51, tyreWear: 18 },
-            "MEX": { name: "México", laps: 71, length: 4.30, tyreWear: 19 },
-            "BRA": { name: "Brasil", laps: 71, length: 4.30, tyreWear: 16 },
-            "UAE": { name: "Abu Dhabi", laps: 55, length: 5.28, tyreWear: 17 },
-            "AZE": { name: "Azerbaiyán", laps: 51, length: 6.00, tyreWear: 15 }
+            "AUS": { name: "Australia", laps: 29, length: 5.27, tyreWear: 18 },
+            "MAL": { name: "Malasia", laps: 28, length: 5.54, tyreWear: 22 },
+            "CHN": { name: "China", laps: 28, length: 5.45, tyreWear: 20 },
+            "BHR": { name: "Bahréin", laps: 29, length: 5.41, tyreWear: 24 },
+            "ESP": { name: "España", laps: 33, length: 4.67, tyreWear: 25 },
+            "MON": { name: "Mónaco", laps: 39, length: 3.33, tyreWear: 12 },
+            "CAN": { name: "Canadá", laps: 35, length: 4.36, tyreWear: 15 },
+            "AUT": { name: "Austria", laps: 36, length: 4.31, tyreWear: 19 },
+            "GBR": { name: "Gran Bretaña", laps: 26, length: 5.89, tyreWear: 23 },
+            "HUN": { name: "Hungría", laps: 35, length: 4.38, tyreWear: 21 },
+            "BEL": { name: "Bélgica", laps: 22, length: 7.00, tyreWear: 22 },
+            "ITA": { name: "Italia", laps: 27, length: 5.79, tyreWear: 18 },
+            "SIN": { name: "Singapur", laps: 31, length: 5.06, tyreWear: 14 },
+            "JPN": { name: "Japón", laps: 27, length: 5.80, tyreWear: 23 },
+            "RUS": { name: "Rusia", laps: 27, length: 5.85, tyreWear: 16 },
+            "USA": { name: "EE.UU.", laps: 28, length: 5.51, tyreWear: 18 },
+            "MEX": { name: "México", laps: 36, length: 4.30, tyreWear: 19 },
+            "BRA": { name: "Brasil", laps: 36, length: 4.30, tyreWear: 16 },
+            "UAE": { name: "Abu Dhabi", laps: 28, length: 5.28, tyreWear: 17 },
+            "AZE": { name: "Azerbaiyán", laps: 26, length: 6.00, tyreWear: 15 }
         };
 
         let state = {
@@ -130,11 +131,9 @@
             '5': { fuel: 1.07, wear: 1.25, label: 'Muy Alto (5)', class: 'push-5' }
         };
 
-        // FÓRMULA QUE CONSIDERA LOS PUNTOS DE ATRIBUTO (pts)
         function getWear(track, comp, laps, pts, boost) {
             const c = circuitsData[track];
             const pushEffect = pushMultipliers[boost].wear;
-            // El valor 'pts' afecta directamente la base del desgaste
             const baseW = (((pts/1.5)**-0.0778 * 1.43) * (0.00364 * c.tyreWear + 0.354) * (c.length * 1.384) * 150) / 100;
             const mults = { 'SS': 2.06, 'S': 1.32, 'M': 1.0, 'H': 0.65 };
             const wearPerLap = baseW * mults[comp] * pushEffect;
@@ -217,7 +216,7 @@
             return `
             <div class="summary-bar fixed bottom-0 left-0 w-full p-5 z-50 flex justify-around items-center">
                 <div class="text-center">
-                    <p class="text-[9px] text-zinc-500 uppercase font-bold mb-1 tracking-widest">Total Vueltas</p>
+                    <p class="text-[9px] text-zinc-500 uppercase font-bold mb-1 tracking-widest">Carrera al 50%</p>
                     <p class="text-xl font-ds ${totalLaps > circuitMax ? 'text-red-500' : 'text-white'}">${totalLaps} <span class="text-zinc-600 text-xs">/ ${circuitMax}</span></p>
                 </div>
                 <div class="text-center">
@@ -268,13 +267,12 @@
 
                 <div class="lg:col-span-3 space-y-6">
                     <div class="flex justify-between items-center">
-                        <h2 class="text-xl font-ds uppercase tracking-tighter">Plan de Carrera</h2>
+                        <h2 class="text-xl font-ds uppercase tracking-tighter">Plan de Carrera (50%)</h2>
                         <button id="addStint" class="bg-yellow-600 text-black px-6 py-2.5 rounded-xl text-[10px] font-bold uppercase hover:bg-yellow-500 transition-colors">Nueva Parada</button>
                     </div>
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         ${state.calc.stints.map((s, i) => {
-                            // AQUÍ SE PASA state.calc.tPoints PARA EL CÁLCULO
                             const wear = getWear(state.calc.circuit, s.compound, s.laps, state.calc.tPoints, s.boost);
                             const fuel = getFuel(state.calc.circuit, state.calc.fPoints, s.laps, s.boost);
                             const pInfo = pushMultipliers[s.boost];
@@ -314,9 +312,6 @@
                                             <p class="text-[8px] text-zinc-600 uppercase mb-1">Consumo</p>
                                             <p class="text-xl font-mono text-blue-400 font-bold">${fuel.toFixed(2)}L</p>
                                         </div>
-                                    </div>
-                                    <div class="text-[9px] text-zinc-700 font-bold uppercase text-center mt-2 tracking-tighter">
-                                        ${s.boost > 3 ? '⚠️ DESGASTE ACELERADO' : s.boost < 3 ? '❄️ PROTECCIÓN TÉRMICA' : '✓ RITMO NOMINAL'}
                                     </div>
                                 </div>
                             </div>`;
