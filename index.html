@@ -23,6 +23,9 @@
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .tab-btn.active { background: var(--ds-gold); color: black; box-shadow: 0 0 10px rgba(197, 160, 89, 0.4); }
         input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+        
+        /* Modal simple */
+        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); display: flex; align-items: center; justify-content: center; z-index: 100; padding: 20px; }
     </style>
 </head>
 <body class="flex flex-col">
@@ -37,7 +40,6 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
-        // Tus 20 circuitos oficiales
         const circuitsData = {
             "AUS": { name: "Australia", laps: 29, length: 5.27, tyreWear: 18 },
             "MAL": { name: "Malasia", laps: 28, length: 5.54, tyreWear: 22 },
@@ -72,7 +74,8 @@
         let state = {
             isLoggedIn: false, authView: 'login', username: '', section: 'strategy', rankingTab: 'puntos',
             users: {}, messages: [],
-            calc: { circuit: 'AUS', tPoints: 100, fPoints: 100, stints: [{ compound: 'M', laps: 10, boost: '3' }] }
+            calc: { circuit: 'AUS', tPoints: 100, fPoints: 100, stints: [{ compound: 'M', laps: 10, boost: '3' }] },
+            showSyncModal: false
         };
 
         // --- CÁLCULOS MATEMÁTICOS ---
@@ -101,7 +104,7 @@
                 <div class="max-w-7xl mx-auto flex justify-between items-center">
                     <div class="flex items-center gap-2">
                          <h1 class="font-ds text-lg italic tracking-tighter text-yellow-600 uppercase">DS Performance</h1>
-                         ${isAdmin ? '<span class="bg-yellow-600 text-black px-2 py-0.5 rounded text-[8px] font-black">ADMIN</span>' : ''}
+                         ${isAdmin ? '<span class="bg-yellow-600 text-black px-2 py-0.5 rounded text-[8px] font-black ml-2">ADMIN</span>' : ''}
                     </div>
                     <nav class="flex gap-4">
                         <button onclick="window.go('strategy')" class="nav-link text-[10px] font-bold uppercase ${state.section==='strategy'?'active':''}">Estrategia</button>
@@ -113,7 +116,8 @@
             <main class="p-4 md:p-8 max-w-7xl mx-auto w-full flex-grow overflow-y-auto no-scrollbar pb-32">
                 ${renderSection()}
             </main>
-            ${state.section === 'strategy' ? renderTotalBar() : ''}`;
+            ${state.section === 'strategy' ? renderTotalBar() : ''}
+            ${state.showSyncModal ? renderSyncModal() : ''}`;
             setupEvents();
         }
 
@@ -197,6 +201,7 @@
                     <div class="flex gap-1">
                         ${tabs.map(t => `<button onclick="window.setRankingTab('${t}')" class="tab-btn px-4 py-2 rounded-lg text-[9px] font-bold uppercase border border-zinc-800 ${state.rankingTab===t?'active':''}">${t}</button>`).join('')}
                     </div>
+                    ${isAdmin ? `<button onclick="window.toggleSyncModal(true)" class="bg-blue-600/20 text-blue-400 border border-blue-600/30 px-3 py-2 rounded-lg text-[9px] font-bold uppercase whitespace-nowrap">Sincronizar Excel</button>` : ''}
                 </div>
 
                 ${isAdmin ? `
@@ -237,6 +242,30 @@
             </div>`;
         }
 
+        function renderSyncModal() {
+            // URL de Firebase en formato .json para importar
+            const jsonUrl = `${firebaseConfig.databaseURL}perfiles.json?print=pretty`;
+            return `
+            <div class="modal-overlay">
+                <div class="glass-panel p-8 rounded-3xl max-w-lg w-full">
+                    <h3 class="font-ds text-yellow-600 mb-4 uppercase">Sincronización con Google Sheets</h3>
+                    <p class="text-xs text-zinc-400 mb-6 leading-relaxed">
+                        Para ver el ranking en tiempo real en una hoja de cálculo, copia el siguiente enlace y pégalo en una celda de Google Sheets usando la fórmula <b>=IMPORTDATA</b>.
+                    </p>
+                    <div class="bg-black p-4 rounded-xl border border-zinc-800 mb-6 overflow-x-auto">
+                        <code class="text-[10px] text-blue-400 whitespace-nowrap" id="syncCode">
+                            =IMPORTDATA("${jsonUrl}")
+                        </code>
+                    </div>
+                    <div class="flex gap-3">
+                        <button onclick="window.copySyncLink()" class="flex-grow bg-yellow-600 text-black py-3 rounded-xl font-bold uppercase text-[10px]">Copiar fórmula</button>
+                        <button onclick="window.toggleSyncModal(false)" class="px-6 py-3 rounded-xl border border-zinc-800 text-zinc-500 font-bold uppercase text-[10px]">Cerrar</button>
+                    </div>
+                    <p class="text-[9px] text-zinc-600 mt-4 italic text-center">Nota: Los datos se actualizan automáticamente cada vez que abres el archivo.</p>
+                </div>
+            </div>`;
+        }
+
         function renderChat() {
             return `
             <div class="glass-panel rounded-2xl h-[70vh] flex flex-col overflow-hidden">
@@ -265,6 +294,18 @@
             input.value = '';
         };
 
+        window.toggleSyncModal = (show) => { state.showSyncModal = show; render(); };
+        window.copySyncLink = () => {
+            const code = document.getElementById('syncCode').innerText;
+            const el = document.createElement('textarea');
+            el.value = code;
+            document.body.appendChild(el);
+            el.select();
+            document.execCommand('copy');
+            document.body.removeChild(el);
+            alert("¡Fórmula copiada! Pégala en tu Google Sheets.");
+        };
+
         window.clearRankingData = async (id) => {
             if(confirm(`¿Confirmas poner a cero los stats de ${id}?`)) {
                 await update(ref(db, `perfiles/${id}/stats`), { [state.rankingTab]: 0 });
@@ -281,12 +322,14 @@
             const u = name.trim().toLowerCase();
             const snap = await get(ref(db, `perfiles/${u}`));
             if(snap.exists()) {
+                // Si ya existe, le sumamos el valor inicial
                 const cur = snap.val().stats?.[state.rankingTab] || 0;
                 await update(ref(db, `perfiles/${u}/stats`), { [state.rankingTab]: cur + initialVal });
             } else {
+                // Si no existe, creamos la cuenta temporal con pass 'ext'
                 await set(ref(db, `perfiles/${u}`), { 
                     password: 'ext', 
-                    stats: { [state.rankingTab]: initialVal, victorias:0, podios:0, puntos:0, poles:0, copas:0 } 
+                    stats: { puntos: initialVal, victorias:0, podios:0, poles:0, copas:0 } 
                 });
             }
         }
@@ -301,6 +344,12 @@
                 const n = e.target.mName.value;
                 const v = parseInt(e.target.mVal.value) || 0;
                 if(n) await registerOrAdd(n, v);
+                e.target.reset();
+            };
+            const chatF = document.getElementById('chatInput'); if(chatF) chatF.onsubmit = async (e) => {
+                e.preventDefault();
+                const t = e.target.msg.value;
+                if(t) await set(ref(db, `chat/${Date.now()}`), { user: state.username, text: t, timestamp: Date.now() });
                 e.target.reset();
             };
         }
@@ -335,14 +384,27 @@
 
                 if(isLogin) {
                     if(snap.exists() && (snap.val().password === p || snap.val().password === 'ext')) {
+                        // Si era cuenta 'ext' (agregada por admin), ahora se vuelve oficial con su nueva pass
                         if(snap.val().password === 'ext') await update(ref(db, `perfiles/${u}`), { password: p });
                         state.username = u; state.isLoggedIn = true; render();
                     } else alert("Datos incorrectos");
                 } else {
-                    if(snap.exists() && snap.val().password !== 'ext') alert("Este nombre ya existe.");
-                    else {
-                        const stats = snap.exists() ? snap.val().stats : { puntos:0, victorias:0, podios:0, poles:0, copas:0 };
-                        await set(ref(db, `perfiles/${u}`), { password: p, stats: stats });
+                    // REGISTRO MEJORADO
+                    if(snap.exists() && snap.val().password !== 'ext') {
+                        // Si ya tiene pass real, no puede registrarse de nuevo
+                        alert("Este nombre ya existe y tiene una cuenta activa.");
+                    } else if(snap.exists() && snap.val().password === 'ext') {
+                        // RECLAMAR CUENTA: Si existe pero es temporal, la activamos con su pass
+                        await update(ref(db, `perfiles/${u}`), { password: p });
+                        alert("¡Cuenta vinculada con éxito! Ahora puedes entrar.");
+                        state.authView = 'login'; render();
+                    } else {
+                        // NUEVA CUENTA: No existe nada, creamos de cero
+                        await set(ref(db, `perfiles/${u}`), { 
+                            password: p, 
+                            stats: { puntos:0, victorias:0, podios:0, poles:0, copas:0 } 
+                        });
+                        alert("Registro completado.");
                         state.authView = 'login'; render();
                     }
                 }
