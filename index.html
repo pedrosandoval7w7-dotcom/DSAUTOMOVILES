@@ -19,6 +19,7 @@
         .compound-h { background: #f97316; color: white; }
         .nav-link.active { color: var(--ds-gold); border-bottom: 2px solid var(--ds-gold); }
         .no-scrollbar::-webkit-scrollbar { display: none; }
+        input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
     </style>
 </head>
 <body class="flex flex-col">
@@ -34,7 +35,7 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
-        // Datos de circuitos actualizados
+        // Circuitos oficiales proporcionados
         const circuitsData = {
             "AUS": { name: "Australia", laps: 29, length: 5.27, tyreWear: 18 },
             "MAL": { name: "Malasia", laps: 28, length: 5.54, tyreWear: 22 },
@@ -60,7 +61,7 @@
 
         let state = {
             isLoggedIn: false,
-            step: 1, // 1: Pedir nombre, 2: Pedir pass
+            step: 1, 
             username: '',
             isNew: false,
             section: 'strategy',
@@ -71,7 +72,7 @@
             calc: { circuit: 'AUS', tPoints: 100, fPoints: 100, stints: [{ compound: 'M', laps: 10, boost: '3' }] }
         };
 
-        // --- CÁLCULOS DE ESTRATEGIA ---
+        // Algoritmos de desgaste y consumo
         function getWear(track, comp, laps, pts, boost) {
             const c = circuitsData[track];
             const boostMult = { '1': 0.85, '2': 0.92, '3': 1.0, '4': 1.12, '5': 1.25 }[boost];
@@ -87,7 +88,7 @@
             return ((98.456 * Math.pow(pts, -0.088) * c.length) / 139.77) * laps * boostMult;
         }
 
-        // --- RENDERIZADO PRINCIPAL ---
+        // Renderizado principal
         function render() {
             const root = document.getElementById('app');
             if (!state.isLoggedIn) { renderAuth(root); return; }
@@ -120,7 +121,6 @@
                 <div class="min-h-screen flex items-center justify-center p-6 bg-black">
                     <div class="glass-panel w-full max-w-xs p-8 rounded-[2.5rem] border-t-2 border-yellow-600 text-center shadow-2xl">
                         <h2 class="font-ds text-2xl text-white italic mb-2 uppercase">DS TEAM</h2>
-                        
                         ${state.step === 1 ? `
                             <p class="text-[9px] text-zinc-500 uppercase font-bold mb-8">Ingresa tu nombre de manager</p>
                             <form id="step1F" class="space-y-4">
@@ -144,11 +144,9 @@
                     e.preventDefault();
                     const u = document.getElementById('uInput').value.trim().toLowerCase();
                     if(!u) return;
-                    
                     const snap = await get(ref(db, `perfiles/${u}`));
                     state.username = u;
                     state.step = 2;
-                    // Detectar si el usuario existe y si tiene una contraseña real o la provisional 'ext'
                     state.isNew = !snap.exists() || (snap.val().password === 'ext');
                     render();
                 };
@@ -159,20 +157,15 @@
                     e.preventDefault();
                     const p = document.getElementById('pInput').value;
                     if(!p) return;
-
                     const snap = await get(ref(db, `perfiles/${state.username}`));
-                    
                     if (state.isNew) {
                         const existingData = snap.val();
-                        const stats = existingData ? (existingData.stats || { puntos:0, temporada:0, victorias:0, podios:0, poles:0, copas:0 }) : { puntos:0, temporada:0, victorias:0, podios:0, poles:0, copas:0 };
+                        // Garantizar que todos los campos estadísticos existan al crear
+                        const stats = { puntos:0, temporada:0, victorias:0, podios:0, poles:0, copas:0, ...(existingData?.stats || {}) };
                         await set(ref(db, `perfiles/${state.username}`), { password: p, stats });
                         state.isLoggedIn = true;
                     } else {
-                        if(snap.val().password === p) {
-                            state.isLoggedIn = true;
-                        } else {
-                            alert("Contraseña incorrecta.");
-                        }
+                        if(snap.val().password === p) { state.isLoggedIn = true; } else { alert("Contraseña incorrecta."); }
                     }
                     render();
                 };
@@ -254,7 +247,7 @@
                     ${isAdmin ? `<form id="addM" class="flex gap-2 bg-zinc-900/50 p-2 rounded-2xl border border-zinc-800"><input name="n" placeholder="NOMBRE DEL MANAGER" class="flex-grow bg-black p-3 rounded-xl text-xs outline-none focus:border-yellow-600 border border-transparent" required><button class="bg-yellow-600 text-black px-6 rounded-xl font-bold text-[10px] uppercase">CREAR</button></form>` : ''}
                     <div class="glass-panel rounded-3xl overflow-hidden border border-zinc-800/50">
                         <table class="w-full text-xs text-left">
-                            <tr class="bg-zinc-900 text-zinc-500 uppercase text-[8px]"><th class="p-5">Pos</th><th class="p-5">Manager</th><th class="p-5 text-right">${state.rankingTab}</th>${isAdmin?'<th class="p-5 text-center">Acción</th>':''}</tr>
+                            <tr class="bg-zinc-900 text-zinc-500 uppercase text-[8px]"><th class="p-5">Pos</th><th class="p-5">Manager</th><th class="p-5 text-right uppercase">${state.rankingTab}</th>${isAdmin?'<th class="p-5 text-center">Acción</th>':''}</tr>
                             ${list.map((u, i) => `
                                 <tr class="border-b border-zinc-900/50">
                                     <td class="p-5 font-bold text-zinc-600">#${i+1}</td>
@@ -283,18 +276,28 @@
         }
 
         function renderSyncModal() {
+            // URL configurada para exportación total de datos
             const url = `https://ds-automobiles-f0a17-default-rtdb.firebaseio.com/perfiles.json?print=pretty`;
-            return `<div class="fixed inset-0 bg-black/90 z-[100] flex items-center justify-center p-6 backdrop-blur-sm"><div class="glass-panel p-8 rounded-[2.5rem] max-w-sm w-full text-center border-yellow-600/30"><h3 class="font-ds text-white mb-2 italic">ENLACE EXCEL</h3><p class="text-[9px] text-zinc-500 mb-6 uppercase font-bold">Copia esta fórmula en tu hoja</p><div class="bg-black p-4 rounded-2xl border border-zinc-800 mb-6"><code class="text-[9px] text-blue-400 break-all select-all font-mono leading-relaxed">=IMPORTDATA("${url}")</code></div><button onclick="window.toggleSync(false)" class="w-full py-4 rounded-2xl bg-zinc-900 text-white text-[10px] font-bold uppercase border border-zinc-800">Cerrar</button></div></div>`;
+            return `<div class="fixed inset-0 bg-black/90 z-[100] flex items-center justify-center p-6 backdrop-blur-sm">
+                <div class="glass-panel p-8 rounded-[2.5rem] max-w-sm w-full text-center border-yellow-600/30">
+                    <h3 class="font-ds text-white mb-2 italic uppercase">Sincronización Total</h3>
+                    <p class="text-[9px] text-zinc-500 mb-6 uppercase font-bold">Copia esta fórmula para Google Sheets</p>
+                    <div class="bg-black p-4 rounded-2xl border border-zinc-800 mb-6">
+                        <code class="text-[9px] text-blue-400 break-all select-all font-mono leading-relaxed">=IMPORTDATA("${url}")</code>
+                    </div>
+                    <p class="text-[8px] text-zinc-600 mb-6 uppercase">La exportación incluye Temporada, Copas, Puntos y más.</p>
+                    <button onclick="window.toggleSync(false)" class="w-full py-4 rounded-2xl bg-zinc-900 text-white text-[10px] font-bold uppercase border border-zinc-800">Cerrar</button>
+                </div>
+            </div>`;
         }
 
-        // --- ACCIONES DE WINDOW ---
+        // Acciones globales expuestas a window
         window.go = (s) => { state.section = s; render(); };
         window.upS = (i, k, v) => { state.calc.stints[i][k] = v; render(); };
         window.delS = (i) => { state.calc.stints.splice(i, 1); render(); };
         window.setTab = (t) => { state.rankingTab = t; render(); };
         window.toggleSync = (v) => { state.showSync = v; render(); };
         window.back = () => { state.step = 1; render(); };
-        
         window.addPoints = async (id) => {
             const input = document.getElementById(`in_${id}`);
             const val = parseInt(input.value) || 0;
@@ -302,10 +305,8 @@
             await update(ref(db, `perfiles/${id}/stats`), { [state.rankingTab]: cur + val });
             input.value = '';
         };
-
         window.delUser = async (id) => { if(confirm(`¿Eliminar a ${id}?`)) await set(ref(db, `perfiles/${id}`), null); };
 
-        // --- EVENTOS DEL DOM ---
         function attachEvents() {
             if(document.getElementById('selTrack')) document.getElementById('selTrack').onchange = (e) => { state.calc.circuit = e.target.value; render(); };
             if(document.getElementById('numT')) document.getElementById('numT').onchange = (e) => { state.calc.tPoints = e.target.value; render(); };
@@ -330,7 +331,7 @@
             if(chatBox) chatBox.scrollTop = chatBox.scrollHeight;
         }
 
-        // --- LISTENERS EN TIEMPO REAL ---
+        // Listeners en tiempo real
         onValue(ref(db, 'perfiles'), (s) => { state.users = s.val() || {}; render(); });
         onValue(ref(db, 'chat'), (s) => { 
             const data = s.val() || {};
