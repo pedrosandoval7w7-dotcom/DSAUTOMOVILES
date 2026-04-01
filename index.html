@@ -93,8 +93,8 @@
             // Base matemática de desgaste según diseño y longitud del circuito
             const baseW = (((pts/2.5)**-0.0778 * 1.43) * (0.00364 * c.tyreWear + 0.354) * (c.length * 1.384) * 150) / 100;
             
-            // MULTIPLICADORES EXACTOS DE COMPUESTO (Calibrados a tu imagen: S=50.3%, H=52.7%, M=56.6%)
-            const mults = { 'SS': 1.62, 'S': 1.15, 'M': 0.95, 'H': 0.72 };
+            // MULTIPLICADORES EXACTOS DE COMPUESTO (Calibrados a tu imagen: S=50.2%, H=52.8%, M=56.4%)
+            const mults = { 'SS': 1.62, 'S': 1.261, 'M': 0.95, 'H': 0.718 };
             
             // Constante de ajuste final (1.025)
             const wearPerLap = baseW * 1.025 * mults[comp] * boostMult * tempFactor;
@@ -197,7 +197,6 @@
                         <div class="flex justify-between items-center"><h2 class="font-ds text-lg uppercase italic">Sugerencias de estrategia</h2><button id="addStint" class="bg-yellow-600 text-black px-4 py-2 rounded-lg text-[10px] font-bold">Añadir Stint</button></div>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             ${state.calc.stints.map((s, i) => {
-                                // Se calcula el desgaste sin importar el orden del stint
                                 const wear = getWear(state.calc.circuit, s.compound, s.laps, state.calc.tPoints, s.boost);
                                 const fuel = getFuel(state.calc.circuit, state.calc.fPoints, s.laps, s.boost);
                                 return `
