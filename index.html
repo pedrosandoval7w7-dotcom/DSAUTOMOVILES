@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>DS Automobiles - Sugerencias de estrategia</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
         :root { --ds-gold: #c5a059; --ds-black: #050505; }
@@ -79,12 +78,10 @@
             calc: { circuit: 'AZE', tPoints: 66, fPoints: 67, temp: 14, stints: [{ compound: 'S', laps: 6, boost: '5' }] }
         };
 
-        // --- ALGORITMOS MATEMÁTICOS CORREGIDOS PARA LA CARRERA ---
+        // --- ALGORITMOS MATEMÁTICOS ---
         function getWear(track, comp, laps, pts, boost, index = 0) {
             const c = circuitsData[track];
             const boostMult = { '1': 0.85, '2': 0.92, '3': 1.0, '4': 1.12, '5': 1.25 }[boost];
-            
-            // EL SECRETO: Calcula el peso. El Stint 1 es pesado y gasta más goma. El último stint es ligero.
             const weightPenalty = { 0: 1.137, 1: 0.95, 2: 0.812, 3: 0.80, 4: 0.75 }[index] || 1.0;
             const tempFactor = 1 + (state.calc.temp - 20) * 0.015;
             
@@ -97,7 +94,6 @@
 
         function getFuel(track, pts, laps, boost) {
             const c = circuitsData[track];
-            // Multiplicador 1.0455 calibrado para que de exactamente 70.77L en Bakú
             const boostMult = { '1': 0.93, '2': 0.97, '3': 1.0, '4': 1.03, '5': 1.0455 }[boost];
             return ((98.456 * Math.pow(pts, -0.088) * c.length) / 139.77) * laps * boostMult;
         }
@@ -188,7 +184,6 @@
                         <div class="flex justify-between items-center"><h2 class="font-ds text-lg uppercase italic">Sugerencias de estrategia</h2><button id="addStint" class="bg-yellow-600 text-black px-4 py-2 rounded-lg text-[10px] font-bold">Añadir Stint</button></div>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             ${state.calc.stints.map((s, i) => {
-                                // Aquí inyectamos la "i" (índice) para saber el peso del stint
                                 const wear = getWear(state.calc.circuit, s.compound, s.laps, state.calc.tPoints, s.boost, i);
                                 const fuel = getFuel(state.calc.circuit, state.calc.fPoints, s.laps, s.boost);
                                 return `
@@ -212,8 +207,6 @@
 
         function renderRanking(isAdmin) {
             const tabs = ['puntos', 'temporada', 'victorias', 'podios', 'poles', 'copas'];
-            
-            // Filer data: Muestra a los usuarios que SÍ tienen un valor asignado en el ranking actual (evita a los eliminados de esta lista)
             const list = Object.entries(state.users)
                 .filter(([id, d]) => d.stats && d.stats[state.rankingTab] !== undefined && d.stats[state.rankingTab] !== null)
                 .map(([id, d]) => ({ id, ...d, score: d.stats[state.rankingTab], temporada: d.stats.temporada || 1 }))
@@ -238,10 +231,10 @@
                                     ${isAdmin ? `
                                     <td class="p-5 text-center flex justify-center items-center gap-1">
                                         <input id="in_${u.id}" type="number" class="w-12 bg-black border border-zinc-800 rounded-md p-1.5 text-center text-[10px]" placeholder="+0">
-                                        <button onclick="window.addPoints('${u.id}')" class="bg-zinc-800 hover:bg-green-600 text-white w-6 h-6 rounded-md text-[10px] font-bold transition-colors" title="Sumar">✓</button>
-                                        <button onclick="window.clearStat('${u.id}')" class="bg-zinc-800 hover:bg-yellow-600 text-white w-6 h-6 rounded-md text-[10px] font-bold transition-colors" title="Poner a 0">0</button>
-                                        <button onclick="window.resetPass('${u.id}')" class="bg-zinc-800 hover:bg-blue-600 text-white w-6 h-6 rounded-md text-[10px] font-bold transition-colors" title="Reset Contraseña">🔑</button>
-                                        <button onclick="window.removeStat('${u.id}')" class="text-zinc-700 hover:text-red-500 w-6 h-6 transition-colors" title="Quitar de esta lista">✕</button>
+                                        <button onclick="window.addPoints('${u.id}')" class="bg-zinc-800 hover:bg-green-600 text-white w-6 h-6 rounded-md text-[10px] font-bold" title="Sumar">✓</button>
+                                        <button onclick="window.clearStat('${u.id}')" class="bg-zinc-800 hover:bg-yellow-600 text-white w-6 h-6 rounded-md text-[10px] font-bold" title="Poner a 0">0</button>
+                                        <button onclick="window.resetPass('${u.id}')" class="bg-zinc-800 hover:bg-blue-600 text-white w-6 h-6 rounded-md text-[10px] font-bold" title="Reset Contraseña">🔑</button>
+                                        <button onclick="window.removeStat('${u.id}')" class="text-zinc-700 hover:text-red-500 w-6 h-6" title="Quitar de esta lista">✕</button>
                                     </td>` : ''}
                                 </tr>`).join('')}
                         </table>
@@ -249,28 +242,27 @@
                 </div>`;
         }
 
+        // --- NUEVO MODAL DE GRÁFICOS (BARRAS DE PROGRESO) ---
         function renderChartModal() {
-            // Obtenemos los rivales disponibles para comparar
             const otherUsers = Object.keys(state.users).filter(u => u !== state.chartUser);
             
             return `
             <div class="fixed inset-0 bg-black/90 z-[100] flex items-center justify-center p-6 backdrop-blur-sm">
-                <div class="glass-panel p-8 rounded-[2.5rem] w-full max-w-xl text-center border-t-2 border-yellow-600 relative shadow-2xl">
+                <div class="glass-panel p-8 rounded-[2.5rem] w-full max-w-md text-center border-t-2 border-yellow-600 relative shadow-2xl">
                     <button onclick="window.closeChart()" class="absolute top-5 right-6 text-zinc-500 hover:text-white font-bold text-lg transition-colors">✕</button>
                     
                     <h3 class="font-ds text-yellow-600 mb-1 italic uppercase text-2xl tracking-tighter">${state.chartUser}</h3>
                     
-                    <div class="mb-5 flex justify-center items-center gap-3">
-                        <span class="text-[9px] text-zinc-500 font-bold uppercase tracking-widest">Comparar con Rival:</span>
+                    <div class="mb-6 flex justify-center items-center gap-3">
+                        <span class="text-[9px] text-zinc-500 font-bold uppercase tracking-widest">VS:</span>
                         <select onchange="window.updateCompare(this.value)" class="bg-black border border-zinc-800 text-white text-[10px] p-2 rounded-lg outline-none focus:border-yellow-600 uppercase font-bold cursor-pointer">
-                            <option value="">-- PROMEDIO DE EQUIPO --</option>
+                            <option value="">-- PROMEDIO EQUIPO --</option>
                             ${otherUsers.map(u => `<option value="${u}" ${state.compareUser === u ? 'selected' : ''}>${u}</option>`).join('')}
                         </select>
                     </div>
 
-                    <div class="bg-black/40 p-4 rounded-2xl border border-zinc-800 flex justify-center h-80 w-full relative">
-                        <canvas id="radarChart"></canvas>
-                    </div>
+                    <div id="statsBarsContainer" class="p-2 w-full flex flex-col gap-6 text-left">
+                        </div>
                 </div>
             </div>`;
         }
@@ -303,7 +295,7 @@
         };
 
         window.clearStat = async (id) => {
-            if(confirm(`¿Estás seguro de poner a 0 la lista de ${state.rankingTab} para ${id}?`)) {
+            if(confirm(`¿Poner a 0 la lista de ${state.rankingTab} para ${id}?`)) {
                 await update(ref(db, `perfiles/${id}/stats`), { [state.rankingTab]: 0 });
             }
         };
@@ -315,18 +307,18 @@
             }
         };
 
-        // --- CORRECCIÓN: ELIMINAR SOLO DE LA PESTAÑA ACTUAL ---
         window.removeStat = async (id) => { 
-            if(confirm(`¿Ocultar a ${id} SOLO del ranking de ${state.rankingTab.toUpperCase()}? (No se borrará su perfil de las otras listas)`)) {
+            if(confirm(`¿Quitar a ${id} SOLO del ranking de ${state.rankingTab.toUpperCase()}? (Sus otras estadísticas seguirán intactas)`)) {
                 await update(ref(db, `perfiles/${id}/stats`), { [state.rankingTab]: null }); 
             }
         };
 
+        // --- LÓGICA DE DIBUJO DE BARRAS DE PROGRESO ---
         window.openChart = (id) => {
             state.chartUser = id;
-            state.compareUser = ''; // Resetear el rival al abrir nuevo grafico
+            state.compareUser = ''; 
             render();
-            setTimeout(() => window.drawChart(id), 100);
+            setTimeout(() => window.drawChart(id), 50);
         };
 
         window.updateCompare = (rivalId) => {
@@ -340,90 +332,58 @@
         };
 
         window.drawChart = (id, compareId = state.compareUser) => {
-            const ctx = document.getElementById('radarChart');
-            if(!ctx) return;
+            const container = document.getElementById('statsBarsContainer');
+            if(!container) return;
+            
             const userData = state.users[id];
             if(!userData || !userData.stats) return;
 
             const allUsers = Object.values(state.users);
             const getAvg = (stat) => allUsers.reduce((sum, u) => sum + (u.stats?.[stat] || 0), 0) / (allUsers.length || 1);
 
-            const datasets = [{
-                label: id.toUpperCase(),
-                data: [
-                    userData.stats.victorias || 0,
-                    userData.stats.podios || 0,
-                    userData.stats.poles || 0,
-                    userData.stats.copas || 0
-                ],
-                backgroundColor: 'rgba(197, 160, 89, 0.4)',
-                borderColor: '#c5a059',
-                pointBackgroundColor: '#c5a059',
-                borderWidth: 2,
-                fill: true
-            }];
+            const statsToCompare = ['puntos', 'victorias', 'podios', 'poles', 'copas'];
+            let rivalData = {};
+            let rivalColor = compareId ? '#3b82f6' : '#64748b'; // Azul para rival, Gris para promedio
 
             if (compareId && state.users[compareId]) {
-                const rival = state.users[compareId];
-                datasets.push({
-                    label: compareId.toUpperCase(),
-                    data: [
-                        rival.stats.victorias || 0,
-                        rival.stats.podios || 0,
-                        rival.stats.poles || 0,
-                        rival.stats.copas || 0
-                    ],
-                    backgroundColor: 'rgba(59, 130, 246, 0.4)',
-                    borderColor: '#3b82f6',
-                    pointBackgroundColor: '#3b82f6',
-                    borderWidth: 2,
-                    fill: true
-                });
+                rivalData = state.users[compareId].stats;
+            } else {
+                statsToCompare.forEach(stat => rivalData[stat] = getAvg(stat));
             }
 
-            datasets.push({
-                label: 'Promedio Escudería',
-                data: [
-                    getAvg('victorias'),
-                    getAvg('podios'),
-                    getAvg('poles'),
-                    getAvg('copas')
-                ],
-                backgroundColor: 'rgba(100, 116, 139, 0.1)',
-                borderColor: '#64748b',
-                pointBackgroundColor: '#64748b',
-                borderDash: [5, 5],
-                borderWidth: 1,
-                fill: true
-            });
+            let html = '';
+            statsToCompare.forEach(stat => {
+                const val1 = userData.stats[stat] || 0;
+                const val2 = rivalData[stat] || 0;
+                
+                const disp1 = Number.isInteger(val1) ? val1 : val1.toFixed(1);
+                const disp2 = Number.isInteger(val2) ? val2 : val2.toFixed(1);
 
-            if (window.myRadarChart) {
-                window.myRadarChart.destroy();
-            }
-
-            window.myRadarChart = new Chart(ctx, {
-                type: 'radar',
-                data: {
-                    labels: ['VICTORIAS', 'PODIOS', 'POLES', 'COPAS'],
-                    datasets: datasets
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        r: {
-                            angleLines: { color: 'rgba(255, 255, 255, 0.1)' },
-                            grid: { color: 'rgba(255, 255, 255, 0.15)', circular: true },
-                            pointLabels: { color: '#c5a059', font: { family: 'Orbitron', size: 10, weight: 'bold' } },
-                            ticks: { display: false, beginAtZero: true }
-                        }
-                    },
-                    plugins: {
-                        legend: { position: 'bottom', labels: { color: '#e4e4e7', padding: 15, font: { family: 'Inter', size: 10 } } },
-                        tooltip: { backgroundColor: 'rgba(0,0,0,0.9)', titleColor: '#c5a059', bodyFont: { size: 14 } }
-                    }
+                const total = val1 + val2;
+                let pct1 = 50, pct2 = 50;
+                if (total > 0) {
+                    pct1 = (val1 / total) * 100;
+                    pct2 = (val2 / total) * 100;
+                } else {
+                    pct1 = 0; pct2 = 0;
                 }
+
+                html += `
+                <div class="w-full">
+                    <div class="flex justify-between items-end mb-1.5 px-1">
+                        <span class="text-[#c5a059] font-ds font-bold text-sm leading-none">${disp1}</span>
+                        <span class="text-[9px] text-zinc-400 font-bold uppercase tracking-[0.2em]">${stat}</span>
+                        <span style="color: ${rivalColor}" class="font-ds font-bold text-sm leading-none">${disp2}</span>
+                    </div>
+                    <div class="flex h-3 w-full bg-zinc-900/80 rounded-full overflow-hidden border border-zinc-800">
+                        <div class="bg-[#c5a059] transition-all duration-700 ease-out" style="width: ${pct1}%"></div>
+                        <div style="background-color: ${rivalColor}; width: ${pct2}%" class="transition-all duration-700 ease-out"></div>
+                    </div>
+                </div>
+                `;
             });
+
+            container.innerHTML = html;
         };
 
         function attachEvents() {
