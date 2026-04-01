@@ -75,6 +75,7 @@
             rankingTab: 'puntos',
             showSync: false,
             chartUser: null,
+            compareUser: '',
             calc: { circuit: 'AZE', tPoints: 66, fPoints: 67, temp: 14, stints: [{ compound: 'S', laps: 6, boost: '5' }] }
         };
 
@@ -211,7 +212,13 @@
 
         function renderRanking(isAdmin) {
             const tabs = ['puntos', 'temporada', 'victorias', 'podios', 'poles', 'copas'];
-            const list = Object.entries(state.users).map(([id, d]) => ({ id, ...d, score: d.stats?.[state.rankingTab] || 0, temporada: d.stats?.temporada || 1 })).sort((a,b) => b.score - a.score);
+            
+            // Filer data: Muestra a los usuarios que SÍ tienen un valor asignado en el ranking actual (evita a los eliminados de esta lista)
+            const list = Object.entries(state.users)
+                .filter(([id, d]) => d.stats && d.stats[state.rankingTab] !== undefined && d.stats[state.rankingTab] !== null)
+                .map(([id, d]) => ({ id, ...d, score: d.stats[state.rankingTab], temporada: d.stats.temporada || 1 }))
+                .sort((a,b) => b.score - a.score);
+
             return `
                 <div class="space-y-4">
                     <div class="flex justify-between items-center overflow-x-auto no-scrollbar gap-4 pb-2">
@@ -225,16 +232,16 @@
                             ${list.map((u, i) => `
                                 <tr class="border-b border-zinc-900/50">
                                     <td class="p-5 font-bold text-zinc-600">#${i+1}</td>
-                                    <td class="p-5 uppercase font-bold text-zinc-300 cursor-pointer hover:text-yellow-600 transition-colors" onclick="window.openChart('${u.id}')" title="Ver Estadísticas">${u.id}</td>
+                                    <td class="p-5 uppercase font-bold text-zinc-300 cursor-pointer hover:text-yellow-600 transition-colors" onclick="window.openChart('${u.id}')" title="Ver Estadísticas VS Equipo">${u.id}</td>
                                     <td class="p-5 text-zinc-500 font-bold">T${u.temporada}</td>
                                     <td class="p-5 text-right text-yellow-600 font-bold font-ds text-sm">${u.score}</td>
                                     ${isAdmin ? `
                                     <td class="p-5 text-center flex justify-center items-center gap-1">
                                         <input id="in_${u.id}" type="number" class="w-12 bg-black border border-zinc-800 rounded-md p-1.5 text-center text-[10px]" placeholder="+0">
-                                        <button onclick="window.addPoints('${u.id}')" class="bg-zinc-800 hover:bg-green-600 text-white w-6 h-6 rounded-md text-[10px] font-bold" title="Sumar">✓</button>
-                                        <button onclick="window.clearStat('${u.id}')" class="bg-zinc-800 hover:bg-yellow-600 text-white w-6 h-6 rounded-md text-[10px] font-bold" title="Poner a 0">0</button>
-                                        <button onclick="window.resetPass('${u.id}')" class="bg-zinc-800 hover:bg-blue-600 text-white w-6 h-6 rounded-md text-[10px] font-bold" title="Reset Contraseña">🔑</button>
-                                        <button onclick="window.delUser('${u.id}')" class="text-zinc-700 hover:text-red-500 w-6 h-6" title="Eliminar Permanente">✕</button>
+                                        <button onclick="window.addPoints('${u.id}')" class="bg-zinc-800 hover:bg-green-600 text-white w-6 h-6 rounded-md text-[10px] font-bold transition-colors" title="Sumar">✓</button>
+                                        <button onclick="window.clearStat('${u.id}')" class="bg-zinc-800 hover:bg-yellow-600 text-white w-6 h-6 rounded-md text-[10px] font-bold transition-colors" title="Poner a 0">0</button>
+                                        <button onclick="window.resetPass('${u.id}')" class="bg-zinc-800 hover:bg-blue-600 text-white w-6 h-6 rounded-md text-[10px] font-bold transition-colors" title="Reset Contraseña">🔑</button>
+                                        <button onclick="window.removeStat('${u.id}')" class="text-zinc-700 hover:text-red-500 w-6 h-6 transition-colors" title="Quitar de esta lista">✕</button>
                                     </td>` : ''}
                                 </tr>`).join('')}
                         </table>
@@ -243,13 +250,25 @@
         }
 
         function renderChartModal() {
+            // Obtenemos los rivales disponibles para comparar
+            const otherUsers = Object.keys(state.users).filter(u => u !== state.chartUser);
+            
             return `
             <div class="fixed inset-0 bg-black/90 z-[100] flex items-center justify-center p-6 backdrop-blur-sm">
-                <div class="glass-panel p-6 rounded-[2.5rem] w-full max-w-md text-center border-t-2 border-yellow-600 relative">
-                    <button onclick="window.closeChart()" class="absolute top-4 right-6 text-zinc-500 hover:text-white font-bold text-lg">✕</button>
-                    <h3 class="font-ds text-yellow-600 mb-2 italic uppercase text-xl">${state.chartUser}</h3>
-                    <p class="text-[9px] text-zinc-500 mb-6 uppercase font-bold">Comparativa vs Promedio del Equipo</p>
-                    <div class="bg-black/50 p-4 rounded-2xl border border-zinc-800 mb-2 flex justify-center h-64">
+                <div class="glass-panel p-8 rounded-[2.5rem] w-full max-w-xl text-center border-t-2 border-yellow-600 relative shadow-2xl">
+                    <button onclick="window.closeChart()" class="absolute top-5 right-6 text-zinc-500 hover:text-white font-bold text-lg transition-colors">✕</button>
+                    
+                    <h3 class="font-ds text-yellow-600 mb-1 italic uppercase text-2xl tracking-tighter">${state.chartUser}</h3>
+                    
+                    <div class="mb-5 flex justify-center items-center gap-3">
+                        <span class="text-[9px] text-zinc-500 font-bold uppercase tracking-widest">Comparar con Rival:</span>
+                        <select onchange="window.updateCompare(this.value)" class="bg-black border border-zinc-800 text-white text-[10px] p-2 rounded-lg outline-none focus:border-yellow-600 uppercase font-bold cursor-pointer">
+                            <option value="">-- PROMEDIO DE EQUIPO --</option>
+                            ${otherUsers.map(u => `<option value="${u}" ${state.compareUser === u ? 'selected' : ''}>${u}</option>`).join('')}
+                        </select>
+                    </div>
+
+                    <div class="bg-black/40 p-4 rounded-2xl border border-zinc-800 flex justify-center h-80 w-full relative">
                         <canvas id="radarChart"></canvas>
                     </div>
                 </div>
@@ -284,7 +303,7 @@
         };
 
         window.clearStat = async (id) => {
-            if(confirm(`¿Estás seguro de resetear a 0 el apartado de ${state.rankingTab} para ${id}?`)) {
+            if(confirm(`¿Estás seguro de poner a 0 la lista de ${state.rankingTab} para ${id}?`)) {
                 await update(ref(db, `perfiles/${id}/stats`), { [state.rankingTab]: 0 });
             }
         };
@@ -296,16 +315,23 @@
             }
         };
 
-        window.delUser = async (id) => { 
-            if(confirm(`¡CUIDADO! ¿Eliminar a ${id} de forma permanente y borrar todo su historial?`)) {
-                await set(ref(db, `perfiles/${id}`), null); 
+        // --- CORRECCIÓN: ELIMINAR SOLO DE LA PESTAÑA ACTUAL ---
+        window.removeStat = async (id) => { 
+            if(confirm(`¿Ocultar a ${id} SOLO del ranking de ${state.rankingTab.toUpperCase()}? (No se borrará su perfil de las otras listas)`)) {
+                await update(ref(db, `perfiles/${id}/stats`), { [state.rankingTab]: null }); 
             }
         };
 
         window.openChart = (id) => {
             state.chartUser = id;
+            state.compareUser = ''; // Resetear el rival al abrir nuevo grafico
             render();
             setTimeout(() => window.drawChart(id), 100);
+        };
+
+        window.updateCompare = (rivalId) => {
+            state.compareUser = rivalId;
+            window.drawChart(state.chartUser, rivalId);
         };
 
         window.closeChart = () => {
@@ -313,7 +339,7 @@
             render();
         };
 
-        window.drawChart = (id) => {
+        window.drawChart = (id, compareId = state.compareUser) => {
             const ctx = document.getElementById('radarChart');
             if(!ctx) return;
             const userData = state.users[id];
@@ -322,33 +348,64 @@
             const allUsers = Object.values(state.users);
             const getAvg = (stat) => allUsers.reduce((sum, u) => sum + (u.stats?.[stat] || 0), 0) / (allUsers.length || 1);
 
-            new Chart(ctx, {
+            const datasets = [{
+                label: id.toUpperCase(),
+                data: [
+                    userData.stats.victorias || 0,
+                    userData.stats.podios || 0,
+                    userData.stats.poles || 0,
+                    userData.stats.copas || 0
+                ],
+                backgroundColor: 'rgba(197, 160, 89, 0.4)',
+                borderColor: '#c5a059',
+                pointBackgroundColor: '#c5a059',
+                borderWidth: 2,
+                fill: true
+            }];
+
+            if (compareId && state.users[compareId]) {
+                const rival = state.users[compareId];
+                datasets.push({
+                    label: compareId.toUpperCase(),
+                    data: [
+                        rival.stats.victorias || 0,
+                        rival.stats.podios || 0,
+                        rival.stats.poles || 0,
+                        rival.stats.copas || 0
+                    ],
+                    backgroundColor: 'rgba(59, 130, 246, 0.4)',
+                    borderColor: '#3b82f6',
+                    pointBackgroundColor: '#3b82f6',
+                    borderWidth: 2,
+                    fill: true
+                });
+            }
+
+            datasets.push({
+                label: 'Promedio Escudería',
+                data: [
+                    getAvg('victorias'),
+                    getAvg('podios'),
+                    getAvg('poles'),
+                    getAvg('copas')
+                ],
+                backgroundColor: 'rgba(100, 116, 139, 0.1)',
+                borderColor: '#64748b',
+                pointBackgroundColor: '#64748b',
+                borderDash: [5, 5],
+                borderWidth: 1,
+                fill: true
+            });
+
+            if (window.myRadarChart) {
+                window.myRadarChart.destroy();
+            }
+
+            window.myRadarChart = new Chart(ctx, {
                 type: 'radar',
                 data: {
-                    labels: ['Victorias', 'Podios', 'Poles', 'Copas'],
-                    datasets: [{
-                        label: id.toUpperCase(),
-                        data: [
-                            userData.stats.victorias || 0,
-                            userData.stats.podios || 0,
-                            userData.stats.poles || 0,
-                            userData.stats.copas || 0
-                        ],
-                        backgroundColor: 'rgba(197, 160, 89, 0.4)',
-                        borderColor: '#c5a059',
-                        pointBackgroundColor: '#c5a059',
-                    }, {
-                        label: 'Promedio Equipo',
-                        data: [
-                            getAvg('victorias'),
-                            getAvg('podios'),
-                            getAvg('poles'),
-                            getAvg('copas')
-                        ],
-                        backgroundColor: 'rgba(100, 116, 139, 0.2)',
-                        borderColor: '#64748b',
-                        pointBackgroundColor: '#64748b',
-                    }]
+                    labels: ['VICTORIAS', 'PODIOS', 'POLES', 'COPAS'],
+                    datasets: datasets
                 },
                 options: {
                     responsive: true,
@@ -356,13 +413,14 @@
                     scales: {
                         r: {
                             angleLines: { color: 'rgba(255, 255, 255, 0.1)' },
-                            grid: { color: 'rgba(255, 255, 255, 0.1)' },
-                            pointLabels: { color: '#e4e4e7', font: { family: 'Orbitron', size: 10 } },
-                            ticks: { display: false }
+                            grid: { color: 'rgba(255, 255, 255, 0.15)', circular: true },
+                            pointLabels: { color: '#c5a059', font: { family: 'Orbitron', size: 10, weight: 'bold' } },
+                            ticks: { display: false, beginAtZero: true }
                         }
                     },
                     plugins: {
-                        legend: { labels: { color: '#e4e4e7' } }
+                        legend: { position: 'bottom', labels: { color: '#e4e4e7', padding: 15, font: { family: 'Inter', size: 10 } } },
+                        tooltip: { backgroundColor: 'rgba(0,0,0,0.9)', titleColor: '#c5a059', bodyFont: { size: 14 } }
                     }
                 }
             });
