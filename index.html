@@ -257,19 +257,23 @@
                                 if (u.trend === 1) trendIcon = '<span class="text-green-500 text-[10px] ml-1.5 font-black" title="Sube Posición">▲</span>';
                                 else if (u.trend === -1) trendIcon = '<span class="text-red-500 text-[10px] ml-1.5 font-black" title="Baja Posición">▼</span>';
 
+                                // Saneamiento de nombre para evitar errores con nombres separados por espacio o comillas
+                                const safeDomId = 'in_' + u.id.replace(/[^a-zA-Z0-9]/g, '_');
+                                const safeNameParam = u.id.replace(/'/g, "\\'");
+
                                 return `
                                 <tr class="border-b border-zinc-900/50">
                                     <td class="p-5 font-bold text-zinc-600 whitespace-nowrap">#${i+1} ${trendIcon}</td>
-                                    <td class="p-5 uppercase font-bold text-zinc-300 cursor-pointer hover:text-yellow-600 transition-colors" onclick="window.openChart('${u.id}')" title="Ver Estadísticas VS Equipo">${u.id}</td>
+                                    <td class="p-5 uppercase font-bold text-zinc-300 cursor-pointer hover:text-yellow-600 transition-colors" onclick="window.openChart('${safeNameParam}')" title="Ver Estadísticas VS Equipo">${u.id}</td>
                                     <td class="p-5 text-zinc-500 font-bold">T${u.temporada}</td>
                                     <td class="p-5 text-right text-yellow-600 font-bold font-ds text-sm">${u.score}</td>
                                     ${isAdmin ? `
                                     <td class="p-5 text-center flex justify-center items-center gap-1">
-                                        <input id="in_${u.id}" type="number" class="w-12 bg-black border border-zinc-800 rounded-md p-1.5 text-center text-[10px]" placeholder="+0">
-                                        <button onclick="window.addPoints('${u.id}')" class="bg-zinc-800 hover:bg-green-600 text-white w-6 h-6 rounded-md text-[10px] font-bold" title="Sumar">✓</button>
-                                        <button onclick="window.clearStat('${u.id}')" class="bg-zinc-800 hover:bg-yellow-600 text-white w-6 h-6 rounded-md text-[10px] font-bold" title="Poner a 0">0</button>
-                                        <button onclick="window.resetPass('${u.id}')" class="bg-zinc-800 hover:bg-blue-600 text-white w-6 h-6 rounded-md text-[10px] font-bold" title="Reset Contraseña">🔑</button>
-                                        <button onclick="window.removeStat('${u.id}')" class="text-zinc-700 hover:text-red-500 w-6 h-6" title="Quitar de esta lista">✕</button>
+                                        <input id="${safeDomId}" type="number" class="w-12 bg-black border border-zinc-800 rounded-md p-1.5 text-center text-[10px]" placeholder="+0">
+                                        <button onclick="window.addPoints('${safeNameParam}')" class="bg-zinc-800 hover:bg-green-600 text-white w-6 h-6 rounded-md text-[10px] font-bold" title="Sumar">✓</button>
+                                        <button onclick="window.clearStat('${safeNameParam}')" class="bg-zinc-800 hover:bg-yellow-600 text-white w-6 h-6 rounded-md text-[10px] font-bold" title="Poner a 0">0</button>
+                                        <button onclick="window.resetPass('${safeNameParam}')" class="bg-zinc-800 hover:bg-blue-600 text-white w-6 h-6 rounded-md text-[10px] font-bold" title="Reset Contraseña">🔑</button>
+                                        <button onclick="window.removeStat('${safeNameParam}')" class="text-zinc-700 hover:text-red-500 w-6 h-6" title="Quitar de esta lista">✕</button>
                                     </td>` : ''}
                                 </tr>`;
                             }).join('')}
@@ -321,13 +325,23 @@
         window.toggleSync = (v) => { state.showSync = v; render(); };
         window.back = () => { state.step = 1; render(); };
         
+        // --- FUNCIÓN CORREGIDA (BLINDADA CONTRA NOMBRES CON ESPACIOS) ---
         window.addPoints = async (id) => {
-            const input = document.getElementById(`in_${id}`);
-            const val = parseInt(input.value) || 0;
-            const cur = state.users[id].stats?.[state.rankingTab] || 0;
+            const safeDomId = 'in_' + id.replace(/[^a-zA-Z0-9]/g, '_');
+            const input = document.getElementById(safeDomId);
+            if (!input) return; // Evitar fallos si la caja no existe
+            
+            const val = parseFloat(input.value) || 0;
+            if (val === 0) return; // Si no hay nada que sumar, no hace nada
+            
+            const cur = parseFloat(state.users[id].stats?.[state.rankingTab]) || 0;
             const temp = state.users[id].stats?.temporada || 1;
-            await update(ref(db, `perfiles/${id}/stats`), { [state.rankingTab]: cur + val, temporada: temp });
-            input.value = '';
+            
+            await update(ref(db, `perfiles/${id}/stats`), { 
+                [state.rankingTab]: cur + val, 
+                temporada: temp 
+            });
+            input.value = ''; // Limpiar la caja tras enviar a la base de datos
         };
 
         window.clearStat = async (id) => {
@@ -375,7 +389,7 @@
             if(!userData || !userData.stats) return;
 
             const allUsers = Object.values(state.users);
-            const getAvg = (stat) => allUsers.reduce((sum, u) => sum + (u.stats?.[stat] || 0), 0) / (allUsers.length || 1);
+            const getAvg = (stat) => allUsers.reduce((sum, u) => sum + (parseFloat(u.stats?.[stat]) || 0), 0) / (allUsers.length || 1);
 
             const statsToCompare = ['puntos', 'victorias', 'podios', 'poles', 'copas'];
             let rivalData = {};
@@ -389,8 +403,8 @@
 
             let html = '';
             statsToCompare.forEach(stat => {
-                const val1 = userData.stats[stat] || 0;
-                const val2 = rivalData[stat] || 0;
+                const val1 = parseFloat(userData.stats[stat]) || 0;
+                const val2 = parseFloat(rivalData[stat]) || 0;
                 
                 const disp1 = Number.isInteger(val1) ? val1 : val1.toFixed(1);
                 const disp2 = Number.isInteger(val2) ? val2 : val2.toFixed(1);
