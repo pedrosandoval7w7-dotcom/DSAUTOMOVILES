@@ -325,7 +325,7 @@
         window.toggleSync = (v) => { state.showSync = v; render(); };
         window.back = () => { state.step = 1; render(); };
         
-        // --- FUNCIÓN CORREGIDA (BLINDADA CONTRA NOMBRES CON ESPACIOS) ---
+        // --- FUNCIÓN CORREGIDA (BLINDADA CONTRA NOMBRES CON ESPACIOS Y ERROR DE TEMPORADA) ---
         window.addPoints = async (id) => {
             const safeDomId = 'in_' + id.replace(/[^a-zA-Z0-9]/g, '_');
             const input = document.getElementById(safeDomId);
@@ -337,10 +337,18 @@
             const cur = parseFloat(state.users[id].stats?.[state.rankingTab]) || 0;
             const temp = state.users[id].stats?.temporada || 1;
             
-            await update(ref(db, `perfiles/${id}/stats`), { 
-                [state.rankingTab]: cur + val, 
-                temporada: temp 
-            });
+            // Creamos las actualizaciones a mandar a Firebase
+            let updates = {
+                [state.rankingTab]: cur + val
+            };
+            
+            // Solo preservamos "temporada" explícitamente si NO estamos en la pestaña de temporada
+            // Esto evita que el número viejo sobreescriba al número nuevo que intentas ingresar
+            if (state.rankingTab !== 'temporada') {
+                updates.temporada = temp;
+            }
+            
+            await update(ref(db, `perfiles/${id}/stats`), updates);
             input.value = ''; // Limpiar la caja tras enviar a la base de datos
         };
 
