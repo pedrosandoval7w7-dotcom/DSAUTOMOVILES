@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>DS Automobiles - Sugerencias de estrategia</title>
+    <title>Sugerencias de estrategia - DS Automobiles</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
@@ -35,28 +35,33 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
-        // Circuitos oficiales proporcionados
+        // --- LISTA DE 25 CIRCUITOS PROPORCIONADA POR EL USUARIO ---
         const circuitsData = {
-            "AUS": { name: "Australia", laps: 29, length: 5.27, tyreWear: 18 },
-            "MAL": { name: "Malasia", laps: 28, length: 5.54, tyreWear: 22 },
-            "CHN": { name: "China", laps: 28, length: 5.45, tyreWear: 20 },
-            "BHR": { name: "Bahréin", laps: 29, length: 5.41, tyreWear: 24 },
-            "ESP": { name: "España", laps: 33, length: 4.67, tyreWear: 25 },
-            "MON": { name: "Mónaco", laps: 39, length: 3.33, tyreWear: 12 },
-            "CAN": { name: "Canadá", laps: 35, length: 4.36, tyreWear: 15 },
-            "AUT": { name: "Austria", laps: 36, length: 4.31, tyreWear: 19 },
-            "GBR": { name: "Gran Bretaña", laps: 26, length: 5.89, tyreWear: 23 },
-            "HUN": { name: "Hungría", laps: 35, length: 4.38, tyreWear: 21 },
-            "BEL": { name: "Bélgica", laps: 22, length: 7.00, tyreWear: 22 },
-            "ITA": { name: "Italia", laps: 27, length: 5.79, tyreWear: 18 },
-            "SIN": { name: "Singapur", laps: 31, length: 5.06, tyreWear: 14 },
-            "JPN": { name: "Japón", laps: 27, length: 5.80, tyreWear: 23 },
-            "RUS": { name: "Rusia", laps: 27, length: 5.85, tyreWear: 16 },
-            "USA": { name: "EE.UU.", laps: 28, length: 5.51, tyreWear: 18 },
-            "MEX": { name: "México", laps: 36, length: 4.30, tyreWear: 19 },
-            "BRA": { name: "Brasil", laps: 36, length: 4.30, tyreWear: 16 },
-            "UAE": { name: "Abu Dhabi", laps: 28, length: 5.28, tyreWear: 17 },
-            "AZE": { name: "Azerbaiyán", laps: 26, length: 6.00, tyreWear: 15 }
+            "MAL": { name: "Malasia", laps: 27, length: 5.536, tyreWear: 22 },
+            "AUT": { name: "Austria", laps: 34, length: 4.044, tyreWear: 19 },
+            "UAE": { name: "Abu Dhabi", laps: 25, length: 5.41, tyreWear: 17 },
+            "JPN": { name: "Japón", laps: 27, length: 5.058, tyreWear: 23 },
+            "BRA": { name: "Brasil", laps: 34, length: 3.971, tyreWear: 16 },
+            "NED": { name: "Países Bajos", laps: 35, length: 4.259, tyreWear: 20 },
+            "CAN": { name: "Canadá", laps: 31, length: 4.341, tyreWear: 15 },
+            "ESP": { name: "España", laps: 31, length: 4.457, tyreWear: 25 },
+            "SIN": { name: "Singapur", laps: 30, length: 5.049, tyreWear: 14 },
+            "GER": { name: "Alemania", laps: 33, length: 4.179, tyreWear: 18 },
+            "TUR": { name: "Turquía", laps: 27, length: 5.162, tyreWear: 21 },
+            "AUS": { name: "Australia", laps: 28, length: 5.301, tyreWear: 18 },
+            "BEL": { name: "Bélgica", laps: 21, length: 7.041, tyreWear: 22 },
+            "ITA": { name: "Italia", laps: 25, length: 5.401, tyreWear: 18 },
+            "MEX": { name: "México", laps: 35, length: 4.308, tyreWear: 19 },
+            "FRA": { name: "Francia", laps: 24, length: 5.881, tyreWear: 17 },
+            "HUN": { name: "Hungría", laps: 39, length: 3.498, tyreWear: 21 },
+            "AZE": { name: "Azerbaiyán", laps: 23, length: 6.049, tyreWear: 15 },
+            "USA": { name: "EE.UU.", laps: 30, length: 4.602, tyreWear: 18 },
+            "GBR": { name: "Gran Bretaña", laps: 24, length: 5.751, tyreWear: 23 },
+            "CHN": { name: "China", laps: 27, length: 5.442, tyreWear: 20 },
+            "MON": { name: "Mónaco", laps: 29, length: 4.015, tyreWear: 12 },
+            "BHR": { name: "Bahréin", laps: 29, length: 4.726, tyreWear: 24 },
+            "RUS": { name: "Rusia", laps: 23, length: 6.077, tyreWear: 16 },
+            "EUR": { name: "Europa", laps: 25, length: 5.59, tyreWear: 19 }
         };
 
         let state = {
@@ -69,7 +74,7 @@
             messages: [],
             rankingTab: 'puntos',
             showSync: false,
-            calc: { circuit: 'AUS', tPoints: 100, fPoints: 100, stints: [{ compound: 'M', laps: 10, boost: '3' }] }
+            calc: { circuit: 'MAL', tPoints: 100, fPoints: 100, stints: [{ compound: 'M', laps: 10, boost: '3' }] }
         };
 
         // Algoritmos de desgaste y consumo
@@ -88,7 +93,6 @@
             return ((98.456 * Math.pow(pts, -0.088) * c.length) / 139.77) * laps * boostMult;
         }
 
-        // Renderizado principal
         function render() {
             const root = document.getElementById('app');
             if (!state.isLoggedIn) { renderAuth(root); return; }
@@ -108,7 +112,7 @@
                         </nav>
                     </div>
                 </header>
-                <main class="p-4 flex-grow overflow-y-auto no-scrollbar pb-10">
+                <main class="p-4 flex-grow overflow-y-auto no-scrollbar pb-32">
                     ${renderSection(isAdmin)}
                 </main>
                 ${state.showSync ? renderSyncModal() : ''}
@@ -160,7 +164,7 @@
                     const snap = await get(ref(db, `perfiles/${state.username}`));
                     if (state.isNew) {
                         const existingData = snap.val();
-                        const stats = { puntos:0, temporada:0, victorias:0, podios:0, poles:0, copas:0, ...(existingData?.stats || {}) };
+                        const stats = { puntos:0, temporada:1, victorias:0, podios:0, poles:0, copas:0, ...(existingData?.stats || {}) };
                         await set(ref(db, `perfiles/${state.username}`), { password: p, stats });
                         state.isLoggedIn = true;
                     } else {
@@ -185,7 +189,7 @@
                         <div>
                             <label class="text-[9px] text-zinc-500 font-bold uppercase block mb-2">Circuito</label>
                             <select id="selTrack" class="w-full p-3 rounded-lg bg-zinc-900 border border-zinc-800 text-xs uppercase font-bold text-white outline-none">
-                                ${Object.keys(circuitsData).map(k => `<option value="${k}" ${state.calc.circuit===k?'selected':''}>${circuitsData[k].name}</option>`).join('')}
+                                ${Object.keys(circuitsData).map(k => `<option value="${k}" ${state.calc.circuit===k?'selected':''}>${circuitsData[k].name} (${circuitsData[k].laps} v.)</option>`).join('')}
                             </select>
                         </div>
                         <div class="grid grid-cols-2 gap-2">
@@ -206,7 +210,7 @@
                         </div>
                     </div>
                     <div class="lg:col-span-3 space-y-4">
-                        <div class="flex justify-between items-center"><h2 class="font-ds text-lg uppercase italic">Estrategia sugerida</h2><button id="addStint" class="bg-yellow-600 text-black px-4 py-2 rounded-lg text-[10px] font-bold uppercase">Añadir Stint</button></div>
+                        <div class="flex justify-between items-center"><h2 class="font-ds text-lg uppercase italic text-zinc-200">Sugerencias de estrategia</h2><button id="addStint" class="bg-yellow-600 text-black px-4 py-2 rounded-lg text-[10px] font-bold uppercase">Añadir Stint</button></div>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             ${state.calc.stints.map((s, i) => {
                                 const wear = getWear(state.calc.circuit, s.compound, s.laps, state.calc.tPoints, s.boost);
@@ -218,8 +222,8 @@
                                         ${['SS','S','M','H'].map(c => `<button onclick="window.upS(${i},'compound','${c}')" class="tyre-btn compound-${c.toLowerCase()} ${s.compound===c?'active':''}">${c}</button>`).join('')}
                                     </div>
                                     <div class="grid grid-cols-2 gap-3">
-                                        <div><span class="text-[7px] text-zinc-600 uppercase font-bold block mb-1">Vueltas</span><input type="number" value="${s.laps}" onchange="window.upS(${i},'laps',this.value)" class="w-full p-2.5 rounded bg-black border border-zinc-800 text-center font-bold outline-none"></div>
-                                        <div><span class="text-[7px] text-zinc-600 uppercase font-bold block mb-1">Empuje</span><select onchange="window.upS(${i},'boost',this.value)" class="w-full p-2.5 rounded bg-black border border-zinc-800 text-[10px] uppercase font-bold text-center outline-none">
+                                        <div><span class="text-[7px] text-zinc-600 uppercase font-bold block mb-1">Vueltas</span><input type="number" value="${s.laps}" onchange="window.upS(${i},'laps',this.value)" class="w-full p-2.5 rounded bg-black border border-zinc-800 text-center font-bold outline-none text-white"></div>
+                                        <div><span class="text-[7px] text-zinc-600 uppercase font-bold block mb-1">Empuje</span><select onchange="window.upS(${i},'boost',this.value)" class="w-full p-2.5 rounded bg-black border border-zinc-800 text-[10px] uppercase font-bold text-center outline-none text-white">
                                             ${[1,2,3,4,5].map(v => `<option value="${v}" ${s.boost==v+''?'selected':''}>Nivel ${v}</option>`).join('')}
                                         </select></div>
                                     </div>
@@ -236,26 +240,28 @@
 
         function renderRanking(isAdmin) {
             const tabs = ['puntos', 'temporada', 'victorias', 'podios', 'poles', 'copas'];
-            const list = Object.entries(state.users).map(([id, d]) => ({ id, ...d, score: d.stats?.[state.rankingTab] || 0 })).sort((a,b) => b.score - a.score);
+            const list = Object.entries(state.users).map(([id, d]) => ({ id, ...d, score: d.stats?.[state.rankingTab] || 0, temporada: d.stats?.temporada || 1 }))
+                               .sort((a,b) => b.score - a.score);
             return `
                 <div class="space-y-4">
                     <div class="flex justify-between items-center overflow-x-auto no-scrollbar gap-4 pb-2">
-                        <div class="flex gap-1.5">${tabs.map(t => `<button onclick="window.setTab('${t}')" class="px-4 py-2 rounded-xl bg-zinc-900 text-[9px] uppercase font-bold border border-zinc-800 ${state.rankingTab===t?'text-yellow-600 border-yellow-600 bg-yellow-600/5':''}">${t}</button>`).join('')}</div>
-                        ${isAdmin ? `<button onclick="window.toggleSync(true)" class="bg-blue-600 text-white px-4 py-2 rounded-xl text-[9px] font-bold">EXCEL</button>` : ''}
+                        <div class="flex gap-1.5">${tabs.map(t => `<button onclick="window.setTab('${t}')" class="px-4 py-2 rounded-xl bg-zinc-900 text-[9px] uppercase font-bold border border-zinc-800 ${state.rankingTab===t?'text-yellow-600 border-yellow-600 bg-yellow-600/5':''} transition-all">${t}</button>`).join('')}</div>
+                        ${isAdmin ? `<button onclick="window.toggleSync(true)" class="bg-blue-600 text-white px-4 py-2 rounded-xl text-[9px] font-bold uppercase whitespace-nowrap">Auto-Sheets</button>` : ''}
                     </div>
-                    ${isAdmin ? `<form id="addM" class="flex gap-2 bg-zinc-900/50 p-2 rounded-2xl border border-zinc-800"><input name="n" placeholder="NOMBRE DEL MANAGER" class="flex-grow bg-black p-3 rounded-xl text-xs outline-none focus:border-yellow-600 border border-transparent" required><button class="bg-yellow-600 text-black px-6 rounded-xl font-bold text-[10px] uppercase">CREAR</button></form>` : ''}
+                    ${isAdmin ? `<form id="addM" class="flex gap-2 bg-zinc-900/50 p-2 rounded-2xl border border-zinc-800"><input name="n" placeholder="NOMBRE DEL MANAGER" class="flex-grow bg-black p-3 rounded-xl text-xs outline-none focus:border-yellow-600 border border-transparent uppercase font-bold text-white" required><button class="bg-yellow-600 text-black px-6 rounded-xl font-bold text-[10px] uppercase">CREAR</button></form>` : ''}
                     <div class="glass-panel rounded-3xl overflow-hidden border border-zinc-800/50">
                         <table class="w-full text-xs text-left">
-                            <tr class="bg-zinc-900 text-zinc-500 uppercase text-[8px]"><th class="p-5">Pos</th><th class="p-5">Manager</th><th class="p-5 text-right uppercase">${state.rankingTab}</th>${isAdmin?'<th class="p-5 text-center">Acción</th>':''}</tr>
+                            <tr class="bg-zinc-900 text-zinc-500 uppercase text-[8px]"><th class="p-5">Pos</th><th class="p-5">Manager</th><th class="p-5">T.</th><th class="p-5 text-right uppercase">${state.rankingTab}</th>${isAdmin?'<th class="p-5 text-center">Acción</th>':''}</tr>
                             ${list.map((u, i) => `
-                                <tr class="border-b border-zinc-900/50">
+                                <tr class="border-b border-zinc-900/50 hover:bg-white/[0.02]">
                                     <td class="p-5 font-bold text-zinc-600">#${i+1}</td>
                                     <td class="p-5 uppercase font-bold text-zinc-300">${u.id}</td>
+                                    <td class="p-5 text-zinc-500 font-bold">T${u.temporada}</td>
                                     <td class="p-5 text-right text-yellow-600 font-bold font-ds text-sm">${u.score}</td>
                                     ${isAdmin ? `
                                     <td class="p-5 text-center flex justify-center items-center gap-2">
-                                        <input id="in_${u.id}" type="number" class="w-16 bg-black border border-zinc-800 rounded-lg p-2 text-center text-[10px]" placeholder="+0">
-                                        <button onclick="window.addPoints('${u.id}')" class="bg-zinc-800 hover:bg-green-600 text-white px-3 py-2 rounded-lg text-[9px] font-bold uppercase">Sumar</button>
+                                        <input id="in_${u.id}" type="number" class="w-16 bg-black border border-zinc-800 rounded-lg p-2 text-center text-[10px] text-white" placeholder="+0">
+                                        <button onclick="window.addPoints('${u.id}')" class="bg-green-600 text-white px-3 py-2 rounded-lg text-[9px] font-bold uppercase">OK</button>
                                         <button onclick="window.delUser('${u.id}')" class="text-zinc-700 hover:text-red-500 px-2">✕</button>
                                     </td>` : ''}
                                 </tr>`).join('')}
@@ -269,21 +275,20 @@
                 ${state.messages.map(m => `
                     <div class="flex flex-col ${m.u === state.username ? 'items-end' : 'items-start'}">
                         <span class="text-[7px] font-bold text-zinc-600 uppercase mb-1 ml-1 mr-1">${m.u}</span>
-                        <div class="p-3.5 rounded-2xl text-xs max-w-[80%] ${m.u === state.username ? 'bg-yellow-600 text-black' : 'bg-zinc-900 text-white border border-zinc-800'}">${m.t}</div>
+                        <div class="p-3.5 rounded-2xl text-xs max-w-[80%] ${m.u === state.username ? 'bg-yellow-600 text-black font-semibold' : 'bg-zinc-900 text-white border border-zinc-800'}">${m.t}</div>
                     </div>`).join('')}
-                </div><form id="chatF" class="p-4 bg-zinc-900/80 border-t border-zinc-800/50 flex gap-2"><input name="m" placeholder="Escribe al equipo..." class="flex-grow bg-black p-3.5 rounded-2xl text-xs outline-none focus:border-yellow-600" autocomplete="off"><button class="bg-yellow-600 text-black px-6 rounded-2xl font-bold text-[10px] uppercase">Enviar</button></form></div>`;
+                </div><form id="chatF" class="p-4 bg-zinc-900/80 border-t border-zinc-800/50 flex gap-2"><input name="m" placeholder="Escribe al equipo..." class="flex-grow bg-black p-3.5 rounded-2xl text-xs outline-none focus:border-yellow-600 text-white" autocomplete="off"><button class="bg-yellow-600 text-black px-6 rounded-2xl font-bold text-[10px] uppercase">Enviar</button></form></div>`;
         }
 
         function renderSyncModal() {
-            const url = `https://ds-automobiles-f0a17-default-rtdb.firebaseio.com/perfiles.json`;
+            const url = `https://ds-automobiles-f0a17-default-rtdb.firebaseio.com/perfiles.json?print=pretty`;
             return `<div class="fixed inset-0 bg-black/90 z-[100] flex items-center justify-center p-6 backdrop-blur-sm">
-                <div class="glass-panel p-8 rounded-[2.5rem] max-w-sm w-full text-center border-yellow-600/30">
+                <div class="glass-panel p-8 rounded-[2.5rem] max-w-sm w-full text-center border-t-2 border-blue-600">
                     <h3 class="font-ds text-white mb-2 italic uppercase">Sincronización Total</h3>
-                    <p class="text-[9px] text-zinc-500 mb-6 uppercase font-bold">Copia esta fórmula para Google Sheets</p>
+                    <p class="text-[9px] text-zinc-500 mb-6 uppercase font-bold leading-relaxed">Copia esta fórmula para Google Sheets para tener todos los datos ordenados automáticamente:</p>
                     <div class="bg-black p-4 rounded-2xl border border-zinc-800 mb-6">
                         <code class="text-[9px] text-blue-400 break-all select-all font-mono leading-relaxed">=IMPORTDATA("${url}")</code>
                     </div>
-                    <p class="text-[8px] text-zinc-600 mb-6 uppercase">Importa toda la tabla: Temporada, Puntos, Victorias, etc.</p>
                     <button onclick="window.toggleSync(false)" class="w-full py-4 rounded-2xl bg-zinc-900 text-white text-[10px] font-bold uppercase border border-zinc-800">Cerrar</button>
                 </div>
             </div>`;
@@ -299,10 +304,11 @@
             const input = document.getElementById(`in_${id}`);
             const val = parseInt(input.value) || 0;
             const cur = state.users[id].stats?.[state.rankingTab] || 0;
-            await update(ref(db, `perfiles/${id}/stats`), { [state.rankingTab]: cur + val });
+            const temp = state.users[id].stats?.temporada || 1;
+            await update(ref(db, `perfiles/${id}/stats`), { [state.rankingTab]: cur + val, temporada: temp });
             input.value = '';
         };
-        window.delUser = async (id) => { if(confirm(`¿Eliminar a ${id}?`)) await set(ref(db, `perfiles/${id}`), null); };
+        window.delUser = async (id) => { if(confirm(`¿Eliminar a ${id} permanentemente?`)) await set(ref(db, `perfiles/${id}`), null); };
 
         function attachEvents() {
             if(document.getElementById('selTrack')) document.getElementById('selTrack').onchange = (e) => { state.calc.circuit = e.target.value; render(); };
@@ -313,7 +319,7 @@
                 document.getElementById('addM').onsubmit = async (e) => {
                     e.preventDefault();
                     const n = e.target.n.value.trim().toLowerCase();
-                    if(n) await set(ref(db, `perfiles/${n}`), { password: 'ext', stats: { puntos:0, temporada:0, victorias:0, podios:0, poles:0, copas:0 } });
+                    if(n) await set(ref(db, `perfiles/${n}`), { password: 'ext', stats: { puntos:0, temporada:1, victorias:0, podios:0, poles:0, copas:0 } });
                     e.target.reset();
                 };
             }
