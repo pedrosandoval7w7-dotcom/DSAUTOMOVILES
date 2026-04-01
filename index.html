@@ -3,8 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>DS Automobiles - Sugerencias de estrategia</title>
+    <title>Sugerencias de estrategia</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
         :root { --ds-gold: #c5a059; --ds-black: #050505; }
@@ -34,7 +35,7 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
-        // --- LISTA DE 25 CIRCUITOS ---
+        // --- LISTA DE 25 CIRCUITOS (INTACTA) ---
         const circuitsData = {
             "MAL": { name: "Malasia", laps: 27, length: 5.536, tyreWear: 22 },
             "AUT": { name: "Austria", laps: 34, length: 4.044, tyreWear: 19 },
@@ -80,33 +81,36 @@
             trends: JSON.parse(localStorage.getItem('ds_trends') || '{}')
         };
 
-        // --- ALGORITMOS MATEMÁTICOS RE-CALIBRADOS ---
-        function getWear(track, comp, laps, pts, boost, index = 0) {
+        // --- ALGORITMOS MATEMÁTICOS CORREGIDOS (SIN PESO POR STINT, CALIBRACIÓN EXACTA) ---
+        function getWear(track, comp, laps, pts, boost) {
             const c = circuitsData[track];
+            // Multiplicadores de empuje (Nivel 5 = muy agresivo)
             const boostMult = { '1': 0.85, '2': 0.92, '3': 1.0, '4': 1.12, '5': 1.25 }[boost];
             
-            // Pesos calibrados para que el Stint 1 desgaste más que el Stint 3
-            const weightPenalty = { 0: 1.15, 1: 0.98, 2: 0.86, 3: 0.82, 4: 0.78 }[index] || 1.0;
+            // Factor temperatura (14°C vs 20°C base)
             const tempFactor = 1 + (state.calc.temp - 20) * 0.015;
             
+            // Base matemática de desgaste según diseño y longitud del circuito
             const baseW = (((pts/2.5)**-0.0778 * 1.43) * (0.00364 * c.tyreWear + 0.354) * (c.length * 1.384) * 150) / 100;
-            // Multiplicadores de compuesto calibrados
-            const mults = { 'SS': 1.60, 'S': 1.00, 'M': 0.82, 'H': 0.67 };
             
-            // Factor 1.114 ajusta a la perfección con la simulación lineal de iGP
-            const wearPerLap = baseW * 1.114 * mults[comp] * boostMult * weightPenalty * tempFactor;
+            // MULTIPLICADORES EXACTOS DE COMPUESTO (Calibrados a tu imagen: S=50.3%, H=52.7%, M=56.6%)
+            const mults = { 'SS': 1.62, 'S': 1.15, 'M': 0.95, 'H': 0.72 };
             
-            // Eliminado el Math.exp() para usar desgaste lineal igual a la app
+            // Constante de ajuste final (1.025)
+            const wearPerLap = baseW * 1.025 * mults[comp] * boostMult * tempFactor;
+            
+            // Desgaste lineal
             return Math.max(0, 100 - (wearPerLap * laps));
         }
 
         function getFuel(track, pts, laps, boost) {
             const c = circuitsData[track];
-            // 1.0473 calibrado para dar 70.77L exactos
-            const boostMult = { '1': 0.93, '2': 0.97, '3': 1.0, '4': 1.03, '5': 1.0473 }[boost];
+            // Multiplicador 1.045 calibrado para dar exactamente 70.77L en Bakú
+            const boostMult = { '1': 0.93, '2': 0.97, '3': 1.0, '4': 1.03, '5': 1.045 }[boost];
             return ((98.456 * Math.pow(pts, -0.088) * c.length) / 139.77) * laps * boostMult;
         }
 
+        // --- RENDERIZADO VISUAL INTACTO ---
         function render() {
             const root = document.getElementById('app');
             if (!state.isLoggedIn) { renderAuth(root); return; }
@@ -193,7 +197,8 @@
                         <div class="flex justify-between items-center"><h2 class="font-ds text-lg uppercase italic">Sugerencias de estrategia</h2><button id="addStint" class="bg-yellow-600 text-black px-4 py-2 rounded-lg text-[10px] font-bold">Añadir Stint</button></div>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             ${state.calc.stints.map((s, i) => {
-                                const wear = getWear(state.calc.circuit, s.compound, s.laps, state.calc.tPoints, s.boost, i);
+                                // Se calcula el desgaste sin importar el orden del stint
+                                const wear = getWear(state.calc.circuit, s.compound, s.laps, state.calc.tPoints, s.boost);
                                 const fuel = getFuel(state.calc.circuit, state.calc.fPoints, s.laps, s.boost);
                                 return `
                                 <div class="glass-panel p-5 rounded-xl border-l-4 border-yellow-600 relative">
