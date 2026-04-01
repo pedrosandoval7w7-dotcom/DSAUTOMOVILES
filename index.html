@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Sugerencias de estrategia - DS Automobiles</title>
+    <title>DS Automobiles - Sugerencias de estrategia</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
@@ -30,12 +30,11 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
         import { getDatabase, ref, set, onValue, get, update, push, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-database.js";
 
-        // Configuración de Firebase
         const firebaseConfig = { databaseURL: "https://ds-automobiles-f0a17-default-rtdb.firebaseio.com/" };
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
-        // --- LISTA DE 25 CIRCUITOS PROPORCIONADA POR EL USUARIO ---
+        // --- LISTA DE 25 CIRCUITOS ---
         const circuitsData = {
             "MAL": { name: "Malasia", laps: 27, length: 5.536, tyreWear: 22 },
             "AUT": { name: "Austria", laps: 34, length: 4.044, tyreWear: 19 },
@@ -74,29 +73,30 @@
             messages: [],
             rankingTab: 'puntos',
             showSync: false,
-            calc: { circuit: 'MAL', tPoints: 100, fPoints: 100, stints: [{ compound: 'M', laps: 10, boost: '3' }] }
+            calc: { circuit: 'AZE', tPoints: 66, fPoints: 67, temp: 14, stints: [{ compound: 'S', laps: 6, boost: '5' }] }
         };
 
-        // Algoritmos de desgaste y consumo
+        // Algoritmos corregidos con Temperatura y Nivel 5 calibrado
         function getWear(track, comp, laps, pts, boost) {
             const c = circuitsData[track];
-            const boostMult = { '1': 0.85, '2': 0.92, '3': 1.0, '4': 1.12, '5': 1.25 }[boost];
+            const boostMult = { '1': 0.82, '2': 0.90, '3': 1.0, '4': 1.15, '5': 1.30 }[boost];
+            const tempFactor = 1 + (state.calc.temp - 20) * 0.015;
             const baseW = (((pts/2.5)**-0.0778 * 1.43) * (0.00364 * c.tyreWear + 0.354) * (c.length * 1.384) * 150) / 100;
             const mults = { 'SS': 2.06, 'S': 1.32, 'M': 1.0, 'H': 0.65 };
-            const wearPerLap = baseW * mults[comp] * boostMult;
+            const wearPerLap = baseW * mults[comp] * boostMult * tempFactor;
             return Math.max(0, 100 * Math.exp(-1.18 * (wearPerLap / 100) * laps));
         }
 
         function getFuel(track, pts, laps, boost) {
             const c = circuitsData[track];
-            const boostMult = { '1': 0.93, '2': 0.97, '3': 1.0, '4': 1.03, '5': 1.07 }[boost];
+            // Multiplicador 1.048 para Nivel 5 = 70.77L en Bakú
+            const boostMult = { '1': 0.93, '2': 0.97, '3': 1.0, '4': 1.03, '5': 1.048 }[boost];
             return ((98.456 * Math.pow(pts, -0.088) * c.length) / 139.77) * laps * boostMult;
         }
 
         function render() {
             const root = document.getElementById('app');
             if (!state.isLoggedIn) { renderAuth(root); return; }
-
             const isAdmin = state.username === 'admin';
             root.innerHTML = `
                 <header class="bg-black border-b border-zinc-800 p-4 sticky top-0 z-50">
@@ -128,68 +128,36 @@
                         ${state.step === 1 ? `
                             <p class="text-[9px] text-zinc-500 uppercase font-bold mb-8">Ingresa tu nombre de manager</p>
                             <form id="step1F" class="space-y-4">
-                                <input id="uInput" placeholder="NOMBRE MANAGER" class="w-full p-4 rounded-2xl bg-zinc-900 border border-zinc-800 text-white uppercase text-xs outline-none focus:border-yellow-600 transition-all shadow-inner">
-                                <button class="w-full bg-yellow-600 text-black py-4 rounded-2xl font-bold uppercase text-[10px] shadow-lg shadow-yellow-600/20 active:scale-95 transition-transform">SIGUIENTE</button>
+                                <input id="uInput" placeholder="NOMBRE MANAGER" class="w-full p-4 rounded-2xl bg-zinc-900 border border-zinc-800 text-white uppercase text-xs outline-none focus:border-yellow-600 shadow-inner">
+                                <button class="w-full bg-yellow-600 text-black py-4 rounded-2xl font-bold uppercase text-[10px]">SIGUIENTE</button>
                             </form>
                         ` : `
                             <p class="text-[9px] text-zinc-500 uppercase font-bold mb-2">Manager: <span class="text-white">${state.username}</span></p>
-                            <p class="text-[10px] text-yellow-600 font-bold mb-6 uppercase italic">${state.isNew ? 'Define tu nueva contraseña' : 'Introduce tu contraseña'}</p>
                             <form id="step2F" class="space-y-4">
-                                <input id="pInput" type="password" placeholder="CONTRASEÑA" class="w-full p-4 rounded-2xl bg-zinc-900 border border-zinc-800 text-white text-xs outline-none focus:border-yellow-600 transition-all shadow-inner" autofocus>
-                                <button class="w-full bg-yellow-600 text-black py-4 rounded-2xl font-bold uppercase text-[10px] shadow-lg shadow-yellow-600/20 active:scale-95 transition-transform">ENTRAR AL BOX</button>
+                                <input id="pInput" type="password" placeholder="CONTRASEÑA" class="w-full p-4 rounded-2xl bg-zinc-900 border border-zinc-800 text-white text-xs outline-none focus:border-yellow-600 shadow-inner" autofocus>
+                                <button class="w-full bg-yellow-600 text-black py-4 rounded-2xl font-bold uppercase text-[10px]">ENTRAR AL BOX</button>
                                 <button type="button" onclick="window.back()" class="text-[9px] text-zinc-600 font-bold uppercase hover:text-white mt-4">Cambiar nombre</button>
                             </form>
                         `}
                     </div>
                 </div>`;
-
-            if(document.getElementById('step1F')) {
-                document.getElementById('step1F').onsubmit = async (e) => {
-                    e.preventDefault();
-                    const u = document.getElementById('uInput').value.trim().toLowerCase();
-                    if(!u) return;
-                    const snap = await get(ref(db, `perfiles/${u}`));
-                    state.username = u;
-                    state.step = 2;
-                    state.isNew = !snap.exists() || (snap.val().password === 'ext');
-                    render();
-                };
-            }
-
-            if(document.getElementById('step2F')) {
-                document.getElementById('step2F').onsubmit = async (e) => {
-                    e.preventDefault();
-                    const p = document.getElementById('pInput').value;
-                    if(!p) return;
-                    const snap = await get(ref(db, `perfiles/${state.username}`));
-                    if (state.isNew) {
-                        const existingData = snap.val();
-                        const stats = { puntos:0, temporada:1, victorias:0, podios:0, poles:0, copas:0, ...(existingData?.stats || {}) };
-                        await set(ref(db, `perfiles/${state.username}`), { password: p, stats });
-                        state.isLoggedIn = true;
-                    } else {
-                        if(snap.val().password === p) { state.isLoggedIn = true; } else { alert("Contraseña incorrecta."); }
-                    }
-                    render();
-                };
-            }
+            if(document.getElementById('step1F')) { document.getElementById('step1F').onsubmit = async (e) => { e.preventDefault(); const u = document.getElementById('uInput').value.trim().toLowerCase(); if(!u) return; const snap = await get(ref(db, `perfiles/${u}`)); state.username = u; state.step = 2; state.isNew = !snap.exists() || (snap.val().password === 'ext'); render(); }; }
+            if(document.getElementById('step2F')) { document.getElementById('step2F').onsubmit = async (e) => { e.preventDefault(); const p = document.getElementById('pInput').value; if(!p) return; const snap = await get(ref(db, `perfiles/${state.username}`)); if (state.isNew) { const stats = { puntos:0, temporada:1, victorias:0, podios:0, poles:0, copas:0 }; await set(ref(db, `perfiles/${state.username}`), { password: p, stats }); state.isLoggedIn = true; } else { if(snap.val().password === p) { state.isLoggedIn = true; } else { alert("Contraseña incorrecta."); } } render(); }; }
         }
 
         function renderSection(isAdmin) {
             if(state.section === 'ranking') return renderRanking(isAdmin);
             if(state.section === 'chat') return renderChat();
-            
             const totalLaps = state.calc.stints.reduce((sum, s) => sum + parseInt(s.laps || 0), 0);
             const totalFuel = state.calc.stints.reduce((sum, s) => sum + getFuel(state.calc.circuit, state.calc.fPoints, s.laps, s.boost), 0);
             const trackLaps = circuitsData[state.calc.circuit].laps;
-
             return `
                 <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
                     <div class="glass-panel p-6 rounded-2xl h-fit space-y-6">
                         <div>
                             <label class="text-[9px] text-zinc-500 font-bold uppercase block mb-2">Circuito</label>
-                            <select id="selTrack" class="w-full p-3 rounded-lg bg-zinc-900 border border-zinc-800 text-xs uppercase font-bold text-white outline-none">
-                                ${Object.keys(circuitsData).map(k => `<option value="${k}" ${state.calc.circuit===k?'selected':''}>${circuitsData[k].name} (${circuitsData[k].laps} v.)</option>`).join('')}
+                            <select id="selTrack" class="w-full p-3 rounded-lg bg-zinc-900 border border-zinc-800 text-xs uppercase font-bold text-white">
+                                ${Object.keys(circuitsData).map(k => `<option value="${k}" ${state.calc.circuit===k?'selected':''}>${circuitsData[k].name} (${circuitsData[k].laps}v)</option>`).join('')}
                             </select>
                         </div>
                         <div class="grid grid-cols-2 gap-2">
@@ -202,6 +170,10 @@
                                 <input id="numF" type="number" value="${state.calc.fPoints}" class="w-full p-3 rounded-lg bg-black border border-zinc-800 text-center text-blue-400 font-bold outline-none">
                             </div>
                         </div>
+                        <div>
+                            <label class="text-[8px] text-zinc-600 uppercase font-bold block mb-2 flex justify-between"><span>Temperatura</span><span>${state.calc.temp}°C</span></label>
+                            <input id="numTemp" type="range" min="0" max="45" value="${state.calc.temp}" class="w-full accent-yellow-600 h-1 bg-zinc-800 rounded-lg appearance-none cursor-pointer">
+                        </div>
                         <div class="pt-4 border-t border-zinc-800">
                              <div class="flex justify-between items-end">
                                 <div><p class="text-[18px] font-ds ${totalLaps > trackLaps ? 'text-red-500' : 'text-white'}">${totalLaps} / ${trackLaps}</p><p class="text-[8px] text-zinc-600 uppercase font-bold">Vueltas Totales</p></div>
@@ -210,7 +182,7 @@
                         </div>
                     </div>
                     <div class="lg:col-span-3 space-y-4">
-                        <div class="flex justify-between items-center"><h2 class="font-ds text-lg uppercase italic text-zinc-200">Sugerencias de estrategia</h2><button id="addStint" class="bg-yellow-600 text-black px-4 py-2 rounded-lg text-[10px] font-bold uppercase">Añadir Stint</button></div>
+                        <div class="flex justify-between items-center"><h2 class="font-ds text-lg uppercase italic">Sugerencias de estrategia</h2><button id="addStint" class="bg-yellow-600 text-black px-4 py-2 rounded-lg text-[10px] font-bold">Añadir Stint</button></div>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             ${state.calc.stints.map((s, i) => {
                                 const wear = getWear(state.calc.circuit, s.compound, s.laps, state.calc.tPoints, s.boost);
@@ -218,14 +190,10 @@
                                 return `
                                 <div class="glass-panel p-5 rounded-xl border-l-4 border-yellow-600 relative">
                                     <button onclick="window.delS(${i})" class="absolute top-4 right-4 text-zinc-700 hover:text-red-500">✕</button>
-                                    <div class="flex justify-center gap-2 mb-6">
-                                        ${['SS','S','M','H'].map(c => `<button onclick="window.upS(${i},'compound','${c}')" class="tyre-btn compound-${c.toLowerCase()} ${s.compound===c?'active':''}">${c}</button>`).join('')}
-                                    </div>
+                                    <div class="flex justify-center gap-2 mb-6">${['SS','S','M','H'].map(c => `<button onclick="window.upS(${i},'compound','${c}')" class="tyre-btn compound-${c.toLowerCase()} ${s.compound===c?'active':''}">${c}</button>`).join('')}</div>
                                     <div class="grid grid-cols-2 gap-3">
-                                        <div><span class="text-[7px] text-zinc-600 uppercase font-bold block mb-1">Vueltas</span><input type="number" value="${s.laps}" onchange="window.upS(${i},'laps',this.value)" class="w-full p-2.5 rounded bg-black border border-zinc-800 text-center font-bold outline-none text-white"></div>
-                                        <div><span class="text-[7px] text-zinc-600 uppercase font-bold block mb-1">Empuje</span><select onchange="window.upS(${i},'boost',this.value)" class="w-full p-2.5 rounded bg-black border border-zinc-800 text-[10px] uppercase font-bold text-center outline-none text-white">
-                                            ${[1,2,3,4,5].map(v => `<option value="${v}" ${s.boost==v+''?'selected':''}>Nivel ${v}</option>`).join('')}
-                                        </select></div>
+                                        <div><span class="text-[7px] text-zinc-600 uppercase font-bold block mb-1">Vueltas</span><input type="number" value="${s.laps}" onchange="window.upS(${i},'laps',this.value)" class="w-full p-2.5 rounded bg-black border border-zinc-800 text-center font-bold text-white outline-none"></div>
+                                        <div><span class="text-[7px] text-zinc-600 uppercase font-bold block mb-1">Empuje</span><select onchange="window.upS(${i},'boost',this.value)" class="w-full p-2.5 rounded bg-black border border-zinc-800 text-[10px] uppercase font-bold text-center outline-none text-white">${[1,2,3,4,5].map(v => `<option value="${v}" ${s.boost==v+''?'selected':''}>Nivel ${v}</option>`).join('')}</select></div>
                                     </div>
                                     <div class="mt-4 pt-4 border-t border-zinc-900/50 flex justify-between">
                                         <div><p class="text-[7px] text-zinc-600 uppercase font-bold">Vida Final</p><p class="font-bold text-base ${wear<20?'text-red-500':'text-green-500'} font-ds">${wear.toFixed(1)}%</p></div>
@@ -240,28 +208,27 @@
 
         function renderRanking(isAdmin) {
             const tabs = ['puntos', 'temporada', 'victorias', 'podios', 'poles', 'copas'];
-            const list = Object.entries(state.users).map(([id, d]) => ({ id, ...d, score: d.stats?.[state.rankingTab] || 0, temporada: d.stats?.temporada || 1 }))
-                               .sort((a,b) => b.score - a.score);
+            const list = Object.entries(state.users).map(([id, d]) => ({ id, ...d, score: d.stats?.[state.rankingTab] || 0, temporada: d.stats?.temporada || 1 })).sort((a,b) => b.score - a.score);
             return `
                 <div class="space-y-4">
                     <div class="flex justify-between items-center overflow-x-auto no-scrollbar gap-4 pb-2">
                         <div class="flex gap-1.5">${tabs.map(t => `<button onclick="window.setTab('${t}')" class="px-4 py-2 rounded-xl bg-zinc-900 text-[9px] uppercase font-bold border border-zinc-800 ${state.rankingTab===t?'text-yellow-600 border-yellow-600 bg-yellow-600/5':''} transition-all">${t}</button>`).join('')}</div>
-                        ${isAdmin ? `<button onclick="window.toggleSync(true)" class="bg-blue-600 text-white px-4 py-2 rounded-xl text-[9px] font-bold uppercase whitespace-nowrap">Auto-Sheets</button>` : ''}
+                        ${isAdmin ? `<button onclick="window.toggleSync(true)" class="bg-blue-600 text-white px-4 py-2 rounded-xl text-[9px] font-bold">EXCEL</button>` : ''}
                     </div>
-                    ${isAdmin ? `<form id="addM" class="flex gap-2 bg-zinc-900/50 p-2 rounded-2xl border border-zinc-800"><input name="n" placeholder="NOMBRE DEL MANAGER" class="flex-grow bg-black p-3 rounded-xl text-xs outline-none focus:border-yellow-600 border border-transparent uppercase font-bold text-white" required><button class="bg-yellow-600 text-black px-6 rounded-xl font-bold text-[10px] uppercase">CREAR</button></form>` : ''}
+                    ${isAdmin ? `<form id="addM" class="flex gap-2 bg-zinc-900/50 p-2 rounded-2xl border border-zinc-800"><input name="n" placeholder="NOMBRE DEL MANAGER" class="flex-grow bg-black p-3 rounded-xl text-xs outline-none focus:border-yellow-600 border border-transparent" required><button class="bg-yellow-600 text-black px-6 rounded-xl font-bold text-[10px] uppercase">CREAR</button></form>` : ''}
                     <div class="glass-panel rounded-3xl overflow-hidden border border-zinc-800/50">
                         <table class="w-full text-xs text-left">
                             <tr class="bg-zinc-900 text-zinc-500 uppercase text-[8px]"><th class="p-5">Pos</th><th class="p-5">Manager</th><th class="p-5">T.</th><th class="p-5 text-right uppercase">${state.rankingTab}</th>${isAdmin?'<th class="p-5 text-center">Acción</th>':''}</tr>
                             ${list.map((u, i) => `
-                                <tr class="border-b border-zinc-900/50 hover:bg-white/[0.02]">
+                                <tr class="border-b border-zinc-900/50">
                                     <td class="p-5 font-bold text-zinc-600">#${i+1}</td>
                                     <td class="p-5 uppercase font-bold text-zinc-300">${u.id}</td>
                                     <td class="p-5 text-zinc-500 font-bold">T${u.temporada}</td>
                                     <td class="p-5 text-right text-yellow-600 font-bold font-ds text-sm">${u.score}</td>
                                     ${isAdmin ? `
                                     <td class="p-5 text-center flex justify-center items-center gap-2">
-                                        <input id="in_${u.id}" type="number" class="w-16 bg-black border border-zinc-800 rounded-lg p-2 text-center text-[10px] text-white" placeholder="+0">
-                                        <button onclick="window.addPoints('${u.id}')" class="bg-green-600 text-white px-3 py-2 rounded-lg text-[9px] font-bold uppercase">OK</button>
+                                        <input id="in_${u.id}" type="number" class="w-16 bg-black border border-zinc-800 rounded-lg p-2 text-center text-[10px]" placeholder="+0">
+                                        <button onclick="window.addPoints('${u.id}')" class="bg-zinc-800 hover:bg-green-600 text-white px-3 py-2 rounded-lg text-[9px] font-bold uppercase">Sumar</button>
                                         <button onclick="window.delUser('${u.id}')" class="text-zinc-700 hover:text-red-500 px-2">✕</button>
                                     </td>` : ''}
                                 </tr>`).join('')}
@@ -272,26 +239,13 @@
 
         function renderChat() {
             return `<div class="flex flex-col h-[70vh] glass-panel rounded-3xl overflow-hidden border border-zinc-800"><div id="chatBox" class="flex-grow p-5 overflow-y-auto space-y-4 no-scrollbar">
-                ${state.messages.map(m => `
-                    <div class="flex flex-col ${m.u === state.username ? 'items-end' : 'items-start'}">
-                        <span class="text-[7px] font-bold text-zinc-600 uppercase mb-1 ml-1 mr-1">${m.u}</span>
-                        <div class="p-3.5 rounded-2xl text-xs max-w-[80%] ${m.u === state.username ? 'bg-yellow-600 text-black font-semibold' : 'bg-zinc-900 text-white border border-zinc-800'}">${m.t}</div>
-                    </div>`).join('')}
+                ${state.messages.map(m => `<div class="flex flex-col ${m.u === state.username ? 'items-end' : 'items-start'}"><span class="text-[7px] font-bold text-zinc-600 uppercase mb-1 ml-1 mr-1">${m.u}</span><div class="p-3.5 rounded-2xl text-xs max-w-[80%] ${m.u === state.username ? 'bg-yellow-600 text-black' : 'bg-zinc-900 text-white border border-zinc-800'}">${m.t}</div></div>`).join('')}
                 </div><form id="chatF" class="p-4 bg-zinc-900/80 border-t border-zinc-800/50 flex gap-2"><input name="m" placeholder="Escribe al equipo..." class="flex-grow bg-black p-3.5 rounded-2xl text-xs outline-none focus:border-yellow-600 text-white" autocomplete="off"><button class="bg-yellow-600 text-black px-6 rounded-2xl font-bold text-[10px] uppercase">Enviar</button></form></div>`;
         }
 
         function renderSyncModal() {
             const url = `https://ds-automobiles-f0a17-default-rtdb.firebaseio.com/perfiles.json?print=pretty`;
-            return `<div class="fixed inset-0 bg-black/90 z-[100] flex items-center justify-center p-6 backdrop-blur-sm">
-                <div class="glass-panel p-8 rounded-[2.5rem] max-w-sm w-full text-center border-t-2 border-blue-600">
-                    <h3 class="font-ds text-white mb-2 italic uppercase">Sincronización Total</h3>
-                    <p class="text-[9px] text-zinc-500 mb-6 uppercase font-bold leading-relaxed">Copia esta fórmula para Google Sheets para tener todos los datos ordenados automáticamente:</p>
-                    <div class="bg-black p-4 rounded-2xl border border-zinc-800 mb-6">
-                        <code class="text-[9px] text-blue-400 break-all select-all font-mono leading-relaxed">=IMPORTDATA("${url}")</code>
-                    </div>
-                    <button onclick="window.toggleSync(false)" class="w-full py-4 rounded-2xl bg-zinc-900 text-white text-[10px] font-bold uppercase border border-zinc-800">Cerrar</button>
-                </div>
-            </div>`;
+            return `<div class="fixed inset-0 bg-black/90 z-[100] flex items-center justify-center p-6 backdrop-blur-sm"><div class="glass-panel p-8 rounded-[2.5rem] max-w-sm w-full text-center border-yellow-600/30"><h3 class="font-ds text-white mb-2 italic uppercase">Sincronización Total</h3><div class="bg-black p-4 rounded-2xl border border-zinc-800 mb-6"><code class="text-[9px] text-blue-400 break-all select-all font-mono">=IMPORTDATA("${url}")</code></div><button onclick="window.toggleSync(false)" class="w-full py-4 rounded-2xl bg-zinc-900 text-white text-[10px] font-bold uppercase border border-zinc-800">Cerrar</button></div></div>`;
         }
 
         window.go = (s) => { state.section = s; render(); };
@@ -308,12 +262,13 @@
             await update(ref(db, `perfiles/${id}/stats`), { [state.rankingTab]: cur + val, temporada: temp });
             input.value = '';
         };
-        window.delUser = async (id) => { if(confirm(`¿Eliminar a ${id} permanentemente?`)) await set(ref(db, `perfiles/${id}`), null); };
+        window.delUser = async (id) => { if(confirm(`¿Eliminar a ${id}?`)) await set(ref(db, `perfiles/${id}`), null); };
 
         function attachEvents() {
             if(document.getElementById('selTrack')) document.getElementById('selTrack').onchange = (e) => { state.calc.circuit = e.target.value; render(); };
             if(document.getElementById('numT')) document.getElementById('numT').onchange = (e) => { state.calc.tPoints = e.target.value; render(); };
             if(document.getElementById('numF')) document.getElementById('numF').onchange = (e) => { state.calc.fPoints = e.target.value; render(); };
+            if(document.getElementById('numTemp')) document.getElementById('numTemp').onchange = (e) => { state.calc.temp = e.target.value; render(); };
             if(document.getElementById('addStint')) document.getElementById('addStint').onclick = () => { state.calc.stints.push({ compound: 'M', laps: 5, boost: '3' }); render(); };
             if(document.getElementById('addM')) {
                 document.getElementById('addM').onsubmit = async (e) => {
@@ -330,17 +285,11 @@
                     if(t) { await push(ref(db, 'chat'), { u: state.username, t, ts: serverTimestamp() }); e.target.reset(); }
                 };
             }
-            const chatBox = document.getElementById('chatBox');
-            if(chatBox) chatBox.scrollTop = chatBox.scrollHeight;
+            const chatBox = document.getElementById('chatBox'); if(chatBox) chatBox.scrollTop = chatBox.scrollHeight;
         }
 
         onValue(ref(db, 'perfiles'), (s) => { state.users = s.val() || {}; render(); });
-        onValue(ref(db, 'chat'), (s) => { 
-            const data = s.val() || {};
-            state.messages = Object.values(data).sort((a,b) => a.ts - b.ts).slice(-50);
-            if(state.section === 'chat') render(); 
-        });
-
+        onValue(ref(db, 'chat'), (s) => { const data = s.val() || {}; state.messages = Object.values(data).sort((a,b) => a.ts - b.ts).slice(-50); if(state.section === 'chat') render(); });
         render();
     </script>
 </body>
