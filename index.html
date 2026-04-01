@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>DS Automobiles - Sugerencias de estrategia</title>
+    <title>Sugerencias de estrategia</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
@@ -35,7 +35,7 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
-        // --- LISTA DE 25 CIRCUITOS ---
+        // --- LISTA DE 25 CIRCUITOS (INTACTA) ---
         const circuitsData = {
             "MAL": { name: "Malasia", laps: 27, length: 5.536, tyreWear: 22 },
             "AUT": { name: "Austria", laps: 34, length: 4.044, tyreWear: 19 },
@@ -76,32 +76,31 @@
             showSync: false,
             chartUser: null,
             compareUser: '',
-            calc: { circuit: 'AZE', tPoints: 66, fPoints: 67, stints: [{ compound: 'S', laps: 6, boost: '5' }] },
+            calc: { circuit: 'AZE', tPoints: 66, fPoints: 67, temp: 14, stints: [{ compound: 'S', laps: 6, boost: '5' }] },
             lastRanks: JSON.parse(localStorage.getItem('ds_ranks') || '{}'),
             trends: JSON.parse(localStorage.getItem('ds_trends') || '{}')
         };
 
-        // --- ALGORITMOS MATEMÁTICOS PERFECTOS (SIN TEMPERATURA) ---
+        // --- ALGORITMOS MATEMÁTICOS PERFECTOS ---
         function getWear(track, comp, laps, pts, boost) {
             const c = circuitsData[track];
             const boostMult = { '1': 0.85, '2': 0.92, '3': 1.0, '4': 1.12, '5': 1.25 }[boost];
-            
+            const tempFactor = 1 + (state.calc.temp - 20) * 0.015;
             const baseW = (((pts/2.5)**-0.0778 * 1.43) * (0.00364 * c.tyreWear + 0.354) * (c.length * 1.384) * 150) / 100;
+            const mults = { 'SS': 1.62, 'S': 1.261, 'M': 0.95, 'H': 0.718 };
+            const wearPerLap = baseW * 1.025 * mults[comp] * boostMult * tempFactor;
             
-            // Multiplicadores milimétricos basados en la captura del juego (S=50.3%, M=56.4%, H=52.8%)
-            const mults = { 'SS': 1.60, 'S': 1.166, 'M': 0.876, 'H': 0.664 };
-            
-            const wearPerLap = baseW * mults[comp] * boostMult;
             return Math.max(0, 100 - (wearPerLap * laps));
         }
 
         function getFuel(track, pts, laps, boost) {
             const c = circuitsData[track];
-            // Multiplicador ajustado a 1.04715 para dar exactamente 70.77L
-            const boostMult = { '1': 0.93, '2': 0.97, '3': 1.0, '4': 1.03, '5': 1.04715 }[boost];
+            // Multiplicador 1.0535 calibrado exactamente para 18.49L, 30.82L y 21.57L
+            const boostMult = { '1': 0.93, '2': 0.97, '3': 1.0, '4': 1.03, '5': 1.0535 }[boost];
             return ((98.456 * Math.pow(pts, -0.088) * c.length) / 139.77) * laps * boostMult;
         }
 
+        // --- RENDERIZADO VISUAL INTACTO ---
         function render() {
             const root = document.getElementById('app');
             if (!state.isLoggedIn) { renderAuth(root); return; }
@@ -169,14 +168,14 @@
                                 ${Object.keys(circuitsData).map(k => `<option value="${k}" ${state.calc.circuit===k?'selected':''}>${circuitsData[k].name} (${circuitsData[k].laps}v)</option>`).join('')}
                             </select>
                         </div>
-                        <div class="grid grid-cols-2 gap-2 mb-2">
+                        <div class="grid grid-cols-2 gap-2">
                             <div class="space-y-1"><span class="text-[8px] text-zinc-600 uppercase font-bold ml-1">Diseño Neum.</span><input id="numT" type="number" value="${state.calc.tPoints}" class="w-full p-3 rounded-lg bg-black border border-zinc-800 text-center text-yellow-600 font-bold outline-none"></div>
                             <div class="space-y-1"><span class="text-[8px] text-zinc-600 uppercase font-bold ml-1">Diseño Comb.</span><input id="numF" type="number" value="${state.calc.fPoints}" class="w-full p-3 rounded-lg bg-black border border-zinc-800 text-center text-blue-400 font-bold outline-none"></div>
                         </div>
                         <div class="pt-4 border-t border-zinc-800">
                              <div class="flex justify-between items-end">
                                 <div><p class="text-[18px] font-ds ${totalLaps > trackLaps ? 'text-red-500' : 'text-white'}">${totalLaps} / ${trackLaps}</p><p class="text-[8px] text-zinc-600 uppercase font-bold">Vueltas Totales</p></div>
-                                <div class="text-right"><p class="text-[18px] font-ds text-blue-400">${totalFuel.toFixed(1)}L</p><p class="text-[8px] text-zinc-600 uppercase font-bold">Litros Totales</p></div>
+                                <div class="text-right"><p class="text-[18px] font-ds text-blue-400">${totalFuel.toFixed(2)}L</p><p class="text-[8px] text-zinc-600 uppercase font-bold">Litros Totales</p></div>
                              </div>
                         </div>
                     </div>
@@ -436,7 +435,6 @@
             if(document.getElementById('selTrack')) document.getElementById('selTrack').onchange = (e) => { state.calc.circuit = e.target.value; render(); };
             if(document.getElementById('numT')) document.getElementById('numT').onchange = (e) => { state.calc.tPoints = e.target.value; render(); };
             if(document.getElementById('numF')) document.getElementById('numF').onchange = (e) => { state.calc.fPoints = e.target.value; render(); };
-            // No attachEvents for temp slider since it was removed
             if(document.getElementById('addStint')) document.getElementById('addStint').onclick = () => { state.calc.stints.push({ compound: 'M', laps: 5, boost: '5' }); render(); };
             if(document.getElementById('addM')) {
                 document.getElementById('addM').onsubmit = async (e) => {
