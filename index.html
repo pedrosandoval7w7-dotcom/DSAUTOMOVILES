@@ -75,7 +75,9 @@
             showSync: false,
             chartUser: null,
             compareUser: '',
-            calc: { circuit: 'AZE', tPoints: 66, fPoints: 67, temp: 14, stints: [{ compound: 'S', laps: 6, boost: '5' }] }
+            calc: { circuit: 'AZE', tPoints: 66, fPoints: 67, temp: 14, stints: [{ compound: 'S', laps: 6, boost: '5' }] },
+            lastRanks: JSON.parse(localStorage.getItem('ds_ranks') || '{}'),
+            trends: JSON.parse(localStorage.getItem('ds_trends') || '{}')
         };
 
         // --- ALGORITMOS MATEMÁTICOS ---
@@ -212,6 +214,33 @@
                 .map(([id, d]) => ({ id, ...d, score: d.stats[state.rankingTab], temporada: d.stats.temporada || 1 }))
                 .sort((a,b) => b.score - a.score);
 
+            // --- LÓGICA DE FLECHAS DE TENDENCIA ---
+            const currentTabRanks = state.lastRanks[state.rankingTab] || {};
+            const currentTabTrends = state.trends[state.rankingTab] || {};
+            let ranksChanged = false;
+
+            const listWithTrends = list.map((u, i) => {
+                const prevRank = currentTabRanks[u.id];
+                if (prevRank !== undefined && prevRank !== i) {
+                    if (prevRank > i) currentTabTrends[u.id] = 1; // Subió
+                    else if (prevRank < i) currentTabTrends[u.id] = -1; // Bajó
+                    ranksChanged = true;
+                } else if (prevRank === undefined) {
+                    currentTabTrends[u.id] = 0; // Nuevo en la lista
+                    ranksChanged = true;
+                }
+                currentTabRanks[u.id] = i;
+                return { ...u, trend: currentTabTrends[u.id] || 0 };
+            });
+
+            // Guardar si hubo cambios reales en el orden
+            if (ranksChanged) {
+                state.lastRanks[state.rankingTab] = currentTabRanks;
+                state.trends[state.rankingTab] = currentTabTrends;
+                localStorage.setItem('ds_ranks', JSON.stringify(state.lastRanks));
+                localStorage.setItem('ds_trends', JSON.stringify(state.trends));
+            }
+
             return `
                 <div class="space-y-4">
                     <div class="flex justify-between items-center overflow-x-auto no-scrollbar gap-4 pb-2">
@@ -222,9 +251,15 @@
                     <div class="glass-panel rounded-3xl overflow-hidden border border-zinc-800/50">
                         <table class="w-full text-xs text-left">
                             <tr class="bg-zinc-900 text-zinc-500 uppercase text-[8px]"><th class="p-5">Pos</th><th class="p-5">Manager</th><th class="p-5">T.</th><th class="p-5 text-right uppercase">${state.rankingTab}</th>${isAdmin?'<th class="p-5 text-center">Acción</th>':''}</tr>
-                            ${list.map((u, i) => `
+                            ${listWithTrends.map((u, i) => {
+                                // Dibujar la flecha correcta según la tendencia
+                                let trendIcon = '<span class="text-zinc-600 text-[10px] ml-1.5 font-black" title="Mantiene Posición">-</span>';
+                                if (u.trend === 1) trendIcon = '<span class="text-green-500 text-[10px] ml-1.5 font-black" title="Sube Posición">▲</span>';
+                                else if (u.trend === -1) trendIcon = '<span class="text-red-500 text-[10px] ml-1.5 font-black" title="Baja Posición">▼</span>';
+
+                                return `
                                 <tr class="border-b border-zinc-900/50">
-                                    <td class="p-5 font-bold text-zinc-600">#${i+1}</td>
+                                    <td class="p-5 font-bold text-zinc-600 whitespace-nowrap">#${i+1} ${trendIcon}</td>
                                     <td class="p-5 uppercase font-bold text-zinc-300 cursor-pointer hover:text-yellow-600 transition-colors" onclick="window.openChart('${u.id}')" title="Ver Estadísticas VS Equipo">${u.id}</td>
                                     <td class="p-5 text-zinc-500 font-bold">T${u.temporada}</td>
                                     <td class="p-5 text-right text-yellow-600 font-bold font-ds text-sm">${u.score}</td>
@@ -236,7 +271,8 @@
                                         <button onclick="window.resetPass('${u.id}')" class="bg-zinc-800 hover:bg-blue-600 text-white w-6 h-6 rounded-md text-[10px] font-bold" title="Reset Contraseña">🔑</button>
                                         <button onclick="window.removeStat('${u.id}')" class="text-zinc-700 hover:text-red-500 w-6 h-6" title="Quitar de esta lista">✕</button>
                                     </td>` : ''}
-                                </tr>`).join('')}
+                                </tr>`;
+                            }).join('')}
                         </table>
                     </div>
                 </div>`;
