@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Sugerencias de estrategia</title>
+    <title>DS Automobiles - Sugerencias de estrategia</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
@@ -35,7 +35,7 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
-        // --- LISTA DE 25 CIRCUITOS (INTACTA) ---
+        // --- LISTA DE 25 CIRCUITOS ---
         const circuitsData = {
             "MAL": { name: "Malasia", laps: 27, length: 5.536, tyreWear: 22 },
             "AUT": { name: "Austria", laps: 34, length: 4.044, tyreWear: 19 },
@@ -81,26 +81,23 @@
             trends: JSON.parse(localStorage.getItem('ds_trends') || '{}')
         };
 
-        // --- ALGORITMOS MATEMÁTICOS PERFECTOS ---
+        // --- ALGORITMOS MATEMÁTICOS INTACTOS ---
         function getWear(track, comp, laps, pts, boost) {
             const c = circuitsData[track];
             const boostMult = { '1': 0.85, '2': 0.92, '3': 1.0, '4': 1.12, '5': 1.25 }[boost];
             const tempFactor = 1 + (state.calc.temp - 20) * 0.015;
             const baseW = (((pts/2.5)**-0.0778 * 1.43) * (0.00364 * c.tyreWear + 0.354) * (c.length * 1.384) * 150) / 100;
-            const mults = { 'SS': 1.62, 'S': 1.261, 'M': 0.95, 'H': 0.718 };
+            const mults = { 'SS': 1.62, 'S': 1.15, 'M': 0.95, 'H': 0.72 };
             const wearPerLap = baseW * 1.025 * mults[comp] * boostMult * tempFactor;
-            
             return Math.max(0, 100 - (wearPerLap * laps));
         }
 
         function getFuel(track, pts, laps, boost) {
             const c = circuitsData[track];
-            // Multiplicador 1.0535 calibrado exactamente para 18.49L, 30.82L y 21.57L
-            const boostMult = { '1': 0.93, '2': 0.97, '3': 1.0, '4': 1.03, '5': 1.0535 }[boost];
+            const boostMult = { '1': 0.93, '2': 0.97, '3': 1.0, '4': 1.03, '5': 1.045 }[boost];
             return ((98.456 * Math.pow(pts, -0.088) * c.length) / 139.77) * laps * boostMult;
         }
 
-        // --- RENDERIZADO VISUAL INTACTO ---
         function render() {
             const root = document.getElementById('app');
             if (!state.isLoggedIn) { renderAuth(root); return; }
@@ -168,14 +165,14 @@
                                 ${Object.keys(circuitsData).map(k => `<option value="${k}" ${state.calc.circuit===k?'selected':''}>${circuitsData[k].name} (${circuitsData[k].laps}v)</option>`).join('')}
                             </select>
                         </div>
-                        <div class="grid grid-cols-2 gap-2">
+                        <div class="grid grid-cols-2 gap-2 mb-2">
                             <div class="space-y-1"><span class="text-[8px] text-zinc-600 uppercase font-bold ml-1">Diseño Neum.</span><input id="numT" type="number" value="${state.calc.tPoints}" class="w-full p-3 rounded-lg bg-black border border-zinc-800 text-center text-yellow-600 font-bold outline-none"></div>
                             <div class="space-y-1"><span class="text-[8px] text-zinc-600 uppercase font-bold ml-1">Diseño Comb.</span><input id="numF" type="number" value="${state.calc.fPoints}" class="w-full p-3 rounded-lg bg-black border border-zinc-800 text-center text-blue-400 font-bold outline-none"></div>
                         </div>
                         <div class="pt-4 border-t border-zinc-800">
                              <div class="flex justify-between items-end">
                                 <div><p class="text-[18px] font-ds ${totalLaps > trackLaps ? 'text-red-500' : 'text-white'}">${totalLaps} / ${trackLaps}</p><p class="text-[8px] text-zinc-600 uppercase font-bold">Vueltas Totales</p></div>
-                                <div class="text-right"><p class="text-[18px] font-ds text-blue-400">${totalFuel.toFixed(2)}L</p><p class="text-[8px] text-zinc-600 uppercase font-bold">Litros Totales</p></div>
+                                <div class="text-right"><p class="text-[18px] font-ds text-blue-400">${totalFuel.toFixed(1)}L</p><p class="text-[8px] text-zinc-600 uppercase font-bold">Litros Totales</p></div>
                              </div>
                         </div>
                     </div>
@@ -204,6 +201,7 @@
                 </div>`;
         }
 
+        // --- RENDER RANKING ACTUALIZADO: COLORES Y SIN COLUMNA "T" ---
         function renderRanking(isAdmin) {
             const tabs = ['puntos', 'temporada', 'victorias', 'podios', 'poles', 'copas'];
             const list = Object.entries(state.users)
@@ -245,28 +243,40 @@
                     ${isAdmin ? `<form id="addM" class="flex gap-2 bg-zinc-900/50 p-2 rounded-2xl border border-zinc-800"><input name="n" placeholder="NOMBRE DEL MANAGER" class="flex-grow bg-black p-3 rounded-xl text-xs outline-none focus:border-yellow-600 border border-transparent" required><button class="bg-yellow-600 text-black px-6 rounded-xl font-bold text-[10px] uppercase">CREAR</button></form>` : ''}
                     <div class="glass-panel rounded-3xl overflow-hidden border border-zinc-800/50">
                         <table class="w-full text-xs text-left">
-                            <tr class="bg-zinc-900 text-zinc-500 uppercase text-[8px]"><th class="p-5">Pos</th><th class="p-5">Manager</th><th class="p-5">T.</th><th class="p-5 text-right uppercase">${state.rankingTab}</th>${isAdmin?'<th class="p-5 text-center">Acción</th>':''}</tr>
+                            <tr class="bg-zinc-900 text-zinc-500 uppercase text-[8px]">
+                                <th class="p-5">Pos</th>
+                                <th class="p-5">Manager</th>
+                                <th class="p-5 text-right uppercase">${state.rankingTab}</th>
+                                ${isAdmin?'<th class="p-5 text-center">Acción</th>':''}
+                            </tr>
                             ${listWithTrends.map((u, i) => {
-                                let trendIcon = '<span class="text-zinc-600 text-[10px] ml-1.5 font-black" title="Mantiene Posición">-</span>';
-                                if (u.trend === 1) trendIcon = '<span class="text-green-500 text-[10px] ml-1.5 font-black" title="Sube Posición">▲</span>';
-                                else if (u.trend === -1) trendIcon = '<span class="text-red-500 text-[10px] ml-1.5 font-black" title="Baja Posición">▼</span>';
+                                // Lógica de colores de fondo según la tendencia
+                                let trendIcon = '<span class="text-orange-500 text-[10px] ml-1.5 font-black" title="Mantiene Posición">-</span>';
+                                let rowBgStyle = 'background-color: rgba(249, 115, 22, 0.15);'; // Naranja translúcido (Mantiene)
+
+                                if (u.trend === 1) {
+                                    trendIcon = '<span class="text-green-500 text-[10px] ml-1.5 font-black" title="Sube Posición">▲</span>';
+                                    rowBgStyle = 'background-color: rgba(34, 197, 94, 0.15);'; // Verde translúcido (Sube)
+                                } else if (u.trend === -1) {
+                                    trendIcon = '<span class="text-red-500 text-[10px] ml-1.5 font-black" title="Baja Posición">▼</span>';
+                                    rowBgStyle = 'background-color: rgba(239, 68, 68, 0.15);'; // Rojo translúcido (Baja)
+                                }
 
                                 const safeDomId = 'in_' + u.id.replace(/[^a-zA-Z0-9]/g, '_');
                                 const safeNameParam = u.id.replace(/'/g, "\\'");
 
                                 return `
-                                <tr class="border-b border-zinc-900/50">
-                                    <td class="p-5 font-bold text-zinc-600 whitespace-nowrap">#${i+1} ${trendIcon}</td>
-                                    <td class="p-5 uppercase font-bold text-zinc-300 cursor-pointer hover:text-yellow-600 transition-colors" onclick="window.openChart('${safeNameParam}')" title="Ver Estadísticas VS Equipo">${u.id}</td>
-                                    <td class="p-5 text-zinc-500 font-bold">T${u.temporada}</td>
+                                <tr class="border-b border-zinc-900/50 transition-colors" style="${rowBgStyle}">
+                                    <td class="p-5 font-bold text-zinc-100 whitespace-nowrap">#${i+1} ${trendIcon}</td>
+                                    <td class="p-5 uppercase font-bold text-zinc-100 cursor-pointer hover:text-yellow-500 transition-colors" onclick="window.openChart('${safeNameParam}')" title="Ver Estadísticas VS Equipo">${u.id}</td>
                                     <td class="p-5 text-right text-yellow-600 font-bold font-ds text-sm">${u.score}</td>
                                     ${isAdmin ? `
                                     <td class="p-5 text-center flex justify-center items-center gap-1">
-                                        <input id="${safeDomId}" type="number" class="w-12 bg-black border border-zinc-800 rounded-md p-1.5 text-center text-[10px]" placeholder="+0">
-                                        <button onclick="window.addPoints('${safeNameParam}')" class="bg-zinc-800 hover:bg-green-600 text-white w-6 h-6 rounded-md text-[10px] font-bold" title="Sumar">✓</button>
-                                        <button onclick="window.clearStat('${safeNameParam}')" class="bg-zinc-800 hover:bg-yellow-600 text-white w-6 h-6 rounded-md text-[10px] font-bold" title="Poner a 0">0</button>
-                                        <button onclick="window.resetPass('${safeNameParam}')" class="bg-zinc-800 hover:bg-blue-600 text-white w-6 h-6 rounded-md text-[10px] font-bold" title="Reset Contraseña">🔑</button>
-                                        <button onclick="window.removeStat('${safeNameParam}')" class="text-zinc-700 hover:text-red-500 w-6 h-6" title="Quitar de esta lista">✕</button>
+                                        <input id="${safeDomId}" type="number" class="w-12 bg-black border border-zinc-800 rounded-md p-1.5 text-center text-[10px] text-white" placeholder="+0">
+                                        <button onclick="window.addPoints('${safeNameParam}')" class="bg-zinc-800 hover:bg-green-600 text-white w-6 h-6 rounded-md text-[10px] font-bold transition-colors" title="Sumar">✓</button>
+                                        <button onclick="window.clearStat('${safeNameParam}')" class="bg-zinc-800 hover:bg-yellow-600 text-white w-6 h-6 rounded-md text-[10px] font-bold transition-colors" title="Poner a 0">0</button>
+                                        <button onclick="window.resetPass('${safeNameParam}')" class="bg-zinc-800 hover:bg-blue-600 text-white w-6 h-6 rounded-md text-[10px] font-bold transition-colors" title="Reset Contraseña">🔑</button>
+                                        <button onclick="window.removeStat('${safeNameParam}')" class="text-zinc-700 hover:text-red-500 w-6 h-6 transition-colors" title="Quitar de esta lista">✕</button>
                                     </td>` : ''}
                                 </tr>`;
                             }).join('')}
