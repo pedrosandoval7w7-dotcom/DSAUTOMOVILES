@@ -76,7 +76,8 @@
             showSync: false,
             chartUser: null,
             compareUser: '',
-            calc: { circuit: 'AZE', tPoints: 66, fPoints: 67, temp: 14, stints: [{ compound: 'S', laps: 6, boost: '5' }] }
+            calc: { circuit: 'AZE', tPoints: 66, fPoints: 67, temp: 14, stints: [{ compound: 'S', laps: 6, boost: '5' }] },
+            setup: { sMin: 1, sMax: 100, currS: 50, fbS: 'ok', hMin: 1, hMax: 100, currH: 50, fbH: 'ok', wMin: 1, wMax: 100, currW: 50, fbW: 'ok' }
         };
 
         // --- ALGORITMOS MATEMÁTICOS INTACTOS ---
@@ -109,6 +110,7 @@
                         </div>
                         <nav class="flex gap-4">
                             <button onclick="window.go('strategy')" class="nav-link text-[10px] font-bold uppercase ${state.section==='strategy'?'active':''}">Estrategia</button>
+                            <button onclick="window.go('setup')" class="nav-link text-[10px] font-bold uppercase ${state.section==='setup'?'active':''}">Setup</button>
                             <button onclick="window.go('ranking')" class="nav-link text-[10px] font-bold uppercase ${state.section==='ranking'?'active':''}">Ranking</button>
                             <button onclick="window.go('chat')" class="nav-link text-[10px] font-bold uppercase ${state.section==='chat'?'active':''}">Chat</button>
                         </nav>
@@ -148,9 +150,75 @@
             if(document.getElementById('step2F')) { document.getElementById('step2F').onsubmit = async (e) => { e.preventDefault(); const p = document.getElementById('pInput').value; if(!p) return; const snap = await get(ref(db, `perfiles/${state.username}`)); if (state.isNew) { const stats = { puntos:0, temporada:1, victorias:0, podios:0, poles:0, copas:0 }; await set(ref(db, `perfiles/${state.username}`), { password: p, stats }); state.isLoggedIn = true; } else { if(snap.val().password === p) { state.isLoggedIn = true; } else { alert("Contraseña incorrecta."); } } render(); }; }
         }
 
+        function renderSetup() {
+            return `
+            <div class="glass-panel p-6 rounded-2xl max-w-4xl mx-auto space-y-6">
+                <div class="flex justify-between items-center border-b border-zinc-800 pb-4">
+                    <h2 class="font-ds text-xl uppercase italic text-yellow-600">Calculadora de Setup</h2>
+                    <button onclick="window.resetSetup()" class="text-[10px] text-zinc-500 hover:text-white uppercase font-bold tracking-widest border border-zinc-800 px-3 py-1 rounded">Resetear Prueba</button>
+                </div>
+                
+                <p class="text-[10px] text-zinc-500 uppercase font-bold text-center">Escribe los números que tiene tu coche, selecciona lo que dijo el piloto y calcula la siguiente prueba.</p>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-4">
+                    <!-- Suspensión -->
+                    <div class="bg-black/50 p-5 rounded-xl border border-zinc-800/50 flex flex-col text-center">
+                        <h3 class="text-[10px] text-zinc-400 uppercase font-bold tracking-widest mb-4 text-center">1. Suspensión</h3>
+                        <input type="number" min="1" max="100" value="${state.setup.currS}" onchange="window.upSetup('currS', parseInt(this.value)||50)" class="w-full bg-black border border-zinc-800 text-white text-3xl font-ds text-center rounded-xl py-2 outline-none focus:border-white">
+                        <p class="text-[8px] text-zinc-600 mt-2 mb-4">Rango Seguro: ${state.setup.sMin} - ${state.setup.sMax}</p>
+                        <div class="mt-auto">
+                            <label class="text-[8px] text-zinc-600 uppercase font-bold block mb-2 text-center">Feedback Piloto</label>
+                            <select onchange="window.upSetup('fbS', this.value)" class="w-full p-3 rounded-lg bg-zinc-900 border border-zinc-800 text-xs uppercase font-bold text-white outline-none focus:border-yellow-600">
+                                <option value="ok" ${state.setup.fbS === 'ok' ? 'selected' : ''}>¡Perfecto!</option>
+                                <option value="dura" ${state.setup.fbS === 'dura' ? 'selected' : ''}>Va muy dura</option>
+                                <option value="blanda" ${state.setup.fbS === 'blanda' ? 'selected' : ''}>Va muy blanda</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Altura -->
+                    <div class="bg-black/50 p-5 rounded-xl border border-zinc-800/50 flex flex-col text-center">
+                        <h3 class="text-[10px] text-zinc-400 uppercase font-bold tracking-widest mb-4">2. Altura Chasis</h3>
+                        <input type="number" min="1" max="100" value="${state.setup.currH}" onchange="window.upSetup('currH', parseInt(this.value)||50)" class="w-full bg-black border border-zinc-800 text-yellow-600 text-3xl font-ds text-center rounded-xl py-2 outline-none focus:border-yellow-600">
+                        <p class="text-[8px] text-zinc-600 mt-2 mb-4">Rango Seguro: ${state.setup.hMin} - ${state.setup.hMax}</p>
+                        <div class="mt-auto">
+                            <label class="text-[8px] text-zinc-600 uppercase font-bold block mb-2">Feedback Piloto</label>
+                            <select onchange="window.upSetup('fbH', this.value)" class="w-full p-3 rounded-lg bg-zinc-900 border border-zinc-800 text-xs uppercase font-bold text-white outline-none focus:border-yellow-600">
+                                <option value="ok" ${state.setup.fbH === 'ok' ? 'selected' : ''}>¡Perfecto!</option>
+                                <option value="alto" ${state.setup.fbH === 'alto' ? 'selected' : ''}>Va muy alto</option>
+                                <option value="bajo" ${state.setup.fbH === 'bajo' ? 'selected' : ''}>Va muy bajo</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Alerón -->
+                    <div class="bg-black/50 p-5 rounded-xl border border-zinc-800/50 flex flex-col text-center">
+                        <h3 class="text-[10px] text-zinc-400 uppercase font-bold tracking-widest mb-4">3. Alerón (Aero)</h3>
+                        <input type="number" min="1" max="100" value="${state.setup.currW}" onchange="window.upSetup('currW', parseInt(this.value)||50)" class="w-full bg-black border border-zinc-800 text-blue-400 text-3xl font-ds text-center rounded-xl py-2 outline-none focus:border-blue-500">
+                        <p class="text-[8px] text-zinc-600 mt-2 mb-4">Rango Seguro: ${state.setup.wMin} - ${state.setup.wMax}</p>
+                        <div class="mt-auto">
+                            <label class="text-[8px] text-zinc-600 uppercase font-bold block mb-2">Feedback Piloto</label>
+                            <select onchange="window.upSetup('fbW', this.value)" class="w-full p-3 rounded-lg bg-zinc-900 border border-zinc-800 text-xs uppercase font-bold text-white outline-none focus:border-yellow-600">
+                                <option value="ok" ${state.setup.fbW === 'ok' ? 'selected' : ''}>¡Perfecto!</option>
+                                <option value="falta" ${state.setup.fbW === 'falta' ? 'selected' : ''}>Alerones bajos</option>
+                                <option value="sobra" ${state.setup.fbW === 'sobra' ? 'selected' : ''}>Alerones altos</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <button onclick="window.calcNextSetup()" class="w-full bg-yellow-600 text-black py-4 rounded-xl font-bold uppercase text-[12px] tracking-widest mt-4 shadow-lg shadow-yellow-600/20 active:scale-95 transition-transform">
+                    Calcular Siguiente Prueba
+                </button>
+            </div>
+            `;
+        }
+
         function renderSection(isAdmin) {
             if(state.section === 'ranking') return renderRanking(isAdmin);
             if(state.section === 'chat') return renderChat();
+            if(state.section === 'setup') return renderSetup();
+            
             const totalLaps = state.calc.stints.reduce((sum, s) => sum + parseInt(s.laps || 0), 0);
             const totalFuel = state.calc.stints.reduce((sum, s) => sum + getFuel(state.calc.circuit, state.calc.fPoints, s.laps, s.boost), 0);
             const trackLaps = circuitsData[state.calc.circuit].laps;
@@ -304,7 +372,29 @@
         window.toggleSync = (v) => { state.showSync = v; render(); };
         window.back = () => { state.step = 1; render(); };
         
-        // --- MOTOR DE ACTUALIZACIÓN GLOBAL DE TENDENCIAS EN FIREBASE ---
+        window.upSetup = (k, v) => { state.setup[k] = v; render(); };
+        window.resetSetup = () => {
+            state.setup = { sMin: 1, sMax: 100, currS: 50, fbS: 'ok', hMin: 1, hMax: 100, currH: 50, fbH: 'ok', wMin: 1, wMax: 100, currW: 50, fbW: 'ok' };
+            render();
+        };
+        window.calcNextSetup = () => {
+            let s = state.setup;
+            if (s.fbS === 'dura') s.sMax = Math.max(1, s.currS - 1);
+            if (s.fbS === 'blanda') s.sMin = Math.min(100, s.currS + 1);
+            if (s.fbS !== 'ok') s.currS = Math.floor((s.sMin + s.sMax) / 2);
+            
+            if (s.fbH === 'alto') s.hMax = Math.max(1, s.currH - 1);
+            if (s.fbH === 'bajo') s.hMin = Math.min(100, s.currH + 1);
+            if (s.fbH !== 'ok') s.currH = Math.floor((s.hMin + s.hMax) / 2);
+            
+            if (s.fbW === 'falta') s.wMin = Math.min(100, s.currW + 1);
+            if (s.fbW === 'sobra') s.wMax = Math.max(1, s.currW - 1);
+            if (s.fbW !== 'ok') s.currW = Math.floor((s.wMin + s.wMax) / 2);
+            
+            s.fbS = 'ok'; s.fbH = 'ok'; s.fbW = 'ok';
+            render();
+        };
+
         const updateGlobalRanking = async (tab, id, action, val = 0) => {
             let newScores = {};
             
