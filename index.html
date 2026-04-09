@@ -76,9 +76,7 @@
             showSync: false,
             chartUser: null,
             compareUser: '',
-            calc: { circuit: 'AZE', tPoints: 66, fPoints: 67, temp: 14, stints: [{ compound: 'S', laps: 6, boost: '5' }] },
-            lastRanks: JSON.parse(localStorage.getItem('ds_ranks') || '{}'),
-            trends: JSON.parse(localStorage.getItem('ds_trends') || '{}')
+            calc: { circuit: 'AZE', tPoints: 66, fPoints: 67, temp: 14, stints: [{ compound: 'S', laps: 6, boost: '5' }] }
         };
 
         // --- ALGORITMOS MATEMÁTICOS INTACTOS ---
@@ -201,7 +199,6 @@
                 </div>`;
         }
 
-        // --- RENDER RANKING ACTUALIZADO: COLORES Y SIN COLUMNA "T" ---
         function renderRanking(isAdmin) {
             const tabs = ['puntos', 'temporada', 'victorias', 'podios', 'poles', 'copas'];
             const list = Object.entries(state.users)
@@ -209,30 +206,10 @@
                 .map(([id, d]) => ({ id, ...d, score: d.stats[state.rankingTab], temporada: d.stats.temporada || 1 }))
                 .sort((a,b) => b.score - a.score);
 
-            const currentTabRanks = state.lastRanks[state.rankingTab] || {};
-            const currentTabTrends = state.trends[state.rankingTab] || {};
-            let ranksChanged = false;
-
-            const listWithTrends = list.map((u, i) => {
-                const prevRank = currentTabRanks[u.id];
-                if (prevRank !== undefined && prevRank !== i) {
-                    if (prevRank > i) currentTabTrends[u.id] = 1; 
-                    else if (prevRank < i) currentTabTrends[u.id] = -1; 
-                    ranksChanged = true;
-                } else if (prevRank === undefined) {
-                    currentTabTrends[u.id] = 0; 
-                    ranksChanged = true;
-                }
-                currentTabRanks[u.id] = i;
-                return { ...u, trend: currentTabTrends[u.id] || 0 };
+            // Obtenemos la tendencia en tiempo real desde Firebase
+            const listWithTrends = list.map((u) => {
+                return { ...u, trend: state.users[u.id]?.stats?.[`trend_${state.rankingTab}`] || 0 };
             });
-
-            if (ranksChanged) {
-                state.lastRanks[state.rankingTab] = currentTabRanks;
-                state.trends[state.rankingTab] = currentTabTrends;
-                localStorage.setItem('ds_ranks', JSON.stringify(state.lastRanks));
-                localStorage.setItem('ds_trends', JSON.stringify(state.trends));
-            }
 
             return `
                 <div class="space-y-4">
@@ -250,16 +227,16 @@
                                 ${isAdmin?'<th class="p-5 text-center">Acción</th>':''}
                             </tr>
                             ${listWithTrends.map((u, i) => {
-                                // Lógica de colores de fondo según la tendencia
+                                // Lógica visual de las tendencias (leídas de Firebase)
                                 let trendIcon = '<span class="text-orange-500 text-[10px] ml-1.5 font-black" title="Mantiene Posición">-</span>';
-                                let rowBgStyle = 'background-color: rgba(249, 115, 22, 0.15);'; // Naranja translúcido (Mantiene)
+                                let rowBgStyle = 'background-color: rgba(249, 115, 22, 0.15);';
 
                                 if (u.trend === 1) {
                                     trendIcon = '<span class="text-green-500 text-[10px] ml-1.5 font-black" title="Sube Posición">▲</span>';
-                                    rowBgStyle = 'background-color: rgba(34, 197, 94, 0.15);'; // Verde translúcido (Sube)
+                                    rowBgStyle = 'background-color: rgba(34, 197, 94, 0.15);';
                                 } else if (u.trend === -1) {
                                     trendIcon = '<span class="text-red-500 text-[10px] ml-1.5 font-black" title="Baja Posición">▼</span>';
-                                    rowBgStyle = 'background-color: rgba(239, 68, 68, 0.15);'; // Rojo translúcido (Baja)
+                                    rowBgStyle = 'background-color: rgba(239, 68, 68, 0.15);';
                                 }
 
                                 const safeDomId = 'in_' + u.id.replace(/[^a-zA-Z0-9]/g, '_');
@@ -327,6 +304,57 @@
         window.toggleSync = (v) => { state.showSync = v; render(); };
         window.back = () => { state.step = 1; render(); };
         
+        // --- MOTOR DE ACTUALIZACIÓN GLOBAL DE TENDENCIAS EN FIREBASE ---
+        const updateGlobalRanking = async (tab, id, action, val = 0) => {
+            let newScores = {};
+            
+            // Recopilamos puntajes actuales de la base de datos local (memoria RAM del admin)
+            Object.entries(state.users).forEach(([uid, d]) => {
+                if (d.stats && d.stats[tab] !== undefined && d.stats[tab] !== null) {
+                    newScores[uid] = parseFloat(d.stats[tab]);
+                }
+            });
+            
+            // Cómo estaban ordenados ANTES de la suma
+            const oldSorted = Object.keys(newScores).sort((a,b) => newScores[b] - newScores[a]);
+
+            // Simulamos la operación matemática
+            if (action === 'add') newScores[id] = (newScores[id] || 0) + val;
+            else if (action === 'clear') newScores[id] = 0;
+            else if (action === 'remove') delete newScores[id];
+
+            // Cómo quedarán ordenados DESPUÉS de la suma
+            const newSorted = Object.keys(newScores).sort((a,b) => newScores[b] - newScores[a]);
+            
+            let updates = {};
+
+            // Calculamos quién subió y quién bajó comparando antes y después
+            newSorted.forEach((uid, newIndex) => {
+                const oldIndex = oldSorted.indexOf(uid);
+                let trend = 0;
+                if (oldIndex !== -1) {
+                    if (oldIndex > newIndex) trend = 1; // Subió posiciones (verde)
+                    else if (oldIndex < newIndex) trend = -1; // Bajó posiciones (rojo)
+                }
+                updates[`perfiles/${uid}/stats/trend_${tab}`] = trend;
+            });
+
+            // Agregamos a la lista de envíos el nuevo puntaje real del manager
+            if (action === 'add') {
+                updates[`perfiles/${id}/stats/${tab}`] = newScores[id];
+                if (tab !== 'temporada') updates[`perfiles/${id}/stats/temporada`] = state.users[id].stats?.temporada || 1;
+            } else if (action === 'clear') {
+                updates[`perfiles/${id}/stats/${tab}`] = 0;
+                updates[`perfiles/${id}/stats/trend_${tab}`] = 0;
+            } else if (action === 'remove') {
+                updates[`perfiles/${id}/stats/${tab}`] = null;
+                updates[`perfiles/${id}/stats/trend_${tab}`] = null;
+            }
+
+            // Enviamos el bloque completo a Firebase para que todos los dispositivos lo vean de inmediato
+            await update(ref(db), updates);
+        };
+
         window.addPoints = async (id) => {
             const safeDomId = 'in_' + id.replace(/[^a-zA-Z0-9]/g, '_');
             const input = document.getElementById(safeDomId);
@@ -335,24 +363,14 @@
             const val = parseFloat(input.value) || 0;
             if (val === 0) return; 
             
-            const cur = parseFloat(state.users[id].stats?.[state.rankingTab]) || 0;
-            const temp = state.users[id].stats?.temporada || 1;
-            
-            let updates = {
-                [state.rankingTab]: cur + val
-            };
-            
-            if (state.rankingTab !== 'temporada') {
-                updates.temporada = temp;
-            }
-            
-            await update(ref(db, `perfiles/${id}/stats`), updates);
+            // Llamamos a la nueva función centralizada para que todos los usuarios se enteren del color
+            await updateGlobalRanking(state.rankingTab, id, 'add', val);
             input.value = ''; 
         };
 
         window.clearStat = async (id) => {
             if(confirm(`¿Poner a 0 la lista de ${state.rankingTab} para ${id}?`)) {
-                await update(ref(db, `perfiles/${id}/stats`), { [state.rankingTab]: 0 });
+                await updateGlobalRanking(state.rankingTab, id, 'clear');
             }
         };
 
@@ -365,7 +383,7 @@
 
         window.removeStat = async (id) => { 
             if(confirm(`¿Quitar a ${id} SOLO del ranking de ${state.rankingTab.toUpperCase()}? (Sus otras estadísticas seguirán intactas)`)) {
-                await update(ref(db, `perfiles/${id}/stats`), { [state.rankingTab]: null }); 
+                await updateGlobalRanking(state.rankingTab, id, 'remove');
             }
         };
 
