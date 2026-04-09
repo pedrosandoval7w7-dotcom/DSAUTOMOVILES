@@ -8,19 +8,78 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
-        :root { --ds-gold: #c5a059; --ds-black: #050505; }
-        body { background-color: var(--ds-black); color: #e4e4e7; font-family: 'Inter', sans-serif; height: 100vh; overflow: hidden; margin: 0; }
+        :root { 
+            --ds-gold: #c5a059; 
+            --ds-black: #050505; 
+        }
+        body { 
+            background-color: var(--ds-black); 
+            color: #e4e4e7; 
+            font-family: 'Inter', sans-serif; 
+            height: 100vh; 
+            overflow: hidden; 
+            margin: 0; 
+        }
         .font-ds { font-family: 'Orbitron', sans-serif; letter-spacing: 0.1em; }
-        .glass-panel { background: rgba(20, 20, 23, 0.95); backdrop-filter: blur(20px); border: 1px solid rgba(197, 160, 89, 0.15); }
-        .tyre-btn { width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 900; cursor: pointer; transition: all 0.2s; border: 2px solid rgba(0,0,0,0.5); }
-        .tyre-btn.active { transform: scale(1.15); border-color: white; box-shadow: 0 0 12px currentColor; }
+        .glass-panel { 
+            background: rgba(20, 20, 23, 0.95); 
+            backdrop-filter: blur(20px); 
+            border: 1px solid rgba(197, 160, 89, 0.15); 
+        }
+        .tyre-btn { 
+            width: 38px; 
+            height: 38px; 
+            border-radius: 50%; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            font-size: 10px; 
+            font-weight: 900; 
+            cursor: pointer; 
+            transition: all 0.2s; 
+            border: 2px solid rgba(0,0,0,0.5); 
+        }
+        .tyre-btn.active { 
+            transform: scale(1.15); 
+            border-color: white; 
+            box-shadow: 0 0 12px currentColor; 
+        }
         .compound-ss { background: #ef4444; color: white; }
         .compound-s { background: #eab308; color: black; }
         .compound-m { background: #f4f4f5; color: black; }
         .compound-h { background: #f97316; color: white; }
-        .nav-link.active { color: var(--ds-gold); border-bottom: 2px solid var(--ds-gold); }
+        
+        /* Contenedor de navegación para móviles */
+        .nav-container { 
+            display: flex; 
+            gap: 1.25rem; 
+            overflow-x: auto; 
+            scrollbar-width: none; 
+            -ms-overflow-style: none; 
+            padding-right: 20px;
+        }
+        .nav-container::-webkit-scrollbar { display: none; }
+        
+        .nav-link { 
+            white-space: nowrap; 
+            font-size: 10px; 
+            font-weight: 800; 
+            text-transform: uppercase; 
+            color: #71717a; 
+            transition: all 0.2s; 
+            border-bottom: 2px solid transparent; 
+            padding-bottom: 6px; 
+        }
+        .nav-link.active { 
+            color: var(--ds-gold); 
+            border-bottom-color: var(--ds-gold); 
+        }
+        
         .no-scrollbar::-webkit-scrollbar { display: none; }
-        input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+        input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { 
+            -webkit-appearance: none; 
+            margin: 0; 
+        }
     </style>
 </head>
 <body class="flex flex-col">
@@ -75,9 +134,13 @@
             rankingTab: 'puntos',
             showSync: false,
             chartUser: null,
-            compareUser: '',
-            calc: { circuit: 'AZE', tPoints: 66, fPoints: 67, stints: [{ compound: 'S', laps: 6, boost: '5' }] },
-            // MEMORIA INTELIGENTE PARA SETUP
+            calc: { 
+                circuit: 'AZE', 
+                tPoints: 66, 
+                fPoints: 67, 
+                stints: [{ compound: 'S', laps: 6, boost: '5' }] 
+            },
+            // MEMORIA INTELIGENTE PARA SETUP (SIN CAMBIOS EN LÓGICA)
             setup: { 
                 sMin: 1, sMax: 100, currS: 50, fbS: 'ok', lastOkS: null,
                 hMin: 1, hMax: 100, currH: 50, fbH: 'ok', lastOkH: null,
@@ -85,13 +148,12 @@
             }
         };
 
-        // --- ALGORITMOS MATEMÁTICOS DE ESTRATEGIA (SIN TEMPERATURA) ---
+        // --- ALGORITMOS DE ESTRATEGIA (70.7L PUROS) ---
         function getWear(track, comp, laps, pts, boost) {
             const c = circuitsData[track];
             const boostMult = { '1': 0.85, '2': 0.92, '3': 1.0, '4': 1.12, '5': 1.25 }[boost];
             const baseW = (((pts/2.5)**-0.0778 * 1.43) * (0.00364 * c.tyreWear + 0.354) * (c.length * 1.384) * 150) / 100;
-            const mults = { 'SS': 1.62, 'S': 1.15, 'M': 0.95, 'H': 0.72 };
-            const wearPerLap = baseW * 1.025 * mults[comp] * boostMult;
+            const wearPerLap = baseW * 1.025 * { 'SS': 1.62, 'S': 1.15, 'M': 0.95, 'H': 0.72 }[comp] * boostMult;
             return Math.max(0, 100 - (wearPerLap * laps));
         }
 
@@ -101,23 +163,26 @@
             return ((98.456 * Math.pow(pts, -0.088) * c.length) / 139.77) * laps * boostMult;
         }
 
+        // --- RENDERIZADO PRINCIPAL ---
         function render() {
             const root = document.getElementById('app');
             if (!state.isLoggedIn) { renderAuth(root); return; }
             const isAdmin = state.username === 'admin';
+            
             root.innerHTML = `
                 <header class="bg-black border-b border-zinc-800 p-4 sticky top-0 z-50">
-                    <div class="max-w-7xl mx-auto flex justify-between items-center">
-                        <div class="flex items-center gap-2">
+                    <div class="max-w-7xl mx-auto flex justify-between items-center gap-4">
+                        <div class="shrink-0 flex items-center gap-2">
                             <h1 class="font-ds text-[10px] italic text-yellow-600 uppercase">DS PERFORMANCE</h1>
-                            <span class="text-[7px] bg-zinc-900 border border-zinc-800 px-1.5 py-0.5 rounded text-zinc-500 uppercase font-bold">${state.username}</span>
                         </div>
-                        <nav class="flex gap-4">
-                            <button onclick="window.go('strategy')" class="nav-link text-[10px] font-bold uppercase ${state.section==='strategy'?'active':''}">Estrategia</button>
-                            <button onclick="window.go('setup')" class="nav-link text-[10px] font-bold uppercase ${state.section==='setup'?'active':''}">Setup</button>
-                            <button onclick="window.go('ranking')" class="nav-link text-[10px] font-bold uppercase ${state.section==='ranking'?'active':''}">Ranking</button>
-                            <button onclick="window.go('chat')" class="nav-link text-[10px] font-bold uppercase ${state.section==='chat'?'active':''}">Chat</button>
+                        <!-- NAVEGACIÓN PERFECCIONADA PARA ACCESO MÓVIL AL SETUP -->
+                        <nav class="nav-container py-1">
+                            <button onclick="window.go('strategy')" class="nav-link ${state.section==='strategy'?'active':''}">Estrategia</button>
+                            <button onclick="window.go('setup')" class="nav-link ${state.section==='setup'?'active':''}">Setup</button>
+                            <button onclick="window.go('ranking')" class="nav-link ${state.section==='ranking'?'active':''}">Ranking</button>
+                            <button onclick="window.go('chat')" class="nav-link ${state.section==='chat'?'active':''}">Chat</button>
                         </nav>
+                        <div class="shrink-0 text-[7px] bg-zinc-900 border border-zinc-800 px-1.5 py-0.5 rounded text-zinc-500 uppercase font-bold hidden sm:block">${state.username}</div>
                     </div>
                 </header>
                 <main class="p-4 flex-grow overflow-y-auto no-scrollbar pb-32">
@@ -135,9 +200,9 @@
                     <div class="glass-panel w-full max-w-xs p-8 rounded-[2.5rem] border-t-2 border-yellow-600 text-center shadow-2xl">
                         <h2 class="font-ds text-2xl text-white italic mb-2 uppercase">DS TEAM</h2>
                         ${state.step === 1 ? `
-                            <p class="text-[9px] text-zinc-500 uppercase font-bold mb-8">Ingresa tu nombre de manager</p>
+                            <p class="text-[9px] text-zinc-500 uppercase font-bold mb-8">Nombre de manager</p>
                             <form id="step1F" class="space-y-4">
-                                <input id="uInput" placeholder="NOMBRE MANAGER" class="w-full p-4 rounded-2xl bg-zinc-900 border border-zinc-800 text-white uppercase text-xs outline-none focus:border-yellow-600 shadow-inner">
+                                <input id="uInput" placeholder="MANAGER" class="w-full p-4 rounded-2xl bg-zinc-900 border border-zinc-800 text-white uppercase text-xs outline-none focus:border-yellow-600">
                                 <button class="w-full bg-yellow-600 text-black py-4 rounded-2xl font-bold uppercase text-[10px]">SIGUIENTE</button>
                             </form>
                         ` : `
@@ -151,19 +216,20 @@
                     </div>
                 </div>`;
             if(document.getElementById('step1F')) { document.getElementById('step1F').onsubmit = async (e) => { e.preventDefault(); const u = document.getElementById('uInput').value.trim().toLowerCase(); if(!u) return; const snap = await get(ref(db, `perfiles/${u}`)); state.username = u; state.step = 2; state.isNew = !snap.exists() || (snap.val().password === 'ext'); render(); }; }
-            if(document.getElementById('step2F')) { document.getElementById('step2F').onsubmit = async (e) => { e.preventDefault(); const p = document.getElementById('pInput').value; if(!p) return; const snap = await get(ref(db, `perfiles/${state.username}`)); if (state.isNew) { const stats = { puntos:0, temporada:1, victorias:0, podios:0, poles:0, copas:0 }; await set(ref(db, `perfiles/${state.username}`), { password: p, stats }); state.isLoggedIn = true; } else { if(snap.val().password === p) { state.isLoggedIn = true; } else { alert("Contraseña incorrecta."); } } render(); }; }
+            if(document.getElementById('step2F')) { document.getElementById('step2F').onsubmit = async (e) => { e.preventDefault(); const p = document.getElementById('pInput').value; if(!p) return; const snap = await get(ref(db, `perfiles/${state.username}`)); if (state.isNew) { await set(ref(db, `perfiles/${state.username}`), { password: p, stats: { puntos:0, temporada:1, victorias:0, podios:0, poles:0, copas:0 } }); state.isLoggedIn = true; } else { if(snap.val().password === p) { state.isLoggedIn = true; } else { alert("Acceso Denegado"); } } render(); }; }
         }
 
-        // --- SECCIÓN SETUP ALTA PRECISIÓN ---
+        // --- SECCIÓN SETUP PRECITO (LÓGICA INTACTA) ---
         function renderSetup() {
             return `
             <div class="glass-panel p-6 rounded-2xl max-w-4xl mx-auto space-y-6">
                 <div class="flex justify-between items-center border-b border-zinc-800 pb-4">
                     <h2 class="font-ds text-xl uppercase italic text-yellow-600">Calculadora de Setup</h2>
-                    <button onclick="window.resetSetup()" class="text-[10px] text-zinc-500 hover:text-white uppercase font-bold tracking-widest border border-zinc-800 px-3 py-1 rounded">Resetear Prueba</button>
+                    <button onclick="window.resetSetup()" class="text-[10px] text-zinc-500 hover:text-white uppercase font-bold border border-zinc-800 px-3 py-1 rounded">Resetear</button>
                 </div>
-                <p class="text-[10px] text-zinc-500 uppercase font-bold text-center">Escribe los números de tu coche (1-100), selecciona el feedback y calcula la siguiente prueba.</p>
+                <p class="text-[10px] text-zinc-500 uppercase font-bold text-center">Configura tu coche (1-100) y clava el 100%.</p>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-4">
+                    <!-- Suspensión -->
                     <div class="bg-black/50 p-5 rounded-xl border border-zinc-800/50 text-center">
                         <h3 class="text-[10px] text-zinc-400 uppercase font-bold mb-4">1. Suspensión</h3>
                         <input type="number" value="${state.setup.currS}" onchange="window.upSetup('currS', parseInt(this.value)||50)" class="w-full bg-black border border-zinc-800 text-white text-3xl font-ds text-center rounded-xl py-2 outline-none mb-4">
@@ -173,6 +239,7 @@
                             <option value="blanda" ${state.setup.fbS==='blanda'?'selected':''}>Va muy blanda</option>
                         </select>
                     </div>
+                    <!-- Altura -->
                     <div class="bg-black/50 p-5 rounded-xl border border-zinc-800/50 text-center">
                         <h3 class="text-[10px] text-zinc-400 uppercase font-bold mb-4">2. Altura Chasis</h3>
                         <input type="number" value="${state.setup.currH}" onchange="window.upSetup('currH', parseInt(this.value)||50)" class="w-full bg-black border border-zinc-800 text-yellow-600 text-3xl font-ds text-center rounded-xl py-2 outline-none mb-4">
@@ -182,6 +249,7 @@
                             <option value="bajo" ${state.setup.fbH==='bajo'?'selected':''}>Va muy bajo</option>
                         </select>
                     </div>
+                    <!-- Alerón -->
                     <div class="bg-black/50 p-5 rounded-xl border border-zinc-800/50 text-center">
                         <h3 class="text-[10px] text-zinc-400 uppercase font-bold mb-4">3. Alerón (Aero)</h3>
                         <input type="number" value="${state.setup.currW}" onchange="window.upSetup('currW', parseInt(this.value)||50)" class="w-full bg-black border border-zinc-800 text-blue-400 text-3xl font-ds text-center rounded-xl py-2 outline-none mb-4">
@@ -192,7 +260,7 @@
                         </select>
                     </div>
                 </div>
-                <button onclick="window.calcNextSetup()" class="w-full bg-yellow-600 text-black py-4 rounded-xl font-bold uppercase text-[12px] mt-4 active:scale-95 transition-transform shadow-lg shadow-yellow-600/20">Calcular Siguiente Prueba</button>
+                <button onclick="window.calcNextSetup()" class="w-full bg-yellow-600 text-black py-4 rounded-xl font-bold uppercase text-[12px] mt-4 shadow-lg active:scale-95 transition-all">Calcular Siguiente Prueba</button>
             </div>`;
         }
 
@@ -204,28 +272,41 @@
             const totalLaps = state.calc.stints.reduce((sum, s) => sum + parseInt(s.laps || 0), 0);
             const totalFuel = state.calc.stints.reduce((sum, s) => sum + getFuel(state.calc.circuit, state.calc.fPoints, s.laps, s.boost), 0);
             const trackLaps = circuitsData[state.calc.circuit].laps;
+            
             return `
                 <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
                     <div class="glass-panel p-6 rounded-2xl h-fit space-y-6">
                         <div>
-                            <label class="text-[9px] text-zinc-500 font-bold uppercase block mb-2">Circuito</label>
-                            <select id="selTrack" class="w-full p-3 rounded-lg bg-zinc-900 border border-zinc-800 text-xs uppercase font-bold text-white">
+                            <label class="text-[9px] text-zinc-500 font-bold uppercase block mb-2">Circuito Seleccionado</label>
+                            <select id="selTrack" class="w-full p-3 rounded-lg bg-zinc-900 border border-zinc-800 text-xs uppercase font-bold text-white outline-none">
                                 ${Object.keys(circuitsData).map(k => `<option value="${k}" ${state.calc.circuit===k?'selected':''}>${circuitsData[k].name} (${circuitsData[k].laps}v)</option>`).join('')}
                             </select>
                         </div>
                         <div class="grid grid-cols-2 gap-2 mb-2">
-                            <div class="space-y-1"><span class="text-[8px] text-zinc-600 uppercase font-bold ml-1">Diseño Neum.</span><input id="numT" type="number" value="${state.calc.tPoints}" class="w-full p-3 rounded-lg bg-black border border-zinc-800 text-center text-yellow-600 font-bold outline-none"></div>
-                            <div class="space-y-1"><span class="text-[8px] text-zinc-600 uppercase font-bold ml-1">Diseño Comb.</span><input id="numF" type="number" value="${state.calc.fPoints}" class="w-full p-3 rounded-lg bg-black border border-zinc-800 text-center text-blue-400 font-bold outline-none"></div>
+                            <div class="space-y-1">
+                                <span class="text-[8px] text-zinc-600 uppercase font-bold ml-1">Diseño Neum.</span>
+                                <input id="numT" type="number" value="${state.calc.tPoints}" class="w-full p-3 rounded-lg bg-black border border-zinc-800 text-center text-yellow-600 font-bold outline-none">
+                            </div>
+                            <div class="space-y-1">
+                                <span class="text-[8px] text-zinc-600 uppercase font-bold ml-1">Diseño Comb.</span>
+                                <input id="numF" type="number" value="${state.calc.fPoints}" class="w-full p-3 rounded-lg bg-black border border-zinc-800 text-center text-blue-400 font-bold outline-none">
+                            </div>
                         </div>
                         <div class="pt-4 border-t border-zinc-800">
                              <div class="flex justify-between items-end">
-                                <div><p class="text-[18px] font-ds ${totalLaps > trackLaps ? 'text-red-500' : 'text-white'}">${totalLaps} / ${trackLaps}</p><p class="text-[8px] text-zinc-600 uppercase font-bold">Vueltas Totales</p></div>
-                                <div class="text-right"><p class="text-[18px] font-ds text-blue-400">${totalFuel.toFixed(1)}L</p><p class="text-[8px] text-zinc-600 uppercase font-bold">Litros Totales</p></div>
+                                <div>
+                                    <p class="text-[18px] font-ds ${totalLaps > trackLaps ? 'text-red-500' : 'text-white'}">${totalLaps} / ${trackLaps}</p>
+                                    <p class="text-[8px] text-zinc-600 uppercase font-bold">Vueltas Totales</p>
+                                </div>
+                                <div class="text-right">
+                                    <p class="text-[18px] font-ds text-blue-400">${totalFuel.toFixed(1)}L</p>
+                                    <p class="text-[8px] text-zinc-600 uppercase font-bold">Litros Totales</p>
+                                </div>
                              </div>
                         </div>
                     </div>
                     <div class="lg:col-span-3 space-y-4">
-                        <div class="flex justify-between items-center"><h2 class="font-ds text-lg uppercase italic">Sugerencias de estrategia</h2><button id="addStint" class="bg-yellow-600 text-black px-4 py-2 rounded-lg text-[10px] font-bold">Añadir Stint</button></div>
+                        <div class="flex justify-between items-center"><h2 class="font-ds text-lg uppercase italic">Estrategia Sugerida</h2><button id="addStint" class="bg-yellow-600 text-black px-4 py-2 rounded-lg text-[10px] font-bold">Añadir Stint</button></div>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             ${state.calc.stints.map((s, i) => {
                                 const wear = getWear(state.calc.circuit, s.compound, s.laps, state.calc.tPoints, s.boost);
@@ -235,8 +316,8 @@
                                     <button onclick="window.delS(${i})" class="absolute top-4 right-4 text-zinc-700 hover:text-red-500">✕</button>
                                     <div class="flex justify-center gap-2 mb-6">${['SS','S','M','H'].map(c => `<button onclick="window.upS(${i},'compound','${c}')" class="tyre-btn compound-${c.toLowerCase()} ${s.compound===c?'active':''}">${c}</button>`).join('')}</div>
                                     <div class="grid grid-cols-2 gap-3">
-                                        <div><span class="text-[7px] text-zinc-600 uppercase font-bold block mb-1">Vueltas</span><input type="number" value="${s.laps}" onchange="window.upS(${i},'laps',this.value)" class="w-full p-2.5 rounded bg-black border border-zinc-800 text-center font-bold text-white outline-none"></div>
-                                        <div><span class="text-[7px] text-zinc-600 uppercase font-bold block mb-1">Empuje</span><select onchange="window.upS(${i},'boost',this.value)" class="w-full p-2.5 rounded bg-black border border-zinc-800 text-[10px] uppercase font-bold text-center outline-none text-white">${[1,2,3,4,5].map(v => `<option value="${v}" ${s.boost==v+''?'selected':''}>Nivel ${v}</option>`).join('')}</select></div>
+                                        <div><span class="text-[7px] text-zinc-600 uppercase font-bold block mb-1 text-center">Vueltas</span><input type="number" value="${s.laps}" onchange="window.upS(${i},'laps',this.value)" class="w-full p-2.5 rounded bg-black border border-zinc-800 text-center font-bold text-white outline-none"></div>
+                                        <div><span class="text-[7px] text-zinc-600 uppercase font-bold block mb-1 text-center">Empuje</span><select onchange="window.upS(${i},'boost',this.value)" class="w-full p-2.5 rounded bg-black border border-zinc-800 text-[10px] uppercase font-bold text-center outline-none text-white">${[1,2,3,4,5].map(v => `<option value="${v}" ${s.boost==v+''?'selected':''}>Nivel ${v}</option>`).join('')}</select></div>
                                     </div>
                                     <div class="mt-4 pt-4 border-t border-zinc-900/50 flex justify-between">
                                         <div><p class="text-[7px] text-zinc-600 uppercase font-bold">Vida Final</p><p class="font-bold text-base ${wear<20?'text-red-500':'text-green-500'} font-ds">${wear.toFixed(1)}%</p></div>
@@ -260,27 +341,35 @@
                 <div class="space-y-4">
                     <div class="flex justify-between items-center overflow-x-auto no-scrollbar gap-4 pb-2">
                         <div class="flex gap-1.5">${tabs.map(t => `<button onclick="window.setTab('${t}')" class="px-4 py-2 rounded-xl bg-zinc-900 text-[9px] uppercase font-bold border border-zinc-800 ${state.rankingTab===t?'text-yellow-600 border-yellow-600':''} transition-all">${t}</button>`).join('')}</div>
-                        ${isAdmin ? `<button onclick="window.toggleSync(true)" class="bg-blue-600 text-white px-4 py-2 rounded-xl text-[9px] font-bold">EXCEL</button>` : ''}
+                        ${isAdmin ? `<button onclick="window.toggleSync(true)" class="bg-blue-600 text-white px-4 py-2 rounded-xl text-[9px] font-bold shrink-0 uppercase">Exportar Excel</button>` : ''}
                     </div>
-                    ${isAdmin ? `<form id="addM" class="flex gap-2 bg-zinc-900/50 p-2 rounded-2xl border border-zinc-800"><input name="n" placeholder="NOMBRE DEL MANAGER" class="flex-grow bg-black p-3 rounded-xl text-xs outline-none focus:border-yellow-600 border border-transparent" required><button class="bg-yellow-600 text-black px-6 rounded-xl font-bold text-[10px] uppercase">CREAR</button></form>` : ''}
-                    <div class="glass-panel rounded-3xl overflow-hidden border border-zinc-800/50">
-                        <table class="w-full text-xs text-left">
-                            <tr class="bg-zinc-900 text-zinc-500 uppercase text-[8px]"><th class="p-5">Pos</th><th class="p-5">Manager</th><th class="p-5 text-right uppercase">${state.rankingTab}</th>${isAdmin?'<th class="p-5 text-center">Acción</th>':''}</tr>
+                    ${isAdmin ? `<form id="addM" class="flex gap-2 bg-zinc-900/50 p-2 rounded-2xl border border-zinc-800"><input name="n" placeholder="NOMBRE DEL MANAGER" class="flex-grow bg-black p-3 rounded-xl text-xs outline-none focus:border-yellow-600 border border-transparent text-white" required><button class="bg-yellow-600 text-black px-6 rounded-xl font-bold text-[10px] uppercase">CREAR</button></form>` : ''}
+                    <div class="glass-panel rounded-3xl overflow-hidden border border-zinc-800/50 overflow-x-auto">
+                        <table class="w-full text-xs text-left min-w-[450px]">
+                            <tr class="bg-zinc-900 text-zinc-500 uppercase text-[8px] border-b border-zinc-800">
+                                <th class="p-5">Pos</th>
+                                <th class="p-5">Manager</th>
+                                <th class="p-5 text-right uppercase">${state.rankingTab}</th>
+                                ${isAdmin?'<th class="p-5 text-center">Gestión</th>':''}
+                            </tr>
                             ${list.map((u, i) => {
-                                let trendIcon = '<span class="text-orange-500 text-[10px] font-black ml-1">-</span>';
+                                let trendIcon = '<span class="text-orange-500 font-black ml-1">-</span>';
                                 let rowBg = 'background: rgba(249, 115, 22, 0.1);';
-                                if (u.trend === 1) { trendIcon = '<span class="text-green-500 text-[10px] font-black ml-1">▲</span>'; rowBg = 'background: rgba(34, 197, 94, 0.1);'; }
-                                else if (u.trend === -1) { trendIcon = '<span class="text-red-500 text-[10px] font-black ml-1">▼</span>'; rowBg = 'background: rgba(239, 68, 68, 0.1);'; }
+                                if (u.trend === 1) { trendIcon = '<span class="text-green-500 font-black ml-1">▲</span>'; rowBg = 'background: rgba(34, 197, 94, 0.1);'; }
+                                else if (u.trend === -1) { trendIcon = '<span class="text-red-500 font-black ml-1">▼</span>'; rowBg = 'background: rgba(239, 68, 68, 0.1);'; }
                                 return `
                                 <tr class="border-b border-zinc-900/50" style="${rowBg}">
                                     <td class="p-5 font-bold text-zinc-100 whitespace-nowrap">#${i+1} ${trendIcon}</td>
-                                    <td class="p-5 uppercase font-bold text-zinc-100" onclick="window.openChart('${u.id}')">${u.id}</td>
+                                    <td class="p-5 uppercase font-bold text-zinc-100 cursor-pointer" onclick="window.openChart('${u.id}')">${u.id}</td>
                                     <td class="p-5 text-right text-yellow-600 font-bold font-ds text-sm">${u.score}</td>
                                     ${isAdmin ? `
-                                    <td class="p-5 text-center flex justify-center items-center gap-1">
-                                        <input id="in_${u.id}" type="number" class="w-12 bg-black border border-zinc-800 rounded-md p-1.5 text-center text-[10px] text-white" placeholder="+0">
-                                        <button onclick="window.addPoints('${u.id}')" class="bg-zinc-800 hover:bg-green-600 text-white w-6 h-6 rounded-md text-[10px] font-bold">✓</button>
-                                        <button onclick="window.removeStat('${u.id}')" class="text-zinc-700 hover:text-red-500 w-6 h-6">✕</button>
+                                    <td class="p-5 text-center">
+                                        <div class="flex justify-center items-center gap-2">
+                                            <input id="in_${u.id}" type="number" class="w-12 bg-black border border-zinc-800 rounded-md p-1.5 text-center text-[10px] text-white" placeholder="+0">
+                                            <button onclick="window.addPoints('${u.id}')" class="bg-zinc-800 hover:bg-green-600 text-white w-7 h-7 rounded text-[10px] transition-all">✓</button>
+                                            <button onclick="window.resetPass('${u.id}')" class="bg-zinc-800 hover:bg-blue-600 text-white w-7 h-7 rounded text-[10px] transition-all" title="Reset Pass">🔑</button>
+                                            <button onclick="window.removeStat('${u.id}')" class="text-zinc-700 hover:text-red-500 w-7 h-7 font-bold transition-all" title="Quitar de lista">✕</button>
+                                        </div>
                                     </td>` : ''}
                                 </tr>`;
                             }).join('')}
@@ -292,23 +381,21 @@
         function renderChartModal() {
             return `
             <div class="fixed inset-0 bg-black/90 z-[100] flex items-center justify-center p-6 backdrop-blur-sm">
-                <div class="glass-panel p-8 rounded-[2.5rem] w-full max-w-md text-center border-t-2 border-yellow-600 relative">
-                    <button onclick="window.closeChart()" class="absolute top-5 right-6 text-zinc-500 hover:text-white font-bold text-lg">✕</button>
-                    <h3 class="font-ds text-yellow-600 mb-6 italic uppercase text-2xl">${state.chartUser}</h3>
+                <div class="glass-panel p-8 rounded-[2.5rem] w-full max-w-md text-center border-t-2 border-yellow-600 relative shadow-2xl">
+                    <button onclick="window.closeChart()" class="absolute top-5 right-6 text-zinc-500 hover:text-white font-bold text-lg transition-colors">✕</button>
+                    <h3 class="font-ds text-yellow-600 mb-6 italic uppercase text-2xl tracking-tighter">${state.chartUser}</h3>
                     <div id="statsBarsContainer" class="p-2 w-full flex flex-col gap-6 text-left"></div>
                 </div>
             </div>`;
         }
 
         function renderChat() {
-            return `<div class="flex flex-col h-[70vh] glass-panel rounded-3xl overflow-hidden border border-zinc-800"><div id="chatBox" class="flex-grow p-5 overflow-y-auto space-y-4 no-scrollbar">
-                ${state.messages.map(m => `<div class="flex flex-col ${m.u === state.username ? 'items-end' : 'items-start'}"><span class="text-[7px] font-bold text-zinc-600 uppercase mb-1 ml-1 mr-1">${m.u}</span><div class="p-3.5 rounded-2xl text-xs max-w-[80%] ${m.u === state.username ? 'bg-yellow-600 text-black' : 'bg-zinc-900 text-white border border-zinc-800'}">${m.t}</div></div>`).join('')}
-                </div><form id="chatF" class="p-4 bg-zinc-900/80 border-t border-zinc-800/50 flex gap-2"><input name="m" placeholder="Escribe al equipo..." class="flex-grow bg-black p-3.5 rounded-2xl text-xs outline-none focus:border-yellow-600 text-white" autocomplete="off"><button class="bg-yellow-600 text-black px-6 rounded-2xl font-bold text-[10px] uppercase">Enviar</button></form></div>`;
+            return `<div class="flex flex-col h-[70vh] glass-panel rounded-3xl overflow-hidden border border-zinc-800"><div id="chatBox" class="flex-grow p-5 overflow-y-auto space-y-4 no-scrollbar">${state.messages.map(m => `<div class="flex flex-col ${m.u === state.username ? 'items-end' : 'items-start'}"><span class="text-[7px] font-bold text-zinc-600 uppercase mb-1 ml-1 mr-1">${m.u}</span><div class="p-3.5 rounded-2xl text-xs max-w-[80%] ${m.u === state.username ? 'bg-yellow-600 text-black' : 'bg-zinc-900 text-white border border-zinc-800'}">${m.t}</div></div>`).join('')}</div><form id="chatF" class="p-4 bg-zinc-900/80 border-t border-zinc-800/50 flex gap-2"><input name="m" placeholder="Escribe al equipo..." class="flex-grow bg-black p-3.5 rounded-2xl text-xs outline-none focus:border-yellow-600 text-white" autocomplete="off"><button class="bg-yellow-600 text-black px-6 rounded-2xl font-bold text-[10px] uppercase">Enviar</button></form></div>`;
         }
 
         function renderSyncModal() {
             const url = `https://ds-automobiles-f0a17-default-rtdb.firebaseio.com/perfiles.json?print=pretty`;
-            return `<div class="fixed inset-0 bg-black/90 z-[100] flex items-center justify-center p-6 backdrop-blur-sm"><div class="glass-panel p-8 rounded-[2.5rem] max-w-sm w-full text-center border-yellow-600/30"><h3 class="font-ds text-white mb-2 italic uppercase">Sincronización Total</h3><div class="bg-black p-4 rounded-2xl border border-zinc-800 mb-6"><code class="text-[9px] text-blue-400 break-all select-all font-mono">=IMPORTDATA("${url}")</code></div><button onclick="window.toggleSync(false)" class="w-full py-4 rounded-2xl bg-zinc-900 text-white text-[10px] font-bold uppercase border border-zinc-800">Cerrar</button></div></div>`;
+            return `<div class="fixed inset-0 bg-black/90 z-[100] flex items-center justify-center p-6 backdrop-blur-sm"><div class="glass-panel p-8 rounded-[2.5rem] max-w-sm w-full text-center border-yellow-600/30"><h3 class="font-ds text-white mb-2 italic uppercase text-center">Sincronización Excel</h3><p class="text-[9px] text-zinc-500 mb-6 uppercase text-center">Copia este enlace para tu Sheets</p><div class="bg-black p-4 rounded-2xl border border-zinc-800 mb-6 overflow-x-auto"><code class="text-[9px] text-blue-400 break-all select-all font-mono">=IMPORTDATA("${url}")</code></div><button onclick="window.toggleSync(false)" class="w-full py-4 rounded-2xl bg-zinc-900 text-white text-[10px] font-bold uppercase border border-zinc-800">Cerrar</button></div></div>`;
         }
 
         // --- ACCIONES GLOBALES ---
@@ -319,7 +406,7 @@
         window.toggleSync = (v) => { state.showSync = v; render(); };
         window.back = () => { state.step = 1; render(); };
 
-        // --- MOTOR DE SETUP CON INTELIGENCIA DE REFINAMIENTO ---
+        // MOTOR DE SETUP (ALTA PRECISIÓN INTACTO)
         window.upSetup = (k, v) => { state.setup[k] = v; render(); };
         window.resetSetup = () => {
             state.setup = { sMin: 1, sMax: 100, currS: 50, fbS: 'ok', lastOkS: null, hMin: 1, hMax: 100, currH: 50, fbH: 'ok', lastOkH: null, wMin: 1, wMax: 100, currW: 50, fbW: 'ok', lastOkW: null };
@@ -330,78 +417,39 @@
             const refine = (curr, min, max, fb, last) => {
                 let nMin = min, nMax = max, nLast = last;
                 if (fb === 'ok') { nLast = curr; return { val: curr, min: nMin, max: nMax, last: nLast }; }
-                if (fb === 'dura' || fb === 'alto' || fb === 'sobra') { nMax = Math.max(1, curr - 1); } 
-                else { nMin = Math.min(100, curr + 1); }
+                if (fb === 'dura' || fb === 'alto' || fb === 'sobra') nMax = Math.max(1, curr - 1);
+                else nMin = Math.min(100, curr + 1);
                 let range = nMax - nMin;
-                // AJUSTE FINO: Si el rango es pequeño y ya tuvimos un "ok", promediamos para clavar el 100% de la barra.
                 let nextVal = (range <= 5 && last !== null) ? Math.round((nMin + nMax) / 2) : Math.floor((nMin + nMax) / 2);
                 return { val: nextVal, min: nMin, max: nMax, last: nLast };
             };
-            const rS = refine(s.currS, s.sMin, s.sMax, s.fbS, s.lastOkS);
-            s.currS = rS.val; s.sMin = rS.min; s.sMax = rS.max; s.lastOkS = rS.last;
-            const rH = refine(s.currH, s.hMin, s.hMax, s.fbH, s.lastOkH);
-            s.currH = rH.val; s.hMin = rH.min; s.hMax = rH.max; s.lastOkH = rH.last;
-            const rW = refine(s.currW, s.wMin, s.wMax, s.fbW, s.lastOkW);
-            s.currW = rW.val; s.wMin = rW.min; s.wMax = rW.max; s.lastOkW = rW.last;
+            const rS = refine(s.currS, s.sMin, s.sMax, s.fbS, s.lastOkS); s.currS = rS.val; s.sMin = rS.min; s.sMax = rS.max; s.lastOkS = rS.last;
+            const rH = refine(s.currH, s.hMin, s.hMax, s.fbH, s.lastOkH); s.currH = rH.val; s.hMin = rH.min; s.hMax = rH.max; s.lastOkH = rH.last;
+            const rW = refine(s.currW, s.wMin, s.wMax, s.fbW, s.lastOkW); s.currW = rW.val; s.wMin = rW.min; s.wMax = rW.max; s.lastOkW = rW.last;
             s.fbS = 'ok'; s.fbH = 'ok'; s.fbW = 'ok'; render();
         };
 
-        // --- MOTOR GLOBAL DE TENDENCIAS Y PUNTOS ---
+        // MOTOR GLOBAL DE PUNTOS Y TENDENCIAS (AFECTA SOLO EL APARTADO SELECCIONADO)
         const updateGlobalRanking = async (tab, id, action, val = 0) => {
-            let scores = {};
-            Object.entries(state.users).forEach(([uid, d]) => { if (d.stats && d.stats[tab] !== undefined) scores[uid] = parseFloat(d.stats[tab]); });
+            let scores = {}; Object.entries(state.users).forEach(([uid, d]) => { if (d.stats && d.stats[tab] !== undefined) scores[uid] = parseFloat(d.stats[tab]); });
             const oldSorted = Object.keys(scores).sort((a,b) => scores[b] - scores[a]);
             if (action === 'add') scores[id] = (scores[id] || 0) + val;
             else if (action === 'remove') delete scores[id];
             const newSorted = Object.keys(scores).sort((a,b) => scores[b] - scores[a]);
             let updates = {};
-            newSorted.forEach((uid, ni) => {
-                const oi = oldSorted.indexOf(uid);
-                let trend = 0;
-                if (oi !== -1) { if (oi > ni) trend = 1; else if (oi < ni) trend = -1; }
-                updates[`perfiles/${uid}/stats/trend_${tab}`] = trend;
-            });
-            if (action === 'add') updates[`perfiles/${id}/stats/${tab}`] = scores[id];
-            else if (action === 'remove') updates[`perfiles/${id}/stats/${tab}`] = null;
+            newSorted.forEach((uid, ni) => { const oi = oldSorted.indexOf(uid); let trend = 0; if (oi !== -1) { if (oi > ni) trend = 1; else if (oi < ni) trend = -1; } updates[`perfiles/${uid}/stats/trend_${tab}`] = trend; });
+            if (action === 'add') { updates[`perfiles/${id}/stats/${tab}`] = scores[id]; updates[`perfiles/${id}/stats/temporada`] = state.users[id].stats?.temporada || 1; }
+            else if (action === 'remove') { updates[`perfiles/${id}/stats/${tab}`] = null; updates[`perfiles/${id}/stats/trend_${tab}`] = null; }
             await update(ref(db), updates);
         };
 
-        window.addPoints = async (id) => {
-            const input = document.getElementById(`in_${id}`);
-            const val = parseFloat(input.value) || 0;
-            if (val === 0) return;
-            await updateGlobalRanking(state.rankingTab, id, 'add', val);
-            input.value = '';
-        };
-
-        window.removeStat = async (id) => { if(confirm(`¿Quitar manager?`)) await updateGlobalRanking(state.rankingTab, id, 'remove'); };
-
+        window.addPoints = async (id) => { const input = document.getElementById(`in_${id}`); const val = parseFloat(input.value) || 0; if (val === 0) return; await updateGlobalRanking(state.rankingTab, id, 'add', val); input.value = ''; };
+        window.removeStat = async (id) => { if(confirm(`¿Quitar manager del ranking de ${state.rankingTab.toUpperCase()}? (Sus otros datos se mantienen)`)) await updateGlobalRanking(state.rankingTab, id, 'remove'); };
+        window.resetPass = async (id) => { if(confirm(`¿Deseas resetear la contraseña de ${id}? Volverá a estado de invitado.`)) await update(ref(db, `perfiles/${id}`), { password: 'ext' }); };
+        
         window.openChart = (id) => { state.chartUser = id; render(); setTimeout(() => window.drawChart(id), 50); };
         window.closeChart = () => { state.chartUser = null; render(); };
-        window.drawChart = (id) => {
-            const container = document.getElementById('statsBarsContainer');
-            if(!container || !state.users[id]) return;
-            const stats = ['puntos', 'victorias', 'podios', 'poles', 'copas'];
-            const all = Object.values(state.users);
-            let html = '';
-            stats.forEach(stat => {
-                const val = parseFloat(state.users[id].stats[stat]) || 0;
-                const avg = all.reduce((sum, u) => sum + (parseFloat(u.stats?.[stat]) || 0), 0) / (all.length || 1);
-                const max = Math.max(val, avg, 1);
-                html += `
-                <div class="w-full">
-                    <div class="flex justify-between items-end mb-1 px-1">
-                        <span class="text-[#c5a059] font-ds text-xs font-bold">${val}</span>
-                        <span class="text-[8px] text-zinc-500 uppercase tracking-widest font-bold">${stat}</span>
-                        <span class="text-zinc-500 font-ds text-xs">${avg.toFixed(1)}</span>
-                    </div>
-                    <div class="h-2.5 w-full bg-zinc-900 rounded-full overflow-hidden border border-zinc-800 shadow-inner">
-                        <div class="bg-[#c5a059] h-full transition-all duration-700" style="width: ${(val/max)*100}%"></div>
-                    </div>
-                </div>`;
-            });
-            container.innerHTML = html;
-        };
+        window.drawChart = (id) => { const container = document.getElementById('statsBarsContainer'); if(!container || !state.users[id]) return; const stats = ['puntos', 'victorias', 'podios', 'poles', 'copas']; const all = Object.values(state.users); let html = ''; stats.forEach(stat => { const val = parseFloat(state.users[id].stats[stat]) || 0; const avg = all.reduce((sum, u) => sum + (parseFloat(u.stats?.[stat]) || 0), 0) / (all.length || 1); const max = Math.max(val, avg, 1); html += `<div class="w-full mb-3"><div class="flex justify-between items-end mb-1 px-1"><span class="text-[#c5a059] font-ds text-xs font-bold">${val}</span><span class="text-[8px] text-zinc-500 uppercase tracking-widest font-bold">${stat}</span><span class="text-zinc-500 font-ds text-xs">${avg.toFixed(1)}</span></div><div class="h-2.5 w-full bg-zinc-900 rounded-full overflow-hidden border border-zinc-800"><div class="bg-[#c5a059] h-full transition-all duration-700" style="width: ${(val/max)*100}%"></div></div></div>`; }); container.innerHTML = html; };
 
         function attachEvents() {
             if(document.getElementById('selTrack')) document.getElementById('selTrack').onchange = (e) => { state.calc.circuit = e.target.value; render(); };
