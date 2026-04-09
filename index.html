@@ -49,42 +49,49 @@
         .compound-m { background: #f4f4f5; color: black; }
         .compound-h { background: #f97316; color: white; }
         
-        /* FIX: Navegación deslizable en móviles */
-        .nav-scroller {
-            display: flex;
-            overflow-x: auto;
-            white-space: nowrap;
-            -webkit-overflow-scrolling: touch;
-            scrollbar-width: none;
-            gap: 1.25rem;
+        /* Navegación Principal */
+        .nav-container { 
+            display: flex; 
+            gap: 1.25rem; 
+            overflow-x: auto; 
+            scrollbar-width: none; 
+            -ms-overflow-style: none; 
+            padding-right: 20px;
         }
-        .nav-scroller::-webkit-scrollbar { display: none; }
+        .nav-container::-webkit-scrollbar { display: none; }
         
         .nav-link { 
+            white-space: nowrap; 
             font-size: 10px; 
             font-weight: 800; 
             text-transform: uppercase; 
             color: #71717a; 
-            padding-bottom: 6px;
-            border-bottom: 2px solid transparent;
-            transition: all 0.3s ease;
-            flex-shrink: 0;
+            transition: all 0.2s; 
+            border-bottom: 2px solid transparent; 
+            padding-bottom: 6px; 
         }
         .nav-link.active { 
             color: var(--ds-gold); 
             border-bottom-color: var(--ds-gold); 
         }
-        
-        /* FIX: Tabs de ranking deslizables */
-        .ranking-tabs-scroller {
+
+        /* Estilo de Ranking tipo captura de imagen */
+        .ranking-list-container {
             display: flex;
-            overflow-x: auto;
-            gap: 0.5rem;
-            padding-bottom: 4px;
-            scrollbar-width: none;
+            flex-direction: column;
+            width: 100%;
         }
-        .ranking-tabs-scroller::-webkit-scrollbar { display: none; }
-        .tab-btn { flex-shrink: 0; white-space: nowrap; }
+        .ranking-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            width: 100%;
+        }
+        .ranking-item.trend-up { background: rgba(34, 197, 94, 0.12); }
+        .ranking-item.trend-down { background: rgba(239, 68, 68, 0.12); }
+        .ranking-item.trend-none { background: transparent; }
 
         .no-scrollbar::-webkit-scrollbar { display: none; }
         input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { 
@@ -105,7 +112,7 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
-        // --- LISTA COMPLETA DE 25 CIRCUITOS ---
+        // --- LOS 25 CIRCUITOS ---
         const circuitsData = {
             "MAL": { name: "Malasia", laps: 27, length: 5.536, tyreWear: 22 },
             "AUT": { name: "Austria", laps: 34, length: 4.044, tyreWear: 19 },
@@ -158,7 +165,7 @@
             }
         };
 
-        // --- MATEMÁTICAS ORIGINALES ---
+        // --- CÁLCULOS ORIGINALES (70.7L EN AZE) ---
         function getWear(track, comp, laps, pts, boost) {
             const c = circuitsData[track];
             const boostMult = { '1': 0.85, '2': 0.92, '3': 1.0, '4': 1.12, '5': 1.25 }[boost];
@@ -173,7 +180,7 @@
             return ((98.456 * Math.pow(pts, -0.088) * c.length) / 139.77) * laps * boostMult;
         }
 
-        // --- RENDERIZADO ---
+        // --- RENDER ---
         function render() {
             const root = document.getElementById('app');
             if (!state.isLoggedIn) { renderAuth(root); return; }
@@ -181,17 +188,17 @@
             
             root.innerHTML = `
                 <header class="bg-black border-b border-zinc-800 p-4 sticky top-0 z-50">
-                    <div class="max-w-7xl mx-auto flex justify-between items-center gap-6">
+                    <div class="max-w-7xl mx-auto flex justify-between items-center gap-4">
                         <div class="shrink-0">
                             <h1 class="font-ds text-[10px] italic text-yellow-600 uppercase">DS PERFORMANCE</h1>
                         </div>
-                        <nav class="nav-scroller py-1 flex-grow">
+                        <nav class="nav-container py-1">
                             <button onclick="window.go('strategy')" class="nav-link ${state.section==='strategy'?'active':''}">Estrategia</button>
                             <button onclick="window.go('setup')" class="nav-link ${state.section==='setup'?'active':''}">Setup</button>
                             <button onclick="window.go('ranking')" class="nav-link ${state.section==='ranking'?'active':''}">Ranking</button>
                             <button onclick="window.go('chat')" class="nav-link ${state.section==='chat'?'active':''}">Chat</button>
                         </nav>
-                        <div class="shrink-0 text-[7px] bg-zinc-900 border border-zinc-800 px-2 py-1 rounded text-zinc-500 uppercase font-bold hidden md:block">${state.username}</div>
+                        <div class="shrink-0 text-[7px] bg-zinc-900 border border-zinc-800 px-1.5 py-0.5 rounded text-zinc-500 uppercase font-bold hidden md:block">${state.username}</div>
                     </div>
                 </header>
                 <main class="p-4 flex-grow overflow-y-auto no-scrollbar pb-32">
@@ -205,83 +212,55 @@
 
         function renderAuth(root) {
             root.innerHTML = `
-                <div class="min-h-screen flex items-center justify-center p-6 bg-black text-center">
-                    <div class="glass-panel w-full max-w-xs p-10 rounded-[2.5rem] border-t-2 border-yellow-600 shadow-2xl">
-                        <h2 class="font-ds text-2xl text-white italic mb-2 uppercase tracking-tighter">DS TEAM</h2>
+                <div class="min-h-screen flex items-center justify-center p-6 bg-black">
+                    <div class="glass-panel w-full max-w-xs p-8 rounded-[2.5rem] border-t-2 border-yellow-600 text-center shadow-2xl">
+                        <h2 class="font-ds text-2xl text-white italic mb-2 uppercase">DS TEAM</h2>
                         ${state.step === 1 ? `
-                            <p class="text-[9px] text-zinc-500 uppercase font-bold mb-8">Ingresa tu nombre de manager</p>
-                            <form id="step1F" class="space-y-4 text-left">
+                            <p class="text-[9px] text-zinc-500 uppercase font-bold mb-8">Nombre de manager</p>
+                            <form id="step1F" class="space-y-4">
                                 <input id="uInput" placeholder="NOMBRE MANAGER" class="w-full p-4 rounded-2xl bg-zinc-900 border border-zinc-800 text-white uppercase text-xs outline-none focus:border-yellow-600">
                                 <button class="w-full bg-yellow-600 text-black py-4 rounded-2xl font-bold uppercase text-[10px]">SIGUIENTE</button>
                             </form>
                         ` : `
                             <p class="text-[9px] text-zinc-500 uppercase font-bold mb-2">Manager: <span class="text-white">${state.username}</span></p>
-                            <form id="step2F" class="space-y-4 text-left">
+                            <form id="step2F" class="space-y-4">
                                 <input id="pInput" type="password" placeholder="CONTRASEÑA" class="w-full p-4 rounded-2xl bg-zinc-900 border border-zinc-800 text-white text-xs outline-none focus:border-yellow-600" autofocus>
                                 <button class="w-full bg-yellow-600 text-black py-4 rounded-2xl font-bold uppercase text-[10px]">ENTRAR AL BOX</button>
-                                <button type="button" onclick="window.back()" class="w-full text-[9px] text-zinc-600 font-bold uppercase hover:text-white mt-4 text-center">Cambiar nombre</button>
+                                <button type="button" onclick="window.back()" class="text-[9px] text-zinc-600 font-bold uppercase hover:text-white mt-4 text-center">Cambiar nombre</button>
                             </form>
                         `}
                     </div>
                 </div>`;
-            
-            const f1 = document.getElementById('step1F');
-            if(f1) f1.onsubmit = async (e) => {
-                e.preventDefault();
-                const u = document.getElementById('uInput').value.trim().toLowerCase();
-                if(!u) return;
-                const snap = await get(ref(db, `perfiles/${u}`));
-                state.username = u;
-                state.step = 2;
-                state.isNew = !snap.exists() || (snap.val().password === 'ext');
-                render();
-            };
-
-            const f2 = document.getElementById('step2F');
-            if(f2) f2.onsubmit = async (e) => {
-                e.preventDefault();
-                const p = document.getElementById('pInput').value;
-                if(!p) return;
-                const snap = await get(ref(db, `perfiles/${state.username}`));
-                if (state.isNew) {
-                    await set(ref(db, `perfiles/${state.username}`), { password: p, stats: { puntos:0, temporada:1, victorias:0, podios:0, poles:0, copas:0 } });
-                    state.isLoggedIn = true;
-                } else {
-                    if(snap.val().password === p) { state.isLoggedIn = true; } 
-                    else { alert("Acceso Denegado"); }
-                }
-                render();
-            };
+            if(document.getElementById('step1F')) { document.getElementById('step1F').onsubmit = async (e) => { e.preventDefault(); const u = document.getElementById('uInput').value.trim().toLowerCase(); if(!u) return; const snap = await get(ref(db, `perfiles/${u}`)); state.username = u; state.step = 2; state.isNew = !snap.exists() || (snap.val().password === 'ext'); render(); }; }
+            if(document.getElementById('step2F')) { document.getElementById('step2F').onsubmit = async (e) => { e.preventDefault(); const p = document.getElementById('pInput').value; if(!p) return; const snap = await get(ref(db, `perfiles/${state.username}`)); if (state.isNew) { await set(ref(db, `perfiles/${state.username}`), { password: p, stats: { puntos:0, temporada:1, victorias:0, podios:0, poles:0, copas:0 } }); state.isLoggedIn = true; } else { if(snap.val().password === p) state.isLoggedIn = true; else alert("Acceso denegado"); } render(); }; }
         }
 
+        // --- SETUP ALTA PRECISIÓN ---
         function renderSetup() {
             const items = [
                 { label: 'Suspensión', key: 'currS', fb: 'fbS', v1: 'dura', v2: 'blanda', t1: 'Va muy dura', t2: 'Va muy blanda' },
                 { label: 'Altura Chasis', key: 'currH', fb: 'fbH', v1: 'alto', v2: 'bajo', t1: 'Va muy alto', t2: 'Va muy bajo' },
                 { label: 'Alerón (Aero)', key: 'currW', fb: 'fbW', v1: 'falta', v2: 'sobra', t1: 'Alerones bajos', t2: 'Alerones altos' }
             ];
-
             return `
             <div class="glass-panel p-6 rounded-3xl max-w-4xl mx-auto space-y-6">
                 <div class="flex justify-between items-center border-b border-zinc-800 pb-4">
                     <h2 class="font-ds text-xl uppercase italic text-yellow-600">Calculadora de Setup</h2>
-                    <button onclick="window.resetSetup()" class="text-[9px] text-zinc-500 hover:text-white uppercase font-bold border border-zinc-800 px-3 py-1.5 rounded-lg transition-all">Resetear</button>
+                    <button onclick="window.resetSetup()" class="text-[9px] text-zinc-500 hover:text-white uppercase font-bold border border-zinc-800 px-3 py-1.5 rounded-lg">Resetear</button>
                 </div>
-                <p class="text-[10px] text-zinc-500 uppercase font-bold text-center mb-2">Ingresa los números y lo que dice el piloto. Clavaremos el 100%.</p>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-4">
                     ${items.map(i => `
-                        <div class="bg-black/40 p-6 rounded-2xl border border-zinc-800/50 text-center flex flex-col justify-between">
+                        <div class="bg-black/40 p-5 rounded-2xl border border-zinc-800/50 text-center">
                             <h3 class="text-[10px] text-zinc-400 uppercase font-bold mb-4 tracking-widest">${i.label}</h3>
-                            <input type="number" value="${state.setup[i.key]}" onchange="window.upSetup('${i.key}', parseInt(this.value)||50)" class="w-full bg-black border border-zinc-800 text-white text-3xl font-ds text-center rounded-xl py-3 outline-none mb-4 focus:border-yellow-600">
+                            <input type="number" value="${state.setup[i.key]}" onchange="window.upSetup('${i.key}', parseInt(this.value)||50)" class="w-full bg-black border border-zinc-800 text-white text-3xl font-ds text-center rounded-xl py-2 outline-none mb-4 focus:border-yellow-600">
                             <select onchange="window.upSetup('${i.fb}', this.value)" class="w-full p-3.5 rounded-xl bg-zinc-900 border border-zinc-800 text-xs uppercase font-bold text-white outline-none">
                                 <option value="ok" ${state.setup[i.fb]==='ok'?'selected':''}>¡Perfecto!</option>
                                 <option value="${i.v1}" ${state.setup[i.fb]===i.v1?'selected':''}>${i.t1}</option>
                                 <option value="${i.v2}" ${state.setup[i.fb]===i.v2?'selected':''}>${i.t2}</option>
                             </select>
-                        </div>
-                    `).join('')}
+                        </div>`).join('')}
                 </div>
-                <button onclick="window.calcNextSetup()" class="w-full bg-yellow-600 text-black py-5 rounded-2xl font-bold uppercase text-[12px] mt-6 shadow-xl shadow-yellow-600/10 active:scale-95 transition-all">Calcular Siguiente Prueba</button>
+                <button onclick="window.calcNextSetup()" class="w-full bg-yellow-600 text-black py-4 rounded-xl font-bold uppercase text-[12px] mt-4 shadow-xl active:scale-95 transition-all">Calcular Siguiente Prueba</button>
             </div>`;
         }
 
@@ -293,35 +272,28 @@
             const totalLaps = state.calc.stints.reduce((sum, s) => sum + parseInt(s.laps || 0), 0);
             const totalFuel = state.calc.stints.reduce((sum, s) => sum + getFuel(state.calc.circuit, state.calc.fPoints, s.laps, s.boost), 0);
             const trackLaps = circuitsData[state.calc.circuit].laps;
-            
             return `
                 <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
                     <div class="glass-panel p-6 rounded-3xl h-fit space-y-6">
                         <div>
-                            <label class="text-[9px] text-zinc-500 font-bold uppercase block mb-2">Circuito Seleccionado</label>
+                            <label class="text-[9px] text-zinc-500 font-bold uppercase block mb-2">Circuito</label>
                             <select id="selTrack" class="w-full p-4 rounded-xl bg-zinc-900 border border-zinc-800 text-xs uppercase font-bold text-white outline-none">
                                 ${Object.keys(circuitsData).map(k => `<option value="${k}" ${state.calc.circuit===k?'selected':''}>${circuitsData[k].name} (${circuitsData[k].laps}v)</option>`).join('')}
                             </select>
                         </div>
                         <div class="grid grid-cols-2 gap-3">
-                            <div class="space-y-1">
-                                <span class="text-[8px] text-zinc-600 uppercase font-bold ml-1">Diseño Neum.</span>
-                                <input id="numT" type="number" value="${state.calc.tPoints}" class="w-full p-3.5 rounded-xl bg-black border border-zinc-800 text-center text-yellow-600 font-bold outline-none">
-                            </div>
-                            <div class="space-y-1">
-                                <span class="text-[8px] text-zinc-600 uppercase font-bold ml-1">Diseño Comb.</span>
-                                <input id="numF" type="number" value="${state.calc.fPoints}" class="w-full p-3.5 rounded-xl bg-black border border-zinc-800 text-center text-blue-400 font-bold outline-none">
-                            </div>
+                            <div class="space-y-1 text-center"><span class="text-[8px] text-zinc-600 uppercase font-bold">Neum.</span><input id="numT" type="number" value="${state.calc.tPoints}" class="w-full p-3 rounded-xl bg-black border border-zinc-800 text-center text-yellow-600 font-bold outline-none"></div>
+                            <div class="space-y-1 text-center"><span class="text-[8px] text-zinc-600 uppercase font-bold">Comb.</span><input id="numF" type="number" value="${state.calc.fPoints}" class="w-full p-3 rounded-xl bg-black border border-zinc-800 text-center text-blue-400 font-bold outline-none"></div>
                         </div>
                         <div class="pt-6 border-t border-zinc-800 space-y-4">
                              <div class="flex justify-between items-end">
                                 <div><p class="text-[20px] font-ds ${totalLaps > trackLaps ? 'text-red-500' : 'text-white'}">${totalLaps} / ${trackLaps}</p><p class="text-[8px] text-zinc-600 uppercase font-bold">Vueltas Totales</p></div>
-                                <div class="text-right"><p class="text-[20px] font-ds text-blue-400">${totalFuel.toFixed(1)}L</p><p class="text-[8px] text-zinc-600 uppercase font-bold">Consumo Total</p></div>
+                                <div class="text-right"><p class="text-[20px] font-ds text-blue-400">${totalFuel.toFixed(1)}L</p><p class="text-[8px] text-zinc-600 uppercase font-bold">Consumo</p></div>
                              </div>
                         </div>
                     </div>
                     <div class="lg:col-span-3 space-y-4">
-                        <div class="flex justify-between items-center"><h2 class="font-ds text-lg uppercase italic text-white">Sugerencia de Carrera</h2><button id="addStint" class="bg-yellow-600 text-black px-5 py-2.5 rounded-xl text-[10px] font-bold shadow-lg shadow-yellow-600/20 active:scale-95 transition-all">AÑADIR STINT</button></div>
+                        <div class="flex justify-between items-center"><h2 class="font-ds text-lg uppercase italic text-white">Estrategia Sugerida</h2><button id="addStint" class="bg-yellow-600 text-black px-4 py-2.5 rounded-xl text-[10px] font-bold shadow-lg shadow-yellow-600/20 active:scale-95 transition-all">AÑADIR STINT</button></div>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                             ${state.calc.stints.map((s, i) => {
                                 const wear = getWear(state.calc.circuit, s.compound, s.laps, state.calc.tPoints, s.boost);
@@ -331,8 +303,8 @@
                                     <button onclick="window.delS(${i})" class="absolute top-4 right-5 text-zinc-700 hover:text-red-500 font-bold">✕</button>
                                     <div class="flex justify-center gap-3 mb-6">${['SS','S','M','H'].map(c => `<button onclick="window.upS(${i},'compound','${c}')" class="tyre-btn compound-${c.toLowerCase()} ${s.compound===c?'active':''}">${c}</button>`).join('')}</div>
                                     <div class="grid grid-cols-2 gap-4">
-                                        <div class="text-center"><span class="text-[7px] text-zinc-600 uppercase font-bold block mb-1">Vueltas</span><input type="number" value="${s.laps}" onchange="window.upS(${i},'laps',this.value)" class="w-full p-3 rounded-lg bg-black border border-zinc-800 text-center font-bold text-white outline-none focus:border-yellow-600"></div>
-                                        <div class="text-center"><span class="text-[7px] text-zinc-600 uppercase font-bold block mb-1">Empuje</span><select onchange="window.upS(${i},'boost',this.value)" class="w-full p-3 rounded-lg bg-black border border-zinc-800 text-[10px] uppercase font-bold text-center outline-none text-white focus:border-yellow-600">${[1,2,3,4,5].map(v => `<option value="${v}" ${s.boost==v+''?'selected':''}>Nivel ${v}</option>`).join('')}</select></div>
+                                        <div class="text-center"><span class="text-[7px] text-zinc-600 uppercase font-bold block mb-1">Vueltas</span><input type="number" value="${s.laps}" onchange="window.upS(${i},'laps',this.value)" class="w-full p-3 rounded bg-black border border-zinc-800 text-center font-bold text-white outline-none focus:border-yellow-600"></div>
+                                        <div class="text-center"><span class="text-[7px] text-zinc-600 uppercase font-bold block mb-1">Empuje</span><select onchange="window.upS(${i},'boost',this.value)" class="w-full p-3 rounded bg-black border border-zinc-800 text-[10px] uppercase font-bold text-center outline-none text-white focus:border-yellow-600">${[1,2,3,4,5].map(v => `<option value="${v}" ${s.boost==v+''?'selected':''}>Nivel ${v}</option>`).join('')}</select></div>
                                     </div>
                                     <div class="mt-6 pt-5 border-t border-zinc-900 flex justify-between">
                                         <div><p class="text-[7px] text-zinc-600 uppercase font-bold">Vida Final</p><p class="font-bold text-xl ${wear<20?'text-red-500':'text-green-500'} font-ds">${wear.toFixed(1)}%</p></div>
@@ -345,78 +317,81 @@
                 </div>`;
         }
 
+        // --- RANKING PERFECCIONADO ---
         function renderRanking(isAdmin) {
             const tabs = ['puntos', 'temporada', 'victorias', 'podios', 'poles', 'copas'];
             const list = Object.entries(state.users)
                 .filter(([id, d]) => d.stats && d.stats[state.rankingTab] !== undefined)
-                .map(([id, d]) => ({ id, ...d, score: d.stats[state.rankingTab], trend: d.stats[`trend_${state.rankingTab}`] || 0 }))
+                .map(([id, d]) => ({ 
+                    id, 
+                    ...d, 
+                    score: d.stats[state.rankingTab], 
+                    trend: d.stats[`trend_${state.rankingTab}`] || 0 
+                }))
                 .sort((a,b) => b.score - a.score);
 
             return `
-                <div class="space-y-6">
-                    <div class="flex justify-between items-center gap-4">
-                        <div class="ranking-tabs-scroller">
-                            ${tabs.map(t => `<button onclick="window.setTab('${t}')" class="tab-btn px-5 py-2.5 rounded-xl bg-zinc-900 text-[9px] uppercase font-bold border border-zinc-800 ${state.rankingTab===t?'text-yellow-600 border-yellow-600 bg-yellow-600/5 shadow-lg shadow-yellow-600/5':''} transition-all">${t}</button>`).join('')}
+                <div class="space-y-4">
+                    <div class="flex justify-between items-center gap-2">
+                        <div class="flex overflow-x-auto no-scrollbar gap-2 flex-grow pb-1">
+                            ${tabs.map(t => `<button onclick="window.setTab('${t}')" class="px-5 py-2.5 rounded-xl bg-zinc-900 text-[9px] uppercase font-bold border border-zinc-800 ${state.rankingTab===t?'text-yellow-600 border-yellow-600 bg-yellow-600/5 shadow-lg':''} transition-all shrink-0 whitespace-nowrap">${t}</button>`).join('')}
                         </div>
-                        ${isAdmin ? `<button onclick="window.toggleSync(true)" class="bg-blue-600 text-white px-5 py-2.5 rounded-xl text-[9px] font-bold shrink-0 uppercase tracking-widest shadow-lg shadow-blue-600/20">Config</button>` : ''}
+                        ${isAdmin ? `<button onclick="window.toggleSync(true)" class="bg-blue-600 text-white px-5 py-2.5 rounded-xl text-[9px] font-bold shrink-0 uppercase tracking-widest shadow-lg">Excel</button>` : ''}
                     </div>
-                    ${isAdmin ? `<form id="addM" class="flex gap-2 bg-zinc-900/50 p-2.5 rounded-2xl border border-zinc-800 shadow-inner"><input name="n" placeholder="NOMBRE DEL NUEVO MANAGER" class="flex-grow bg-black p-4 rounded-xl text-xs outline-none focus:border-yellow-600 border border-transparent text-white uppercase font-bold" required><button class="bg-yellow-600 text-black px-8 rounded-xl font-bold text-[10px] uppercase tracking-tighter">CREAR</button></form>` : ''}
-                    <div class="glass-panel rounded-[2rem] overflow-hidden border border-zinc-800/50 overflow-x-auto shadow-2xl">
-                        <table class="w-full text-xs text-left min-w-[500px]">
-                            <tr class="bg-zinc-900/80 text-zinc-500 uppercase text-[8px] border-b border-zinc-800">
-                                <th class="p-6">Pos</th>
-                                <th class="p-6">Manager</th>
-                                <th class="p-6 text-right uppercase">${state.rankingTab}</th>
-                                ${isAdmin?'<th class="p-6 text-center">Gestión Admin</th>':''}
-                            </tr>
+                    
+                    ${isAdmin ? `
+                        <form id="addM" class="flex gap-2 bg-zinc-900/50 p-2.5 rounded-2xl border border-zinc-800">
+                            <input name="n" placeholder="NOMBRE MANAGER" class="flex-grow bg-black p-4 rounded-xl text-xs outline-none focus:border-yellow-600 border border-transparent text-white uppercase font-bold" required>
+                            <button class="bg-yellow-600 text-black px-8 rounded-xl font-bold text-[10px] uppercase">CREAR</button>
+                        </form>
+                    ` : ''}
+
+                    <div class="glass-panel rounded-3xl overflow-hidden shadow-2xl">
+                        <div class="ranking-list-container">
                             ${list.map((u, i) => {
-                                let trendIcon = '<span class="text-orange-500 font-black ml-1.5">-</span>';
-                                let rowBg = 'background: rgba(249, 115, 22, 0.08);';
-                                if (u.trend === 1) { trendIcon = '<span class="text-green-500 font-black ml-1.5 animate-pulse">▲</span>'; rowBg = 'background: rgba(34, 197, 94, 0.08);'; }
-                                else if (u.trend === -1) { trendIcon = '<span class="text-red-500 font-black ml-1.5">▼</span>'; rowBg = 'background: rgba(239, 68, 68, 0.08);'; }
+                                let trendIcon = '<span class="text-zinc-500 font-black ml-2">-</span>';
+                                let trendClass = 'trend-none';
+                                if (u.trend === 1) { trendIcon = '<span class="text-green-500 font-black ml-2">▲</span>'; trendClass = 'trend-up'; }
+                                else if (u.trend === -1) { trendIcon = '<span class="text-red-500 font-black ml-2">▼</span>'; trendClass = 'trend-down'; }
+                                
                                 return `
-                                <tr class="border-b border-zinc-900/40 transition-colors" style="${rowBg}">
-                                    <td class="p-6 font-bold text-zinc-100 whitespace-nowrap">#${i+1} ${trendIcon}</td>
-                                    <td class="p-6 uppercase font-bold text-zinc-200 cursor-pointer hover:text-yellow-600" onclick="window.openChart('${u.id}')">${u.id}</td>
-                                    <td class="p-6 text-right text-yellow-600 font-bold font-ds text-base">${u.score}</td>
-                                    ${isAdmin ? `
-                                    <td class="p-6 text-center">
-                                        <div class="flex justify-center items-center gap-2">
-                                            <input id="in_${u.id}" type="number" class="w-14 bg-black border border-zinc-800 rounded-lg p-2 text-center text-[10px] text-white font-bold" placeholder="+0">
-                                            <button onclick="window.addPoints('${u.id}')" class="w-7 h-7 bg-zinc-800 hover:bg-green-600 text-white rounded font-bold shadow-md transition-all">✓</button>
-                                            <button onclick="window.resetPass('${u.id}')" class="w-7 h-7 bg-zinc-800 hover:bg-blue-600 text-white rounded shadow-md transition-all">🔑</button>
-                                            <button onclick="window.removeStat('${u.id}')" class="w-7 h-7 text-zinc-600 hover:bg-red-600 hover:text-white rounded font-black transition-all">✕</button>
+                                <div class="ranking-item ${trendClass}">
+                                    <div class="flex items-center gap-3">
+                                        <span class="text-[11px] font-bold text-zinc-100 min-w-[35px]">#${i+1} ${trendIcon}</span>
+                                        <div class="flex flex-col">
+                                            <span class="text-[14px] uppercase font-bold text-zinc-100 cursor-pointer hover:text-yellow-600" onclick="window.openChart('${u.id}')">${u.id}</span>
+                                            ${isAdmin ? `
+                                                <div class="flex items-center gap-2 mt-2">
+                                                    <input id="in_${u.id}" type="number" class="w-12 bg-black border border-zinc-800 rounded p-1 text-center text-[10px] text-white" placeholder="+0">
+                                                    <button onclick="window.addPoints('${u.id}')" class="bg-zinc-800 hover:bg-green-600 text-white w-6 h-6 rounded text-[10px]">✓</button>
+                                                    <button onclick="window.resetPass('${u.id}')" class="bg-zinc-800 hover:bg-blue-600 text-white w-6 h-6 rounded text-[10px]">🔑</button>
+                                                    <button onclick="window.removeStat('${u.id}')" class="text-zinc-600 hover:text-red-500 w-6 h-6 font-bold">✕</button>
+                                                </div>
+                                            ` : ''}
                                         </div>
-                                    </td>` : ''}
-                                </tr>`;
+                                    </div>
+                                    <span class="text-xl text-yellow-600 font-bold font-ds">${u.score}</span>
+                                </div>`;
                             }).join('')}
-                        </table>
+                        </div>
                     </div>
                 </div>`;
         }
 
         function renderChartModal() {
-            return `
-            <div class="fixed inset-0 bg-black/90 z-[100] flex items-center justify-center p-6 backdrop-blur-md">
-                <div class="glass-panel p-10 rounded-[3rem] w-full max-w-md text-center border-t-2 border-yellow-600 relative shadow-[0_0_50px_rgba(197,160,89,0.1)]">
-                    <button onclick="window.closeChart()" class="absolute top-6 right-8 text-zinc-500 hover:text-white font-bold text-xl transition-all">✕</button>
-                    <h3 class="font-ds text-yellow-600 mb-8 italic uppercase text-2xl tracking-tighter">${state.chartUser}</h3>
-                    <div id="statsBarsContainer" class="p-2 w-full flex flex-col gap-8 text-left"></div>
-                    <button onclick="window.closeChart()" class="w-full mt-10 py-4 rounded-2xl bg-zinc-900 border border-zinc-800 text-white text-[10px] font-bold uppercase tracking-widest active:scale-95 transition-all">Cerrar Análisis</button>
-                </div>
-            </div>`;
+            return `<div class="fixed inset-0 bg-black/90 z-[100] flex items-center justify-center p-6 backdrop-blur-md"><div class="glass-panel p-8 rounded-[3rem] w-full max-w-md text-center border-t-2 border-yellow-600 relative shadow-2xl"><button onclick="window.closeChart()" class="absolute top-6 right-8 text-zinc-500 hover:text-white font-bold text-xl transition-all">✕</button><h3 class="font-ds text-yellow-600 mb-6 italic uppercase text-2xl tracking-tighter">${state.chartUser}</h3><div id="statsBarsContainer" class="p-2 w-full flex flex-col gap-8 text-left"></div></div></div>`;
         }
 
         function renderChat() {
-            return `<div class="flex flex-col h-[75vh] glass-panel rounded-[2.5rem] overflow-hidden border border-zinc-800 shadow-2xl"><div id="chatBox" class="flex-grow p-6 overflow-y-auto space-y-5 no-scrollbar">${state.messages.map(m => `<div class="flex flex-col ${m.u === state.username ? 'items-end' : 'items-start'}"><span class="text-[7px] font-bold text-zinc-600 uppercase mb-1.5 px-1">${m.u}</span><div class="p-4 rounded-2xl text-xs max-w-[85%] ${m.u === state.username ? 'bg-yellow-600 text-black font-semibold' : 'bg-zinc-900 text-white border border-zinc-800'}">${m.t}</div></div>`).join('')}</div><form id="chatF" class="p-4 bg-zinc-900/80 border-t border-zinc-800/50 flex gap-2"><input name="m" placeholder="Escribe al equipo..." class="flex-grow bg-black p-3.5 rounded-2xl text-xs outline-none focus:border-yellow-600 text-white" autocomplete="off"><button class="bg-yellow-600 text-black px-6 rounded-2xl font-bold text-[10px] uppercase">Enviar</button></form></div>`;
+            return `<div class="flex flex-col h-[75vh] glass-panel rounded-3xl overflow-hidden border border-zinc-800 shadow-2xl"><div id="chatBox" class="flex-grow p-5 overflow-y-auto space-y-4 no-scrollbar">${state.messages.map(m => `<div class="flex flex-col ${m.u === state.username ? 'items-end' : 'items-start'}"><span class="text-[7px] font-bold text-zinc-600 uppercase mb-1 ml-1 mr-1">${m.u}</span><div class="p-3.5 rounded-2xl text-xs max-w-[80%] ${m.u === state.username ? 'bg-yellow-600 text-black font-semibold' : 'bg-zinc-900 text-white border border-zinc-800'}">${m.t}</div></div>`).join('')}</div><form id="chatF" class="p-4 bg-zinc-900/80 border-t border-zinc-800/50 flex gap-2"><input name="m" placeholder="Escribe al equipo..." class="flex-grow bg-black p-3.5 rounded-2xl text-xs outline-none focus:border-yellow-600 text-white" autocomplete="off"><button class="bg-yellow-600 text-black px-6 rounded-2xl font-bold text-[10px] uppercase">Enviar</button></form></div>`;
         }
 
         function renderSyncModal() {
             const url = `https://ds-automobiles-f0a17-default-rtdb.firebaseio.com/perfiles.json?print=pretty`;
-            return `<div class="fixed inset-0 bg-black/90 z-[100] flex items-center justify-center p-6 backdrop-blur-sm"><div class="glass-panel p-8 rounded-[2.5rem] max-w-sm w-full text-center border-yellow-600/30"><h3 class="font-ds text-white mb-2 italic uppercase text-center">Sincronización Excel</h3><p class="text-[9px] text-zinc-500 mb-6 uppercase text-center">Copia este enlace para tu Sheets</p><div class="bg-black p-4 rounded-2xl border border-zinc-800 mb-6 overflow-x-auto"><code class="text-[9px] text-blue-400 break-all select-all font-mono">=IMPORTDATA("${url}")</code></div><button onclick="window.toggleSync(false)" class="w-full py-4 rounded-2xl bg-zinc-900 text-white text-[10px] font-bold uppercase border border-zinc-800">Cerrar</button></div></div>`;
+            return `<div class="fixed inset-0 bg-black/90 z-[100] flex items-center justify-center p-6 backdrop-blur-sm"><div class="glass-panel p-8 rounded-[2.5rem] max-w-sm w-full text-center border-yellow-600/30"><h3 class="font-ds text-white mb-2 italic uppercase text-center">Sincronización Excel</h3><div class="bg-black p-4 rounded-2xl border border-zinc-800 mb-6 overflow-x-auto"><code class="text-[9px] text-blue-400 break-all select-all font-mono leading-relaxed">=IMPORTDATA("${url}")</code></div><button onclick="window.toggleSync(false)" class="w-full py-4 rounded-2xl bg-zinc-900 text-white text-[10px] font-bold uppercase border border-zinc-800">Cerrar</button></div></div>`;
         }
 
-        // --- ACCIONES GLOBALES ---
+        // --- ACCIONES ---
         window.go = (s) => { state.section = s; render(); };
         window.upS = (i, k, v) => { state.calc.stints[i][k] = v; render(); };
         window.delS = (i) => { state.calc.stints.splice(i, 1); render(); };
@@ -424,12 +399,8 @@
         window.toggleSync = (v) => { state.showSync = v; render(); };
         window.back = () => { state.step = 1; render(); };
 
-        // MOTOR DE SETUP (ALTA PRECISIÓN INTACTO)
         window.upSetup = (k, v) => { state.setup[k] = v; render(); };
-        window.resetSetup = () => {
-            state.setup = { sMin: 1, sMax: 100, currS: 50, fbS: 'ok', lastOkS: null, hMin: 1, hMax: 100, currH: 50, fbH: 'ok', lastOkH: null, wMin: 1, wMax: 100, currW: 50, fbW: 'ok', lastOkW: null };
-            render();
-        };
+        window.resetSetup = () => { state.setup = { sMin: 1, sMax: 100, currS: 50, fbS: 'ok', lastOkS: null, hMin: 1, hMax: 100, currH: 50, fbH: 'ok', lastOkH: null, wMin: 1, wMax: 100, currW: 50, fbW: 'ok', lastOkW: null }; render(); };
         window.calcNextSetup = () => {
             let s = state.setup;
             const refine = (curr, min, max, fb, last) => {
@@ -461,33 +432,20 @@
         };
 
         window.addPoints = async (id) => { const input = document.getElementById(`in_${id}`); const val = parseFloat(input.value) || 0; if (val === 0) return; await updateGlobalRanking(state.rankingTab, id, 'add', val); input.value = ''; };
-        window.removeStat = async (id) => { if(confirm(`¿Quitar manager del ranking de ${state.rankingTab.toUpperCase()}? (Sus otros datos se mantienen)`)) await updateGlobalRanking(state.rankingTab, id, 'remove'); };
-        window.resetPass = async (id) => { if(confirm(`¿Deseas resetear la contraseña de ${id}? Volverá a estado de invitado.`)) await update(ref(db, `perfiles/${id}`), { password: 'ext' }); };
+        window.removeStat = async (id) => { if(confirm(`¿Quitar manager del ranking de ${state.rankingTab.toUpperCase()}?`)) await updateGlobalRanking(state.rankingTab, id, 'remove'); };
+        window.resetPass = async (id) => { if(confirm(`¿Deseas resetear la contraseña de ${id}?`)) await update(ref(db, `perfiles/${id}`), { password: 'ext' }); };
         
         window.openChart = (id) => { state.chartUser = id; render(); setTimeout(() => window.drawChart(id), 50); };
         window.closeChart = () => { state.chartUser = null; render(); };
-        window.drawChart = (id) => { const container = document.getElementById('statsBarsContainer'); if(!container || !state.users[id]) return; const stats = ['puntos', 'victorias', 'podios', 'poles', 'copas']; const all = Object.values(state.users); let html = ''; stats.forEach(stat => { const val = parseFloat(state.users[id].stats[stat]) || 0; const avg = all.reduce((sum, u) => sum + (parseFloat(u.stats?.[stat]) || 0), 0) / (all.length || 1); const max = Math.max(val, avg, 1); html += `<div class="w-full mb-3"><div class="flex justify-between items-end mb-1 px-1"><span class="text-[#c5a059] font-ds text-xs font-bold">${val}</span><span class="text-[8px] text-zinc-500 uppercase tracking-widest font-bold">${stat}</span><span class="text-zinc-500 font-ds text-xs">${avg.toFixed(1)}</span></div><div class="h-2.5 w-full bg-zinc-900 rounded-full overflow-hidden border border-zinc-800"><div class="bg-[#c5a059] h-full transition-all duration-700" style="width: ${(val/max)*100}%"></div></div></div>`; }); container.innerHTML = html; };
+        window.drawChart = (id) => { const container = document.getElementById('statsBarsContainer'); if(!container || !state.users[id]) return; const stats = ['puntos', 'victorias', 'podios', 'poles', 'copas']; const all = Object.values(state.users); let html = ''; stats.forEach(stat => { const val = parseFloat(state.users[id].stats[stat]) || 0; const avg = all.reduce((sum, u) => sum + (parseFloat(u.stats?.[stat]) || 0), 0) / (all.length || 1); const max = Math.max(val, avg, 1); html += `<div class="w-full mb-3"><div class="flex justify-between items-end mb-1 px-1"><span class="text-[#c5a059] font-ds text-xs font-bold">${val}</span><span class="text-[8px] text-zinc-500 uppercase tracking-widest font-bold">${stat}</span><span class="text-zinc-500 font-ds text-xs">${avg.toFixed(1)}</span></div><div class="h-2.5 w-full bg-zinc-900 rounded-full overflow-hidden border border-zinc-800 shadow-inner"><div class="bg-[#c5a059] h-full transition-all duration-700" style="width: ${(val/max)*100}%"></div></div></div>`; }); container.innerHTML = html; };
 
         function attachEvents() {
             if(document.getElementById('selTrack')) document.getElementById('selTrack').onchange = (e) => { state.calc.circuit = e.target.value; render(); };
             if(document.getElementById('numT')) document.getElementById('numT').onchange = (e) => { state.calc.tPoints = e.target.value; render(); };
             if(document.getElementById('numF')) document.getElementById('numF').onchange = (e) => { state.calc.fPoints = e.target.value; render(); };
             if(document.getElementById('addStint')) document.getElementById('addStint').onclick = () => { state.calc.stints.push({ compound: 'M', laps: 5, boost: '5' }); render(); };
-            if(document.getElementById('addM')) {
-                document.getElementById('addM').onsubmit = async (e) => {
-                    e.preventDefault();
-                    const n = e.target.n.value.trim().toLowerCase();
-                    if(n) await set(ref(db, `perfiles/${n}`), { password: 'ext', stats: { puntos:0, temporada:1, victorias:0, podios:0, poles:0, copas:0 } });
-                    e.target.reset();
-                };
-            }
-            if(document.getElementById('chatF')) {
-                document.getElementById('chatF').onsubmit = async (e) => {
-                    e.preventDefault();
-                    const t = e.target.m.value.trim();
-                    if(t) { await push(ref(db, 'chat'), { u: state.username, t, ts: serverTimestamp() }); e.target.reset(); }
-                };
-            }
+            if(document.getElementById('addM')) { document.getElementById('addM').onsubmit = async (e) => { e.preventDefault(); const n = e.target.n.value.trim().toLowerCase(); if(n) await set(ref(db, `perfiles/${n}`), { password: 'ext', stats: { puntos:0, temporada:1, victorias:0, podios:0, poles:0, copas:0 } }); e.target.reset(); }; }
+            if(document.getElementById('chatF')) { document.getElementById('chatF').onsubmit = async (e) => { e.preventDefault(); const t = e.target.m.value.trim(); if(t) { await push(ref(db, 'chat'), { u: state.username, t, ts: serverTimestamp() }); e.target.reset(); } }; }
             const chatBox = document.getElementById('chatBox'); if(chatBox) chatBox.scrollTop = chatBox.scrollHeight;
         }
 
