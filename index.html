@@ -4,361 +4,186 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>DS Automobiles - Sugerencias de estrategia</title>
-    <!-- Librerías Externas -->
+    <!-- Librerías de Visualización y Datos -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
     
     <style>
-        /* Variables de Marca DS */
-        :root { 
-            --ds-gold: #c5a059; 
-            --ds-black: #050505; 
-            --ds-gray: #141417;
-        }
-
-        /* Configuración Base del Cuerpo */
-        body { 
-            background-color: var(--ds-black); 
-            color: #e4e4e7; 
-            font-family: 'Inter', sans-serif; 
-            height: 100vh; 
-            overflow: hidden; 
-            margin: 0; 
-        }
-
-        /* Tipografía DS Orbitron */
-        .font-ds { 
-            font-family: 'Orbitron', sans-serif; 
-            letter-spacing: 0.1em; 
-        }
-
-        /* Paneles con Efecto Glassmorphism */
-        .glass-panel { 
-            background: rgba(20, 20, 23, 0.95); 
-            backdrop-filter: blur(20px); 
-            border: 1px solid rgba(197, 160, 89, 0.15); 
-        }
-
-        /* Botones de Neumáticos Redondos */
-        .tyre-btn { 
-            width: 38px; 
-            height: 38px; 
-            border-radius: 50%; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            font-size: 10px; 
-            font-weight: 900; 
-            cursor: pointer; 
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); 
-            border: 2px solid rgba(0,0,0,0.5); 
-        }
-        .tyre-btn.active { 
-            transform: scale(1.15); 
-            border-color: white; 
-            box-shadow: 0 0 12px currentColor; 
-        }
-
-        /* Colores de Compuestos */
+        :root { --ds-gold: #c5a059; --ds-black: #050505; }
+        body { background-color: var(--ds-black); color: #e4e4e7; font-family: 'Inter', sans-serif; height: 100vh; overflow: hidden; margin: 0; }
+        .font-ds { font-family: 'Orbitron', sans-serif; letter-spacing: 0.1em; }
+        .glass-panel { background: rgba(20, 20, 23, 0.95); backdrop-filter: blur(20px); border: 1px solid rgba(197, 160, 89, 0.15); }
+        
+        .tyre-btn { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 900; cursor: pointer; transition: all 0.2s; border: 2px solid rgba(0,0,0,0.5); }
+        .tyre-btn.active { transform: scale(1.15); border-color: white; box-shadow: 0 0 12px currentColor; }
         .compound-ss { background: #ef4444; color: white; }
         .compound-s { background: #eab308; color: black; }
         .compound-m { background: #f4f4f5; color: black; }
         .compound-h { background: #f97316; color: white; }
         
-        /* Navegación Superior con Deslizamiento Horizontal */
-        .nav-container { 
-            display: flex; 
-            gap: 1.25rem; 
-            overflow-x: auto; 
-            scrollbar-width: none; 
-            -ms-overflow-style: none; 
-            padding-right: 20px;
-        }
-        .nav-container::-webkit-scrollbar { display: none; }
-        
-        .nav-link { 
-            white-space: nowrap; 
-            font-size: 10px; 
-            font-weight: 800; 
-            text-transform: uppercase; 
-            color: #71717a; 
-            transition: all 0.3s ease; 
-            border-bottom: 2px solid transparent; 
-            padding-bottom: 6px; 
-        }
-        .nav-link.active { 
-            color: var(--ds-gold); 
-            border-bottom-color: var(--ds-gold); 
-        }
+        .nav-container { display: flex; gap: 1.25rem; overflow-x: auto; scrollbar-width: none; padding-right: 20px; }
+        .nav-link { white-space: nowrap; font-size: 10px; font-weight: 800; text-transform: uppercase; color: #71717a; transition: all 0.3s ease; border-bottom: 2px solid transparent; padding-bottom: 6px; }
+        .nav-link.active { color: var(--ds-gold); border-bottom-color: var(--ds-gold); }
 
-        /* Estructura de Encabezados de Ranking */
-        .ranking-header {
-            display: grid;
-            grid-template-columns: 50px 1fr 50px 65px;
-            padding: 0.8rem 1rem;
-            background: rgba(0,0,0,0.5);
-            border-bottom: 1px solid rgba(197, 160, 89, 0.4);
-            text-transform: uppercase;
-            font-size: 8px;
-            font-weight: 900;
-            color: var(--ds-gold);
-            letter-spacing: 0.15em;
-        }
+        .ranking-header { display: grid; grid-template-columns: 55px 1fr 45px 70px; padding: 0.8rem 1rem; background: rgba(0,0,0,0.5); border-bottom: 1px solid rgba(197, 160, 89, 0.4); font-size: 8px; font-weight: 900; color: var(--ds-gold); letter-spacing: 0.15em; }
+        .ranking-item { display: grid; grid-template-columns: 55px 1fr 45px 70px; align-items: center; padding: 1.1rem 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); transition: background 0.3s ease; }
+        .ranking-item.trend-up { background: rgba(34, 197, 94, 0.18); }
+        .ranking-item.trend-down { background: rgba(239, 68, 68, 0.18); }
+        .ranking-item.trend-none { background: rgba(249, 115, 22, 0.12); } 
 
-        /* Estructura de Ítems de Ranking */
-        .ranking-item {
-            display: grid;
-            grid-template-columns: 50px 1fr 50px 65px;
-            align-items: center;
-            padding: 1rem;
-            border-bottom: 1px solid rgba(255,255,255,0.05);
-            width: 100%;
-            transition: background 0.3s ease;
-        }
-        /* Colores de Tendencia Inalterados */
-        .ranking-item.trend-up { background: rgba(34, 197, 94, 0.12); }
-        .ranking-item.trend-down { background: rgba(239, 68, 68, 0.12); }
-        .ranking-item.trend-none { background: rgba(249, 115, 22, 0.1); } 
-
-        /* Cuadrícula de Categorías (Pestañas del Ranking) */
-        .ranking-categories-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 0.5rem;
-            margin-bottom: 1.25rem;
-        }
-        .category-tab {
-            padding: 0.7rem 0.2rem;
-            border-radius: 0.6rem;
-            font-size: 8px;
-            font-weight: 800;
-            text-transform: uppercase;
-            text-align: center;
-            border: 1px solid rgba(197, 160, 89, 0.2);
-            background: #18181b;
-            color: #71717a;
-            transition: all 0.25s ease;
-        }
-        .category-tab.active {
-            background: var(--ds-gold);
-            color: black;
-            border-color: var(--ds-gold);
-            box-shadow: 0 0 15px rgba(197, 160, 89, 0.15);
-        }
-
-        /* Utilidades de Scroll y Botones */
         .no-scrollbar::-webkit-scrollbar { display: none; }
-        input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { 
-            -webkit-appearance: none; 
-            margin: 0; 
-        }
+        input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+        
+        .category-tab { padding: 0.7rem 0.2rem; border-radius: 0.6rem; font-size: 8px; font-weight: 800; text-transform: uppercase; text-align: center; border: 1px solid rgba(197, 160, 89, 0.2); background: #18181b; color: #71717a; }
+        .category-tab.active { background: var(--ds-gold); color: black; border-color: var(--ds-gold); }
+        .setup-row-elite { background: linear-gradient(90deg, rgba(197, 160, 89, 0.15), transparent); border-left: 3px solid var(--ds-gold); }
     </style>
 </head>
 <body class="flex flex-col">
 
-    <!-- Punto de Montaje de la Aplicación -->
     <div id="app" class="flex flex-col h-full w-full"></div>
 
     <script type="module">
-        // Importación de Módulos Firebase v10
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
         import { getDatabase, ref, set, onValue, get, update, push, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-database.js";
 
-        // Configuración de Conexión a Base de Datos
         const firebaseConfig = { databaseURL: "https://ds-automobiles-f0a17-default-rtdb.firebaseio.com/" };
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
-        // --- BASE DE DATOS DE 25 CIRCUITOS (SIN MODIFICACIONES) ---
-        const circuitsData = {
-            "MAL": { name: "Malasia", laps: 27, length: 5.536, tyreWear: 22 },
-            "AUT": { name: "Austria", laps: 34, length: 4.044, tyreWear: 19 },
-            "UAE": { name: "Abu Dhabi", laps: 25, length: 5.41, tyreWear: 17 },
-            "JPN": { name: "Japón", laps: 27, length: 5.058, tyreWear: 23 },
-            "BRA": { name: "Brasil", laps: 34, length: 3.971, tyreWear: 16 },
-            "NED": { name: "Países Bajos", laps: 35, length: 4.259, tyreWear: 20 },
-            "CAN": { name: "Canadá", laps: 31, length: 4.341, tyreWear: 15 },
-            "ESP": { name: "España", laps: 31, length: 4.457, tyreWear: 25 },
-            "SIN": { name: "Singapur", laps: 30, length: 5.049, tyreWear: 14 },
-            "GER": { name: "Alemania", laps: 33, length: 4.179, tyreWear: 18 },
-            "TUR": { name: "Turquía", laps: 27, length: 5.162, tyreWear: 21 },
-            "AUS": { name: "Australia", laps: 28, length: 5.301, tyreWear: 18 },
-            "BEL": { name: "Bélgica", laps: 21, length: 7.041, tyreWear: 22 },
-            "ITA": { name: "Italia", laps: 25, length: 5.401, tyreWear: 18 },
-            "MEX": { name: "México", laps: 35, length: 4.308, tyreWear: 19 },
-            "FRA": { name: "Francia", laps: 24, length: 5.881, tyreWear: 17 },
-            "HUN": { name: "Hungría", laps: 39, length: 3.498, tyreWear: 21 },
-            "AZE": { name: "Azerbaiyán", laps: 23, length: 6.049, tyreWear: 15 },
-            "USA": { name: "EE.UU.", laps: 30, length: 4.602, tyreWear: 18 },
-            "GBR": { name: "Gran Bretaña", laps: 24, length: 5.751, tyreWear: 23 },
-            "CHN": { name: "China", laps: 27, length: 5.442, tyreWear: 20 },
-            "MON": { name: "Mónaco", laps: 29, length: 4.015, tyreWear: 12 },
-            "BHR": { name: "Bahréin", laps: 29, length: 4.726, tyreWear: 24 },
-            "RUS": { name: "Rusia", laps: 23, length: 6.077, tyreWear: 16 },
-            "EUR": { name: "Europa", laps: 25, length: 5.59, tyreWear: 19 }
+        // --- DATA iGPlus CLONADA ---
+        const track_info = {
+            'au': { name: 'Australia', length: 5.3017135, wear: 40, laps_100: 57 },
+            'my': { name: 'Malasia', length: 5.5358276, wear: 80, laps_100: 55 },
+            'cn': { name: 'China', length: 5.4417996, wear: 80, laps_100: 55 },
+            'bh': { name: 'Bahréin', length: 4.7273, wear: 60, laps_100: 59 },
+            'es': { name: 'España', length: 4.4580207, wear: 85, laps_100: 62 },
+            'mc': { name: 'Mónaco', length: 4.0156865, wear: 20, laps_100: 59 },
+            'tr': { name: 'Turquía', length: 5.1630893, wear: 90, laps_100: 54 },
+            'de': { name: 'Alemania', length: 4.1797523, wear: 50, laps_100: 67 },
+            'hu': { name: 'Hungría', length: 3.4990127, wear: 30, laps_100: 79 },
+            'eu': { name: 'Europa', length: 5.5907145, wear: 45, laps_100: 50 },
+            'be': { name: 'Bélgica', length: 7.0406127, wear: 60, laps_100: 43 },
+            'it': { name: 'Italia', length: 5.4024186, wear: 35, laps_100: 51 },
+            'sg': { name: 'Singapur', length: 5.049042, wear: 45, laps_100: 60 },
+            'jp': { name: 'Japón', length: 5.0587635, wear: 70, laps_100: 55 },
+            'br': { name: 'Brasil', length: 3.9715014, wear: 60, laps_100: 69 },
+            'ae': { name: 'Abu Dhabi', length: 5.412688, wear: 50, laps_100: 50 },
+            'gb': { name: 'Gran Bretaña', length: 5.75213, wear: 65, laps_100: 48 },
+            'fr': { name: 'Francia', length: 5.882508, wear: 80, laps_100: 48 },
+            'at': { name: 'Austria', length: 4.044372, wear: 60, laps_100: 68 },
+            'ca': { name: 'Canadá', length: 4.3413563, wear: 45, laps_100: 63 },
+            'az': { name: 'Azerbaiyán', length: 6.053212, wear: 45, laps_100: 46 },
+            'mx': { name: 'México', length: 4.3076024, wear: 60, laps_100: 70 },
+            'ru': { name: 'Rusia', length: 6.078335, wear: 50, laps_100: 46 },
+            'us': { name: 'EE.UU.', length: 4.60296, wear: 65, laps_100: 60 },
+            'nl': { name: 'Países Bajos', length: 4.259, wear: 65, laps_100: 72 }
         };
 
-        // Estado Global de la Aplicación
+        const setupScale = {
+            190: { 3: -8, 2: -4, 1: -2 }, 185: { 3: -6, 2: -3, 1: -1 }, 180: { 3: -4, 2: -2, 1: -1 },
+            175: { 3: -2, 2: -1, 1: 0 }, 170: { 3: 0, 2: 0, 1: 0 }, 165: { 3: 2, 2: 1, 1: 0 }
+        };
+        const setupCircuits = {
+            3: { ae:{r:6,w:1,s:12}, at:{r:4,w:0,s:14}, au:{r:9,w:4,s:8}, az:{r:8,w:1,s:12}, be:{r:6,w:3,s:9}, bh:{r:4,w:0,s:14}, br:{r:4,w:2,s:10}, ca:{r:4,w:-1,s:16}, cn:{r:2,w:2,s:10}, de:{r:4,w:2,s:10}, es:{r:2,w:5,s:6}, eu:{r:6,w:5,s:6}, fr:{r:8,w:2,s:10}, gb:{r:4,w:0,s:14}, hu:{r:5,w:6,s:4}, it:{r:6,w:-2,s:18}, jp:{r:6,w:5,s:6}, mc:{r:11,w:9,s:1}, mx:{r:3,w:2,s:10}, my:{r:6,w:1,s:12}, ru:{r:2,w:2,s:10}, sg:{r:8,w:7,s:3}, tr:{r:6,w:2,s:10}, us:{r:2,w:2,s:11}, nl:{r:1,w:1,s:10} },
+            2: { ae:{r:13,w:3,s:30}, at:{r:9,w:0,s:35}, au:{r:19,w:8,s:20}, az:{r:17,w:3,s:30}, be:{r:12,w:6,s:23}, bh:{r:8,w:0,s:35}, br:{r:8,w:5,s:25}, ca:{r:9,w:-3,s:40}, cn:{r:5,w:5,s:25}, de:{r:8,w:5,s:25}, es:{r:5,w:10,s:15}, eu:{r:12,w:10,s:15}, fr:{r:17,w:5,s:25}, gb:{r:9,w:0,s:35}, hu:{r:10,w:13,s:10}, it:{r:12,w:-5,s:45}, jp:{r:12,w:10,s:15}, mc:{r:22,w:18,s:1}, mx:{r:7,w:5,s:25}, my:{r:12,w:3,s:30}, ru:{r:4,w:5,s:25}, sg:{r:17,w:14,s:8}, tr:{r:13,w:5,s:25}, us:{r:4,w:4,s:28}, nl:{r:-1,w:-1,s:20} },
+            1: { ae:{r:25,w:5,s:60}, at:{r:18,w:0,s:70}, au:{r:38,w:15,s:40}, az:{r:33,w:5,s:60}, be:{r:23,w:12,s:45}, bh:{r:15,w:0,s:70}, br:{r:15,w:10,s:50}, ca:{r:18,w:-5,s:80}, cn:{r:10,w:10,s:50}, de:{r:15,w:10,s:50}, es:{r:10,w:20,s:30}, eu:{r:23,w:20,s:30}, fr:{r:33,w:10,s:50}, gb:{r:18,w:0,s:70}, hu:{r:20,w:25,s:20}, it:{r:23,w:-10,s:90}, jp:{r:23,w:20,s:30}, mc:{r:43,w:35,s:1}, mx:{r:13,w:10,s:50}, my:{r:23,w:5,s:60}, ru:{r:8,w:10,s:50}, sg:{r:33,w:27,s:15}, tr:{r:25,w:10,s:50}, us:{r:8,w:7,s:55}, nl:{r:-1,w:-1,s:40} }
+        };
+
         let state = {
-            isLoggedIn: false,
-            step: 1, 
-            username: '',
-            isNew: false,
-            section: 'strategy',
-            users: {},
-            messages: [],
-            rankingTab: 'puntos',
-            showSync: false,
-            chartUser: null,
-            compareUser: '',
-            calc: { 
-                circuit: 'AZE', 
-                tPoints: 66, 
-                fPoints: 67, 
-                stints: [{ compound: 'S', laps: 6, boost: '5' }] 
-            },
-            setup: { 
-                sMin: 1, sMax: 100, currS: 50, fbS: 'ok', lastOkS: null,
-                hMin: 1, hMax: 100, currH: 50, fbH: 'ok', lastOkH: null,
-                wMin: 1, wMax: 100, currW: 50, fbW: 'ok', lastOkW: null 
-            }
+            isLoggedIn: false, step: 1, username: '', isNew: false, section: 'strategy',
+            users: {}, messages: [], rankingTab: 'puntos', showSync: false, chartUser: null, compareUser: '',
+            calc: { circuit: 'az', tPoints: 66, fPoints: 67, leagueLength: 50, stints: [{ compound: 'S', laps: 6, boost: '60' }] },
+            setupCalc: { height: 175 }
         };
 
-        // --- ALGORITMOS MATEMÁTICOS DE CARRERA (SIN FACTOR TEMPERATURA) ---
-        function getWear(track, comp, laps, pts, boost) {
-            const c = circuitsData[track];
-            const boostMult = { '1': 0.85, '2': 0.92, '3': 1.0, '4': 1.12, '5': 1.25 }[boost];
-            const baseW = (((pts/2.5)**-0.0778 * 1.43) * (0.00364 * c.tyreWear + 0.354) * (c.length * 1.384) * 150) / 100;
-            const wearPerLap = baseW * 1.025 * { 'SS': 1.62, 'S': 1.15, 'M': 0.95, 'H': 0.72 }[comp] * boostMult;
-            return Math.max(0, 100 - (wearPerLap * laps));
+        // --- MOTOR iGPlus 100% CALIBRADO ---
+        function getWear(track, comp, laps, pts, leagueLen) {
+            const tr = track_info[track];
+            const tyreFactors = { SS: 2.14, S: 1.4, M: 1, H: 0.78 };
+            const multipliers = { 100: 1, 75: 1.25, 50: 1.5, 25: 3 }; // Multiplicador de Longitud de Carrera
+            
+            // t = (1.29 * pts ** -0.0696) * (0.00527 * wear + 0.556) * length * multiplier * tyreWear
+            const t = (1.29 * Math.pow(pts, -0.0696)) * (0.00527 * tr.wear + 0.556) * tr.length * multipliers[leagueLen] * tyreFactors[comp];
+            
+            // Fórmula Exponencial Real: Math.exp((-t / 100 * 1.18) * laps) * 100
+            const exponent = (-t / 100 * 1.18) * laps;
+            return Math.max(0, Math.exp(exponent) * 100);
         }
 
-        function getFuel(track, pts, laps, boost) {
-            const c = circuitsData[track];
-            const boostMult = { '1': 0.93, '2': 0.97, '3': 1.0, '4': 1.03, '5': 1.045 }[boost];
-            return ((98.456 * Math.pow(pts, -0.088) * c.length) / 139.77) * laps * boostMult;
+        function getFuel(track, pts, laps, push) {
+            const tr = track_info[track];
+            const pushAdj = { 100: 0.02, 80: 0.01, 60: 0, 40: -0.004, 20: -0.007 }[push] || 0;
+            // fuel_calc: 0.6983736841 * f ** -0.08510976572
+            const fuelPerKm = (0.6983736841 * Math.pow(pts, -0.08510976572)) + pushAdj;
+            return fuelPerKm * tr.length * laps;
         }
 
-        // --- MOTOR DE RENDERIZADO DINÁMICO ---
+        function getSetupForTier(track, height, tier) {
+            const base = setupCircuits[tier][track];
+            if (!base) return { r:0, w:0, s:0 };
+            const key = Object.keys(setupScale).sort((a,b)=>b-a).find(k => parseInt(k) <= height);
+            const adj = key ? setupScale[key][tier] : 0;
+            return { r: Math.max(1, base.r + adj), w: Math.max(1, base.w), s: Math.max(1, base.s + adj) };
+        }
+
+        // --- UI ---
         function render() {
             const root = document.getElementById('app');
             if (!state.isLoggedIn) { renderAuth(root); return; }
             const isAdmin = state.username === 'admin';
-            
             root.innerHTML = `
-                <header class="bg-black border-b border-zinc-800 p-4 sticky top-0 z-50">
+                <header class="bg-black border-b border-zinc-800 p-4 sticky top-0 z-50 font-ds">
                     <div class="max-w-7xl mx-auto flex justify-between items-center gap-4">
-                        <div class="shrink-0 flex items-center">
-                            <h1 class="font-ds text-[10px] italic text-yellow-600 uppercase">DS PERFORMANCE</h1>
-                        </div>
-                        <!-- Navegación Superior con Soporte Táctil -->
+                        <h1 class="text-[10px] italic text-yellow-600 uppercase tracking-widest">DS PERFORMANCE</h1>
                         <nav class="nav-container py-1 flex-grow">
                             <button onclick="window.go('strategy')" class="nav-link ${state.section==='strategy'?'active':''}">Estrategia</button>
                             <button onclick="window.go('setup')" class="nav-link ${state.section==='setup'?'active':''}">Setup</button>
                             <button onclick="window.go('ranking')" class="nav-link ${state.section==='ranking'?'active':''}">Ranking</button>
-                            <button onclick="window.go('chat')" class="nav-link ${state.section==='chat'?'active':''}">Chat</button>
+                            <button onclick="window.go('chat')" class="nav-link ${state.section==='chat'?'active':''}">Radio</button>
                         </nav>
-                        <div class="shrink-0 text-[7px] bg-zinc-900 border border-zinc-800 px-2 py-1 rounded text-zinc-500 uppercase font-bold hidden md:block">Manager: ${state.username}</div>
+                        <div class="shrink-0 text-[7px] bg-zinc-900 border border-zinc-800 px-2 py-1 rounded text-zinc-400 uppercase font-bold hidden md:block">MANAGER: ${state.username}</div>
                     </div>
                 </header>
                 <main class="p-4 flex-grow overflow-y-auto no-scrollbar pb-32">
                     ${renderSection(isAdmin)}
                 </main>
-                ${state.showSync ? renderSyncModal() : ''}
                 ${state.chartUser ? renderChartModal() : ''}
             `;
             attachEvents();
         }
 
-        // --- SISTEMA DE AUTENTICACIÓN ---
         function renderAuth(root) {
-            root.innerHTML = `
-                <div class="min-h-screen flex items-center justify-center p-6 bg-black">
-                    <div class="glass-panel w-full max-w-xs p-10 rounded-[2.5rem] border-t-2 border-yellow-600 text-center shadow-2xl">
-                        <h2 class="font-ds text-2xl text-white italic mb-2 uppercase tracking-tighter">DS TEAM</h2>
-                        ${state.step === 1 ? `
-                            <p class="text-[9px] text-zinc-500 uppercase font-bold mb-8">Ingresa tu nombre de manager</p>
-                            <form id="step1F" class="space-y-4 text-left">
-                                <input id="uInput" placeholder="NOMBRE MANAGER" class="w-full p-4 rounded-2xl bg-zinc-900 border border-zinc-800 text-white uppercase text-xs outline-none focus:border-yellow-600">
-                                <button class="w-full bg-yellow-600 text-black py-4 rounded-2xl font-bold uppercase text-[10px]">SIGUIENTE</button>
-                            </form>
-                        ` : `
-                            <p class="text-[9px] text-zinc-500 uppercase font-bold mb-2 text-center">Manager: <span class="text-white">${state.username}</span></p>
-                            <form id="step2F" class="space-y-4 text-left">
-                                <input id="pInput" type="password" placeholder="CONTRASEÑA" class="w-full p-4 rounded-2xl bg-zinc-900 border border-zinc-800 text-white text-xs outline-none focus:border-yellow-600 shadow-inner" autofocus>
-                                <button class="w-full bg-yellow-600 text-black py-4 rounded-2xl font-bold uppercase text-[10px]">ENTRAR AL BOX</button>
-                                <button type="button" onclick="window.back()" class="w-full text-[9px] text-zinc-600 font-bold uppercase hover:text-white mt-4 text-center">Cambiar nombre</button>
-                            </form>
-                        `}
-                    </div>
-                </div>`;
-            
-            const form1 = document.getElementById('step1F');
-            if(form1) form1.onsubmit = async (e) => {
-                e.preventDefault();
-                const u = document.getElementById('uInput').value.trim().toLowerCase();
-                if(!u) return;
-                const snap = await get(ref(db, `perfiles/${u}`));
-                state.username = u;
-                state.step = 2;
-                state.isNew = !snap.exists() || (snap.val().password === 'ext');
-                render();
-            };
-
-            const form2 = document.getElementById('step2F');
-            if(form2) form2.onsubmit = async (e) => {
-                e.preventDefault();
-                const p = document.getElementById('pInput').value;
-                if(!p) return;
-                const snap = await get(ref(db, `perfiles/${state.username}`));
-                if (state.isNew) {
-                    await set(ref(db, `perfiles/${state.username}`), { 
-                        password: p, 
-                        stats: { puntos:0, temporada:1, victorias:0, podios:0, poles:0, copas:0 } 
-                    });
-                    state.isLoggedIn = true;
-                } else {
-                    if(snap.val().password === p) { state.isLoggedIn = true; } 
-                    else { alert("Acceso Denegado"); }
-                }
-                render();
-            };
+            root.innerHTML = `<div class="min-h-screen flex items-center justify-center p-6 bg-black text-center"><div class="glass-panel w-full max-w-xs p-10 rounded-[2.5rem] border-t-2 border-yellow-600 shadow-2xl"><h2 class="font-ds text-2xl text-white italic mb-10 uppercase tracking-tighter">DS TEAM</h2><form id="step1F" class="${state.step===1?'':'hidden'} space-y-4"><input id="uInput" placeholder="NOMBRE MANAGER" class="w-full p-4 rounded-xl bg-zinc-900 border border-zinc-800 text-white uppercase text-xs outline-none focus:border-yellow-600 shadow-inner"><button class="w-full bg-yellow-600 text-black py-4 rounded-xl font-bold uppercase text-[10px]">CONTINUAR</button></form><form id="step2F" class="${state.step===2?'':'hidden'} space-y-4"><p class="text-[9px] text-zinc-500 uppercase font-bold mb-4">MANAGER: <span class="text-white">${state.username}</span></p><input id="pInput" type="password" placeholder="PASSWORD" class="w-full p-4 rounded-xl bg-zinc-900 border border-zinc-800 text-white text-xs outline-none focus:border-yellow-600 shadow-inner" autofocus><button class="w-full bg-yellow-600 text-black py-4 rounded-xl font-bold uppercase text-[10px]">ENTRAR AL BOX</button><button type="button" onclick="window.back()" class="text-[9px] text-zinc-600 font-bold uppercase mt-4">CAMBIAR USUARIO</button></form></div></div>`;
+            document.getElementById('step1F').onsubmit = async (e) => { e.preventDefault(); const u = document.getElementById('uInput').value.trim().toLowerCase(); if(u){ const snap = await get(ref(db, `perfiles/${u}`)); state.username = u; state.step = 2; state.isNew = !snap.exists() || (snap.val().password === 'ext'); render(); } };
+            document.getElementById('step2F').onsubmit = async (e) => { e.preventDefault(); const p = document.getElementById('pInput').value; if(p){ const snap = await get(ref(db, `perfiles/${state.username}`)); if (state.isNew) { await set(ref(db, `perfiles/${state.username}`), { password: p, stats: { puntos:0, temporada:1, victorias:0, podios:0, poles:0, copas:0 } }); state.isLoggedIn = true; } else { if(snap.val().password === p) state.isLoggedIn = true; else alert("Denied"); } render(); } };
         }
 
-        // --- SECCIÓN SETUP ALTA PRECISIÓN ---
         function renderSetup() {
-            const items = [
-                { label: 'Suspensión', key: 'currS', fb: 'fbS', v1: 'dura', v2: 'blanda', t1: 'Va muy dura', t2: 'Va muy blanda' },
-                { label: 'Altura Chasis', key: 'currH', fb: 'fbH', v1: 'alto', v2: 'bajo', t1: 'Va muy alto', t2: 'Va muy bajo' },
-                { label: 'Alerón (Aero)', key: 'currW', fb: 'fbW', v1: 'falta', v2: 'sobra', t1: 'Alerones bajos', t2: 'Alerones altos' }
-            ];
-
+            const s1 = getSetupForTier(state.calc.circuit, state.setupCalc.height, 1);
+            const s2 = getSetupForTier(state.calc.circuit, state.setupCalc.height, 2);
+            const s3 = getSetupForTier(state.calc.circuit, state.setupCalc.height, 3);
             return `
-            <div class="glass-panel p-6 rounded-3xl max-w-4xl mx-auto space-y-6">
-                <div class="flex justify-between items-center border-b border-zinc-800 pb-4">
-                    <h2 class="font-ds text-xl uppercase italic text-yellow-600">Calculadora de Setup</h2>
-                    <button onclick="window.resetSetup()" class="text-[9px] text-zinc-500 hover:text-white uppercase font-bold border border-zinc-800 px-3 py-1.5 rounded-lg">Resetear</button>
+            <div class="glass-panel p-6 rounded-[2rem] max-w-2xl mx-auto space-y-6 border-t-4 border-yellow-600 shadow-2xl">
+                <div class="text-center"><h2 class="font-ds text-xl uppercase italic text-white mb-1">Setup iGPlus</h2><p class="text-[8px] text-zinc-500 uppercase font-bold tracking-[0.2em]">Confianza al 100% Sincronizada</p></div>
+                <div class="flex justify-center items-center gap-4 bg-zinc-900/50 p-4 rounded-2xl">
+                    <span class="text-[9px] text-zinc-400 font-bold uppercase">Altura Piloto:</span>
+                    <input type="number" value="${state.setupCalc.height}" onchange="window.upSetupH(this.value)" class="w-20 p-2 bg-black border border-zinc-800 text-yellow-600 text-center font-bold rounded-lg outline-none shadow-inner">
                 </div>
-                <p class="text-[10px] text-zinc-500 uppercase font-bold text-center mb-2 leading-relaxed">Ingresa los números de tu coche (1-100) y selecciona lo que dijo el piloto.</p>
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-5 mt-4">
-                    ${items.map(i => `
-                        <div class="bg-black/40 p-5 rounded-2xl border border-zinc-800/50 text-center flex flex-col justify-between">
-                            <h3 class="text-[9px] text-zinc-400 uppercase font-bold mb-4 tracking-widest">${i.label}</h3>
-                            <input type="number" value="${state.setup[i.key]}" onchange="window.upSetup('${i.key}', parseInt(this.value)||50)" class="w-full bg-black border border-zinc-800 text-white text-2xl font-ds text-center rounded-xl py-3 outline-none mb-4 focus:border-yellow-600">
-                            <select onchange="window.upSetup('${i.fb}', this.value)" class="w-full p-3.5 rounded-xl bg-zinc-900 border border-zinc-800 text-[10px] uppercase font-bold text-white outline-none">
-                                <option value="ok" ${state.setup[i.fb]==='ok'?'selected':''}>¡Perfecto!</option>
-                                <option value="${i.v1}" ${state.setup[i.fb]===i.v1?'selected':''}>${i.t1}</option>
-                                <option value="${i.v2}" ${state.setup[i.fb]===i.v2?'selected':''}>${i.t2}</option>
-                            </select>
-                        </div>
-                    `).join('')}
+                <div class="overflow-hidden rounded-2xl border border-zinc-800">
+                    <table class="w-full text-center text-[10px]">
+                        <tr class="bg-black text-zinc-500 font-bold uppercase text-[8px] border-b border-zinc-800">
+                            <th class="p-3 text-left">LIGA</th><th class="p-3">ALERÓN</th><th class="p-3">ALTURA</th><th class="p-3">SUSP.</th>
+                        </tr>
+                        <tr class="setup-row-elite"><td class="p-4 text-left font-bold text-yellow-600">ELITE (O)</td><td class="text-white font-ds text-lg">${s1.w}</td><td class="text-white font-ds text-lg">${s1.r}</td><td class="text-white font-ds text-lg">${s1.s}</td></tr>
+                        <tr class="border-t border-zinc-800/30"><td class="p-4 text-left font-bold text-zinc-400">PRO (P)</td><td class="text-zinc-200 font-ds text-lg">${s2.w}</td><td class="text-zinc-200 font-ds text-lg">${s2.r}</td><td class="text-zinc-200 font-ds text-lg">${s2.s}</td></tr>
+                        <tr class="border-t border-zinc-800/30"><td class="p-4 text-left font-bold text-orange-800">ROOKIE (B)</td><td class="text-zinc-400 font-ds text-lg">${s3.w}</td><td class="text-zinc-400 font-ds text-lg">${s3.r}</td><td class="text-zinc-400 font-ds text-lg">${s3.s}</td></tr>
+                    </table>
                 </div>
-                <button onclick="window.calcNextSetup()" class="w-full bg-yellow-600 text-black py-4 rounded-xl font-bold uppercase text-[11px] mt-2 shadow-xl shadow-yellow-600/10 active:scale-95 transition-all tracking-wider">Calcular Siguiente Prueba</button>
             </div>`;
         }
 
-        // --- SECCIÓN DE ESTRATEGIA Y CIRCUITOS ---
         function renderSection(isAdmin) {
             if(state.section === 'ranking') return renderRanking(isAdmin);
             if(state.section === 'chat') return renderChat();
@@ -366,54 +191,52 @@
             
             const totalLaps = state.calc.stints.reduce((sum, s) => sum + parseInt(s.laps || 0), 0);
             const totalFuel = state.calc.stints.reduce((sum, s) => sum + getFuel(state.calc.circuit, state.calc.fPoints, s.laps, s.boost), 0);
-            const trackLaps = circuitsData[state.calc.circuit].laps;
+            const trackLaps = Math.round(track_info[state.calc.circuit].laps_100 * (state.calc.leagueLength / 100));
             
             return `
                 <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
-                    <!-- Configuración Lateral -->
                     <div class="glass-panel p-6 rounded-3xl h-fit space-y-6">
                         <div>
-                            <label class="text-[9px] text-zinc-500 font-bold uppercase block mb-2 tracking-widest">Circuito Seleccionado</label>
+                            <label class="text-[9px] text-zinc-500 font-bold uppercase block mb-2 tracking-widest">Circuito</label>
                             <select id="selTrack" class="w-full p-4 rounded-xl bg-zinc-900 border border-zinc-800 text-xs uppercase font-bold text-white outline-none">
-                                ${Object.keys(circuitsData).map(k => `<option value="${k}" ${state.calc.circuit===k?'selected':''}>${circuitsData[k].name} (${circuitsData[k].laps}v)</option>`).join('')}
+                                ${Object.keys(track_info).map(k => `<option value="${k}" ${state.calc.circuit===k?'selected':''}>${track_info[k].name}</option>`).join('')}
                             </select>
                         </div>
                         <div class="grid grid-cols-2 gap-3">
-                            <div class="space-y-1 text-center">
-                                <span class="text-[8px] text-zinc-600 uppercase font-bold">Neumáticos</span>
-                                <input id="numT" type="number" value="${state.calc.tPoints}" class="w-full p-3 rounded-xl bg-black border border-zinc-800 text-center text-yellow-600 font-bold outline-none">
-                            </div>
-                            <div class="space-y-1 text-center">
-                                <span class="text-[8px] text-zinc-600 uppercase font-bold">Combustible</span>
-                                <input id="numF" type="number" value="${state.calc.fPoints}" class="w-full p-3 rounded-xl bg-black border border-zinc-800 text-center text-blue-400 font-bold outline-none">
-                            </div>
+                            <div class="text-center"><span class="text-[8px] text-zinc-600 uppercase font-bold">Neum. (te)</span><input id="numT" type="number" value="${state.calc.tPoints}" class="w-full p-3 rounded-xl bg-black border border-zinc-800 text-center text-yellow-600 font-bold outline-none shadow-inner"></div>
+                            <div class="text-center"><span class="text-[8px] text-zinc-600 uppercase font-bold">Comb. (fe)</span><input id="numF" type="number" value="${state.calc.fPoints}" class="w-full p-3 rounded-xl bg-black border border-zinc-800 text-center text-blue-400 font-bold outline-none shadow-inner"></div>
                         </div>
-                        <div class="pt-6 border-t border-zinc-800 space-y-4">
-                             <div class="flex justify-between items-end">
-                                <div><p class="text-[18px] font-ds ${totalLaps > trackLaps ? 'text-red-500' : 'text-white'}">${totalLaps} / ${trackLaps}</p><p class="text-[8px] text-zinc-600 uppercase font-bold">Vueltas Totales</p></div>
-                                <div class="text-right"><p class="text-[18px] font-ds text-blue-400">${totalFuel.toFixed(1)}L</p><p class="text-[8px] text-zinc-600 uppercase font-bold">Consumo Total</p></div>
-                             </div>
+                        <div class="space-y-2">
+                             <label class="text-[9px] text-zinc-500 font-bold uppercase block tracking-widest">Duración Carrera</label>
+                             <select id="selLen" class="w-full p-3 rounded-xl bg-zinc-900 border border-zinc-800 text-xs font-bold text-white outline-none">
+                                <option value="100" ${state.calc.leagueLength===100?'selected':''}>100%</option>
+                                <option value="75" ${state.calc.leagueLength===75?'selected':''}>75%</option>
+                                <option value="50" ${state.calc.leagueLength===50?'selected':''}>50%</option>
+                                <option value="25" ${state.calc.leagueLength===25?'selected':''}>25%</option>
+                             </select>
+                        </div>
+                        <div class="pt-6 border-t border-zinc-800 flex justify-between items-end">
+                            <div><p class="text-[20px] font-ds ${totalLaps > trackLaps ? 'text-red-500' : 'text-white'}">${totalLaps} / ${trackLaps}</p><p class="text-[8px] text-zinc-600 uppercase font-bold">Vueltas Totales</p></div>
+                            <div class="text-right"><p class="text-[20px] font-ds text-blue-400">${totalFuel.toFixed(1)}L</p><p class="text-[8px] text-zinc-600 uppercase font-bold">Consumo</p></div>
                         </div>
                     </div>
-                    
-                    <!-- Lista de Stints -->
                     <div class="lg:col-span-3 space-y-4">
-                        <div class="flex justify-between items-center"><h2 class="font-ds text-lg uppercase italic text-white tracking-tight">Estrategia Sugerida</h2><button id="addStint" class="bg-yellow-600 text-black px-5 py-2.5 rounded-xl text-[10px] font-bold shadow-lg active:scale-95 transition-all">AÑADIR STINT</button></div>
+                        <div class="flex justify-between items-center"><h2 class="font-ds text-lg uppercase italic text-white tracking-tight">Ingeniería de Carrera</h2><button id="addStint" class="bg-yellow-600 text-black px-5 py-2.5 rounded-xl text-[10px] font-bold active:scale-95 transition-all">NUEVO STINT</button></div>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                             ${state.calc.stints.map((s, i) => {
-                                const wear = getWear(state.calc.circuit, s.compound, s.laps, state.calc.tPoints, s.boost);
+                                const wear = getWear(state.calc.circuit, s.compound, s.laps, state.calc.tPoints, state.calc.leagueLength);
                                 const fuel = getFuel(state.calc.circuit, state.calc.fPoints, s.laps, s.boost);
                                 return `
-                                <div class="glass-panel p-5 rounded-2xl border-l-4 border-yellow-600 relative transition-all group">
-                                    <button onclick="window.delS(${i})" class="absolute top-4 right-5 text-zinc-700 hover:text-red-500 font-bold transition-colors">✕</button>
-                                    <div class="flex justify-center gap-3 mb-6">${['SS','S','M','H'].map(c => `<button onclick="window.upS(${i},'compound','${c}')" class="tyre-btn compound-${c.toLowerCase()} ${s.compound===c?'active':''} transition-all">${c}</button>`).join('')}</div>
+                                <div class="glass-panel p-5 rounded-2xl border-l-4 border-yellow-600 relative transition-all shadow-xl">
+                                    <button onclick="window.delS(${i})" class="absolute top-4 right-5 text-zinc-700 hover:text-red-500 font-bold">✕</button>
+                                    <div class="flex justify-center gap-3 mb-6">${['SS','S','M','H'].map(c => `<button onclick="window.upS(${i},'compound','${c}')" class="tyre-btn compound-${c.toLowerCase()} ${s.compound===c?'active':''} transition-all shadow-md">${c}</button>`).join('')}</div>
                                     <div class="grid grid-cols-2 gap-4">
-                                        <div class="text-center"><span class="text-[7px] text-zinc-600 uppercase font-bold block mb-1">Vueltas</span><input type="number" value="${s.laps}" onchange="window.upS(${i},'laps',this.value)" class="w-full p-3 rounded bg-black border border-zinc-800 text-center font-bold text-white outline-none focus:border-yellow-600 transition-all"></div>
-                                        <div class="text-center"><span class="text-[7px] text-zinc-600 uppercase font-bold block mb-1 text-center">Empuje</span><select onchange="window.upS(${i},'boost',this.value)" class="w-full p-3 rounded bg-black border border-zinc-800 text-[10px] uppercase font-bold text-center outline-none text-white focus:border-yellow-600 transition-all">${[1,2,3,4,5].map(v => `<option value="${v}" ${s.boost==v+''?'selected':''}>Nivel ${v}</option>`).join('')}</select></div>
+                                        <div class="text-center"><span class="text-[7px] text-zinc-600 uppercase font-bold block mb-1">Vueltas</span><input type="number" value="${s.laps}" onchange="window.upS(${i},'laps',this.value)" class="w-full p-3 rounded bg-black border border-zinc-800 text-center font-bold text-white outline-none shadow-inner"></div>
+                                        <div class="text-center"><span class="text-[7px] text-zinc-600 uppercase font-bold block mb-1 text-center">Empuje</span><select onchange="window.upS(${i},'boost',this.value)" class="w-full p-3 rounded bg-black border border-zinc-800 text-[10px] uppercase font-bold text-center outline-none text-white shadow-inner">${[100,80,60,40,20].map(v => `<option value="${v}" ${s.boost==v+''?'selected':''}>${v}%</option>`).join('')}</select></div>
                                     </div>
                                     <div class="mt-6 pt-5 border-t border-zinc-900 flex justify-between">
-                                        <div><p class="text-[7px] text-zinc-600 uppercase font-bold">Vida Final</p><p class="font-bold text-xl ${wear<20?'text-red-500':'text-green-500'} font-ds transition-colors">${wear.toFixed(1)}%</p></div>
-                                        <div class="text-right"><p class="text-[7px] text-zinc-600 uppercase font-bold">Combustible</p><p class="font-bold text-xl text-blue-400 font-ds transition-colors">${fuel.toFixed(2)}L</p></div>
+                                        <div><p class="text-[7px] text-zinc-600 uppercase font-bold">Vida Final</p><p class="font-bold text-2xl ${wear<20?'text-red-500':'text-green-500'} font-ds transition-all">${wear.toFixed(1)}%</p></div>
+                                        <div class="text-right"><p class="text-[7px] text-zinc-600 uppercase font-bold">Consumo</p><p class="font-bold text-2xl text-blue-400 font-ds transition-all">${fuel.toFixed(2)}L</p></div>
                                     </div>
                                 </div>`;
                             }).join('')}
@@ -422,180 +245,96 @@
                 </div>`;
         }
 
-        // --- SECCIÓN RANKING PERFECCIONADA ---
         function renderRanking(isAdmin) {
             const tabs = ['puntos', 'temporada', 'victorias', 'podios', 'poles', 'copas'];
             const list = Object.entries(state.users)
                 .filter(([id, d]) => d.stats && d.stats[state.rankingTab] !== undefined)
-                .map(([id, d]) => ({ 
-                    id, 
-                    ...d, 
-                    score: d.stats[state.rankingTab], 
-                    trend: d.stats[`trend_${state.rankingTab}`] || 0 
-                }))
+                .map(([id, d]) => ({ id, ...d, score: d.stats[state.rankingTab], trend: d.stats[`trend_${state.rankingTab}`] || 0 }))
                 .sort((a,b) => b.score - a.score);
 
-            const leaderScore = list.length > 0 ? list[0].score : 0;
+            const topScore = list.length > 0 ? list[0].score : 0;
 
-            return `
-                <div class="space-y-4">
-                    <div class="flex justify-between items-center gap-2">
-                        <div class="ranking-categories-grid flex-grow">
-                            ${tabs.map(t => `<button onclick="window.setTab('${t}')" class="category-tab ${state.rankingTab===t?'active shadow-lg shadow-yellow-600/10':''} transition-all shrink-0">${t}</button>`).join('')}
-                        </div>
-                        ${isAdmin ? `<button onclick="window.toggleSync(true)" class="bg-blue-600 text-white px-5 py-2.5 rounded-xl text-[9px] font-bold shrink-0 uppercase tracking-widest shadow-lg active:scale-95 transition-all">Excel</button>` : ''}
-                    </div>
-                    
-                    ${isAdmin ? `
-                        <form id="addM" class="flex gap-2 bg-zinc-900/50 p-2.5 rounded-2xl border border-zinc-800 shadow-inner">
-                            <input name="n" placeholder="NOMBRE MANAGER" class="flex-grow bg-black p-4 rounded-xl text-xs outline-none focus:border-yellow-600 border border-transparent text-white uppercase font-bold" required>
-                            <button class="bg-yellow-600 text-black px-8 rounded-xl font-bold text-[10px] uppercase transition-transform active:scale-95">CREAR</button>
-                        </form>
-                    ` : ''}
-
-                    <div class="glass-panel rounded-3xl overflow-hidden shadow-2xl">
-                        <!-- ENCABEZADOS DE COLUMNA -->
-                        <div class="ranking-header">
-                            <div>POS</div>
-                            <div>PILOTO</div>
-                            <div class="text-center">DIF</div>
-                            <div class="text-right uppercase">${state.rankingTab.substring(0,3)}</div>
-                        </div>
-
-                        <div class="flex flex-col">
-                            ${list.map((u, i) => {
-                                let tIcon = '<span class="text-orange-500 font-black ml-1">-</span>'; 
-                                let tClass = 'trend-none';
-                                if (u.trend === 1) { tIcon = '<span class="text-green-500 font-black ml-1">▲</span>'; tClass = 'trend-up'; }
-                                else if (u.trend === -1) { tIcon = '<span class="text-red-500 font-black ml-1">▼</span>'; tClass = 'trend-down'; }
-                                
-                                const diff = i === 0 ? '<span class="text-[7px] text-zinc-500 italic uppercase">Líder</span>' : `<span class="text-[9px] text-zinc-100 font-bold opacity-60">-${(leaderScore - u.score).toFixed(0)}</span>`;
-
-                                return `
-                                <div class="ranking-item ${tClass} transition-all">
-                                    <div class="text-[11px] font-bold text-zinc-100">#${i+1} ${tIcon}</div>
-                                    <div class="flex flex-col truncate pr-2">
-                                        <span class="text-[12px] uppercase font-ds font-bold text-zinc-200 cursor-pointer hover:text-yellow-600 transition-all" onclick="window.openChart('${u.id}')">${u.id}</span>
-                                        ${isAdmin ? `
-                                            <div class="flex items-center gap-2 mt-2">
-                                                <input id="in_${u.id}" type="number" class="w-12 bg-black border border-zinc-800 rounded p-1 text-center text-[10px] text-white font-bold" placeholder="+0">
-                                                <button onclick="window.addPoints('${u.id}')" class="bg-zinc-800 hover:bg-green-600 text-white w-6 h-6 rounded text-[10px] transition-colors">✓</button>
-                                                <button onclick="window.resetPass('${u.id}')" class="bg-zinc-800 hover:bg-blue-600 text-white w-6 h-6 rounded text-[10px] transition-colors" title="Reset Pass">🔑</button>
-                                                <button onclick="window.removeStat('${u.id}')" class="text-zinc-600 hover:text-red-600 hover:text-white w-6 h-6 rounded font-black transition-all" title="Eliminar de esta lista">✕</button>
-                                            </div>
-                                        ` : ''}
-                                    </div>
-                                    <div class="text-center font-ds">${diff}</div>
-                                    <div class="text-right text-xl text-yellow-600 font-bold font-ds tracking-tighter">${u.score}</div>
-                                </div>`;
-                            }).join('')}
-                        </div>
-                    </div>
-                </div>`;
+            return `<div class="space-y-4">
+                <div class="ranking-categories-grid">${tabs.map(t => `<button onclick="window.setTab('${t}')" class="category-tab ${state.rankingTab===t?'active':''}">${t}</button>`).join('')}</div>
+                ${isAdmin ? `<form id="addM" class="flex gap-2 bg-zinc-900/50 p-2.5 rounded-2xl border border-zinc-800 shadow-inner"><input name="n" placeholder="NUEVO MANAGER" class="flex-grow bg-black p-4 rounded-xl text-xs outline-none focus:border-yellow-600 border border-transparent text-white uppercase font-bold" required><button class="bg-yellow-600 text-black px-8 rounded-xl font-bold text-[10px] uppercase">CREAR</button></form>` : ''}
+                <div class="glass-panel rounded-[2rem] overflow-hidden shadow-2xl">
+                    <div class="ranking-header"><div>POS</div><div>MANAGER</div><div class="text-center">DIF</div><div class="text-right uppercase">${state.rankingTab.substring(0,3)}</div></div>
+                    <div class="flex flex-col">${list.map((u, i) => {
+                        let tClass = 'trend-none'; let tIcon = '-'; 
+                        if (u.trend === 1) { tClass = 'trend-up'; tIcon = '▲'; } else if (u.trend === -1) { tClass = 'trend-down'; tIcon = '▼'; }
+                        return `<div class="ranking-item ${tClass}">
+                            <div class="text-[11px] font-bold text-zinc-100 whitespace-nowrap">#${i+1} <span class="ml-1">${tIcon}</span></div>
+                            <div class="flex flex-col truncate pr-2">
+                                <span class="text-[13px] uppercase font-ds font-bold text-zinc-100 cursor-pointer hover:text-yellow-600 transition-colors" onclick="window.openChart('${u.id}')">${u.id}</span>
+                                ${isAdmin ? `<div class="flex items-center gap-1 mt-2">
+                                    <input id="in_${u.id}" type="number" class="w-12 bg-black border border-zinc-800 rounded p-1 text-center text-[10px] text-white" placeholder="+0">
+                                    <button onclick="window.addPoints('${u.id}')" class="bg-zinc-800 hover:bg-green-600 text-white w-6 h-6 rounded text-[10px]">✓</button>
+                                    <button onclick="window.resetPass('${u.id}')" class="bg-zinc-800 hover:bg-blue-600 text-white w-6 h-6 rounded text-[10px]" title="Reset Pass">🔑</button>
+                                    <button onclick="window.removeStat('${u.id}')" class="bg-zinc-800 hover:bg-yellow-700 text-white w-6 h-6 rounded text-[10px]" title="Quitar lista">✕</button>
+                                    <button onclick="window.delUser('${u.id}')" class="bg-zinc-800 hover:bg-red-600 text-white w-6 h-6 rounded text-[10px]" title="Borrar manager">🗑️</button>
+                                </div>` : ''}
+                            </div>
+                            <div class="text-center font-ds text-[10px] text-zinc-400">-${(topScore - u.score).toFixed(0)}</div>
+                            <div class="text-right text-2xl text-yellow-600 font-bold font-ds tracking-tighter">${u.score}</div>
+                        </div>`;
+                    }).join('')}</div>
+                </div>
+            </div>`;
         }
 
-        // --- COMPARACIONES ENTRE PILOTOS (MODAL) ---
         function renderChartModal() {
             const otherUsers = Object.keys(state.users).filter(u => u !== state.chartUser);
-            return `
-            <div class="fixed inset-0 bg-black/90 z-[100] flex items-center justify-center p-6 backdrop-blur-md">
+            return `<div class="fixed inset-0 bg-black/90 z-[100] flex items-center justify-center p-6 backdrop-blur-md">
                 <div class="glass-panel p-8 rounded-[3rem] w-full max-w-md text-center border-t-2 border-yellow-600 relative shadow-2xl">
                     <button onclick="window.closeChart()" class="absolute top-6 right-8 text-zinc-500 hover:text-white font-bold text-xl transition-all">✕</button>
                     <h3 class="font-ds text-yellow-600 mb-6 italic uppercase text-2xl tracking-tighter">${state.chartUser}</h3>
-                    
-                    <div class="mb-8 flex justify-center items-center gap-3">
+                    <div class="mb-6 flex justify-center items-center gap-3">
                         <span class="text-[9px] text-zinc-500 font-bold uppercase tracking-widest">VS:</span>
                         <select onchange="window.updateCompare(this.value)" class="bg-black border border-zinc-800 text-white text-[10px] p-2.5 rounded-xl outline-none focus:border-yellow-600 uppercase font-bold cursor-pointer transition-all">
                             <option value="">-- PROMEDIO EQUIPO --</option>
                             ${otherUsers.map(u => `<option value="${u}" ${state.compareUser === u ? 'selected' : ''}>${u}</option>`).join('')}
                         </select>
                     </div>
-
-                    <div id="statsBarsContainer" class="p-2 w-full flex flex-col gap-8 text-left"></div>
-                    
-                    <button onclick="window.closeChart()" class="w-full mt-10 py-4 rounded-2xl bg-zinc-900 border border-zinc-800 text-white text-[9px] font-bold uppercase tracking-[0.2em] active:scale-95 transition-all">Cerrar Análisis</button>
+                    <div id="statsBarsContainer" class="p-2 w-full flex flex-col gap-6 text-left"></div>
+                    <button onclick="window.closeChart()" class="w-full mt-8 py-4 rounded-2xl bg-zinc-900 text-white text-[9px] font-bold uppercase border border-zinc-800 transition-all active:scale-95 shadow-md">CERRAR</button>
                 </div>
             </div>`;
         }
 
         function renderChat() {
-            return `<div class="flex flex-col h-[75vh] glass-panel rounded-3xl overflow-hidden border border-zinc-800 shadow-2xl transition-all"><div id="chatBox" class="flex-grow p-5 overflow-y-auto space-y-4 no-scrollbar">${state.messages.map(m => `<div class="flex flex-col ${m.u === state.username ? 'items-end' : 'items-start'} transition-all"><span class="text-[7px] font-bold text-zinc-600 uppercase mb-1 ml-1 mr-1">${m.u}</span><div class="p-4 rounded-2xl text-xs max-w-[80%] ${m.u === state.username ? 'bg-yellow-600 text-black font-semibold' : 'bg-zinc-900 text-white border border-zinc-800'}">${m.t}</div></div>`).join('')}</div><form id="chatF" class="p-4 bg-zinc-900/80 border-t border-zinc-800/50 flex gap-2"><input name="m" placeholder="Escribe al equipo..." class="flex-grow bg-black p-4 rounded-2xl text-xs outline-none focus:border-yellow-600 text-white transition-all" autocomplete="off"><button class="bg-yellow-600 text-black px-8 rounded-2xl font-bold text-[10px] uppercase transition-all shadow-lg active:scale-95">Enviar</button></form></div>`;
+            return `<div class="flex flex-col h-[75vh] glass-panel rounded-3xl overflow-hidden border border-zinc-800 shadow-2xl transition-all"><div id="chatBox" class="flex-grow p-5 overflow-y-auto space-y-4 no-scrollbar">${state.messages.map(m => `<div class="flex flex-col ${m.u === state.username ? 'items-end' : 'items-start'} transition-all"><span class="text-[7px] font-bold text-zinc-600 uppercase mb-1 ml-1 mr-1">${m.u}</span><div class="p-4 rounded-2xl text-xs max-w-[80%] ${m.u === state.username ? 'bg-yellow-600 text-black font-semibold shadow-lg' : 'bg-zinc-900 text-white border border-zinc-800 shadow-md'}">${m.t}</div></div>`).join('')}</div><form id="chatF" class="p-4 bg-zinc-900/80 border-t border-zinc-800/50 flex gap-2"><input name="m" placeholder="Escribe al box..." class="flex-grow bg-black p-4 rounded-2xl text-xs outline-none focus:border-yellow-600 text-white transition-all shadow-inner" autocomplete="off"><button class="bg-yellow-600 text-black px-8 rounded-2xl font-bold text-[10px] uppercase shadow-lg active:scale-95">Radio</button></form></div>`;
         }
 
-        function renderSyncModal() {
-            const url = `https://ds-automobiles-f0a17-default-rtdb.firebaseio.com/perfiles.json?print=pretty`;
-            return `<div class="fixed inset-0 bg-black/90 z-[100] flex items-center justify-center p-6 backdrop-blur-sm transition-all"><div class="glass-panel p-8 rounded-[2.5rem] max-w-sm w-full text-center border-yellow-600/30"><h3 class="font-ds text-white mb-2 italic uppercase text-center">Sincronización Excel</h3><p class="text-[9px] text-zinc-500 mb-6 uppercase text-center font-bold">Enlace Técnico Google Sheets</p><div class="bg-black p-5 rounded-2xl border border-zinc-800 mb-6 overflow-x-auto"><code class="text-[9px] text-blue-400 break-all select-all font-mono leading-relaxed transition-all">=IMPORTDATA("${url}")</code></div><button onclick="window.toggleSync(false)" class="w-full py-4 rounded-2xl bg-zinc-900 text-white text-[10px] font-bold uppercase border border-zinc-800 transition-all active:scale-95">Cerrar</button></div></div>`;
-        }
-
-        // --- ACCIONES GLOBALES EXPUESTAS AL DOM ---
+        // --- ACCIONES GLOBALES ---
         window.go = (s) => { state.section = s; render(); };
         window.upS = (i, k, v) => { state.calc.stints[i][k] = v; render(); };
         window.delS = (i) => { state.calc.stints.splice(i, 1); render(); };
         window.setTab = (t) => { state.rankingTab = t; render(); };
-        window.toggleSync = (v) => { state.showSync = v; render(); };
         window.back = () => { state.step = 1; render(); };
+        window.upSetupH = (v) => { state.setupCalc.height = parseInt(v) || 175; render(); };
 
-        // MOTOR DE SETUP (CON MEMORIA INTELIGENTE PARA CLAVAR EL 100%)
-        window.upSetup = (k, v) => { state.setup[k] = v; render(); };
-        window.resetSetup = () => { 
-            state.setup = { sMin: 1, sMax: 100, currS: 50, fbS: 'ok', lastOkS: null, hMin: 1, hMax: 100, currH: 50, fbH: 'ok', lastOkH: null, wMin: 1, wMax: 100, currW: 50, fbW: 'ok', lastOkW: null }; 
-            render(); 
-        };
-        window.calcNextSetup = () => {
-            let s = state.setup;
-            const refine = (curr, min, max, fb, last) => {
-                let nMin = min, nMax = max, nLast = last;
-                if (fb === 'ok') { nLast = curr; return { val: curr, min: nMin, max: nMax, last: nLast }; }
-                if (fb === 'dura' || fb === 'alto' || fb === 'sobra') nMax = Math.max(1, curr - 1); 
-                else nMin = Math.min(100, curr + 1);
-                let range = nMax - nMin;
-                // ALGORITMO DE REFINAMIENTO PARA BUSCAR EL PUNTO DULCE CENTRAL
-                let nextVal = (range <= 5 && last !== null) ? Math.round((nMin + nMax) / 2) : Math.floor((nMin + nMax) / 2);
-                return { val: nextVal, min: nMin, max: nMax, last: nLast };
-            };
-            const rS = refine(s.currS, s.sMin, s.sMax, s.fbS, s.lastOkS); s.currS = rS.val; s.sMin = rS.min; s.sMax = rS.max; s.lastOkS = rS.last;
-            const rH = refine(s.currH, s.hMin, s.hMax, s.fbH, s.lastOkH); s.currH = rH.val; s.hMin = rH.min; s.hMax = rH.max; s.lastOkH = rH.last;
-            const rW = refine(s.currW, s.wMin, s.wMax, s.fbW, s.lastOkW); s.currW = rW.val; s.wMin = rW.min; s.wMax = rW.max; s.lastOkW = rW.last;
-            s.fbS = 'ok'; s.fbH = 'ok'; s.fbW = 'ok'; render();
-        };
-
-        // MOTOR GLOBAL DE PUNTOS Y TENDENCIAS (AFECTA SOLO LA PESTAÑA SELECCIONADA)
         const updateGlobalRanking = async (tab, id, action, val = 0) => {
             let scores = {}; Object.entries(state.users).forEach(([uid, d]) => { if (d.stats && d.stats[tab] !== undefined) scores[uid] = parseFloat(d.stats[tab]); });
             const oldSorted = Object.keys(scores).sort((a,b) => scores[b] - scores[a]);
-            
-            if (action === 'add') scores[id] = (scores[id] || 0) + val; 
-            else if (action === 'remove') delete scores[id];
-            
+            if (action === 'add') scores[id] = (scores[id] || 0) + val; else if (action === 'remove') delete scores[id];
             const newSorted = Object.keys(scores).sort((a,b) => scores[b] - scores[a]);
             let updates = {};
-            
-            newSorted.forEach((uid, ni) => { 
-                const oi = oldSorted.indexOf(uid); 
-                let trend = 0; 
-                if (oi !== -1) { if (oi > ni) trend = 1; else if (oi < ni) trend = -1; } 
-                updates[`perfiles/${uid}/stats/trend_${tab}`] = trend; 
-            });
-            
-            if (action === 'add') { 
-                updates[`perfiles/${id}/stats/${tab}`] = scores[id]; 
-                updates[`perfiles/${id}/stats/temporada`] = state.users[id].stats?.temporada || 1; 
-            } else if (action === 'remove') {
-                updates[`perfiles/${id}/stats/${tab}`] = null;
-                updates[`perfiles/${id}/stats/trend_${tab}`] = null;
-            }
+            newSorted.forEach((uid, ni) => { const oi = oldSorted.indexOf(uid); let trend = 0; if (oi !== -1) { if (oi > ni) trend = 1; else if (oi < ni) trend = -1; } updates[`perfiles/${uid}/stats/trend_${tab}`] = trend; });
+            if (action === 'add') updates[`perfiles/${id}/stats/${tab}`] = scores[id];
+            else if (action === 'remove') { updates[`perfiles/${id}/stats/${tab}`] = null; updates[`perfiles/${id}/stats/trend_${tab}`] = null; }
             await update(ref(db), updates);
         };
 
-        window.addPoints = async (id) => { const input = document.getElementById(`in_${id}`); const val = parseFloat(input.value) || 0; if (val === 0) return; await updateGlobalRanking(state.rankingTab, id, 'add', val); input.value = ''; };
-        window.removeStat = async (id) => { if(confirm(`¿Quitar manager del ranking de ${state.rankingTab.toUpperCase()}?`)) await updateGlobalRanking(state.rankingTab, id, 'remove'); };
-        window.resetPass = async (id) => { if(confirm(`¿Deseas resetear la contraseña de ${id}? Volverá a estado de invitado.`)) await update(ref(db, `perfiles/${id}`), { password: 'ext' }); };
+        window.addPoints = async (id) => { const inp = document.getElementById(`in_${id}`); const val = parseFloat(inp.value) || 0; if(val===0) return; await updateGlobalRanking(state.rankingTab, id, 'add', val); inp.value = ''; };
+        window.resetPass = async (id) => { if(confirm(`¿Resetear pass de ${id}?`)) await update(ref(db, `perfiles/${id}`), { password: 'ext' }); };
+        window.removeStat = async (id) => { if(confirm(`¿Quitar de esta lista?`)) await updateGlobalRanking(state.rankingTab, id, 'remove'); };
+        window.delUser = async (id) => { if(confirm(`¿ELIMINAR PERFIL TOTAL de ${id}?`)) await set(ref(db, `perfiles/${id}`), null); };
         
         window.openChart = (id) => { state.chartUser = id; state.compareUser = ''; render(); setTimeout(() => window.drawChart(id), 50); };
         window.updateCompare = (rivalId) => { state.compareUser = rivalId; window.drawChart(state.chartUser, rivalId); };
         window.closeChart = () => { state.chartUser = null; render(); };
         window.drawChart = (id, compareId = state.compareUser) => {
-            const container = document.getElementById('statsBarsContainer'); if(!container || !state.users[id]) return;
+            const container = document.getElementById('statsBarsContainer'); if(!container) return;
             const userData = state.users[id]; const allUsers = Object.values(state.users);
             const getAvg = (stat) => allUsers.reduce((sum, u) => sum + (parseFloat(u.stats?.[stat]) || 0), 0) / (allUsers.length || 1);
             const statsToCompare = ['puntos', 'victorias', 'podios', 'poles', 'copas'];
@@ -604,31 +343,19 @@
             let html = ''; statsToCompare.forEach(stat => {
                 const val1 = parseFloat(userData.stats[stat]) || 0; const val2 = parseFloat(rivalData[stat]) || 0;
                 const total = val1 + val2; let pct1 = total > 0 ? (val1 / total) * 100 : 0; let pct2 = total > 0 ? (val2 / total) * 100 : 0;
-                html += `<div class="w-full mb-3 transition-all"><div class="flex justify-between items-end mb-1 px-1"><span class="text-[#c5a059] font-ds text-xs font-bold">${val1}</span><span class="text-[8px] text-zinc-500 uppercase tracking-widest font-bold">${stat}</span><span style="color: ${rivalColor}" class="font-ds font-bold text-sm">${val2.toFixed(compareId?0:1)}</span></div><div class="h-2.5 w-full bg-zinc-900 rounded-full overflow-hidden border border-zinc-800"><div class="bg-[#c5a059] h-full transition-all duration-700" style="width: ${pct1}%"></div><div style="background-color: ${rivalColor}; width: ${pct2}%" class="transition-all duration-700"></div></div></div>`;
+                html += `<div class="w-full mb-3"><div class="flex justify-between items-end mb-1 px-1"><span class="text-[#c5a059] font-ds text-xs font-bold">${val1}</span><span class="text-[8px] text-zinc-500 uppercase font-bold">${stat}</span><span style="color: ${rivalColor}" class="font-ds font-bold text-sm">${val2.toFixed(compareId?0:1)}</span></div><div class="h-2.5 w-full bg-zinc-900 rounded-full overflow-hidden border border-zinc-800 shadow-inner"><div class="bg-[#c5a059] h-full transition-all duration-1000" style="width: ${pct1}%"></div><div style="background-color: ${rivalColor}; width: ${pct2}%" class="transition-all duration-1000"></div></div></div>`;
             });
             container.innerHTML = html;
         };
 
         function attachEvents() {
             if(document.getElementById('selTrack')) document.getElementById('selTrack').onchange = (e) => { state.calc.circuit = e.target.value; render(); };
+            if(document.getElementById('selLen')) document.getElementById('selLen').onchange = (e) => { state.calc.leagueLength = parseInt(e.target.value); render(); };
             if(document.getElementById('numT')) document.getElementById('numT').onchange = (e) => { state.calc.tPoints = e.target.value; render(); };
             if(document.getElementById('numF')) document.getElementById('numF').onchange = (e) => { state.calc.fPoints = e.target.value; render(); };
-            if(document.getElementById('addStint')) document.getElementById('addStint').onclick = () => { state.calc.stints.push({ compound: 'M', laps: 5, boost: '5' }); render(); };
-            if(document.getElementById('addM')) {
-                document.getElementById('addM').onsubmit = async (e) => {
-                    e.preventDefault();
-                    const n = e.target.n.value.trim().toLowerCase();
-                    if(n) await set(ref(db, `perfiles/${n}`), { password: 'ext', stats: { puntos:0, temporada:1, victorias:0, podios:0, poles:0, copas:0 } });
-                    e.target.reset();
-                };
-            }
-            if(document.getElementById('chatF')) {
-                document.getElementById('chatF').onsubmit = async (e) => {
-                    e.preventDefault();
-                    const t = e.target.m.value.trim();
-                    if(t) { await push(ref(db, 'chat'), { u: state.username, t, ts: serverTimestamp() }); e.target.reset(); }
-                };
-            }
+            if(document.getElementById('addStint')) document.getElementById('addStint').onclick = () => { state.calc.stints.push({ compound: 'M', laps: 10, boost: '60' }); render(); };
+            if(document.getElementById('addM')) { document.getElementById('addM').onsubmit = async (e) => { e.preventDefault(); const n = e.target.n.value.trim().toLowerCase(); if(n) await set(ref(db, `perfiles/${n}`), { password: 'ext', stats: { puntos:0, temporada:1, victorias:0, podios:0, poles:0, copas:0 } }); e.target.reset(); }; }
+            if(document.getElementById('chatF')) { document.getElementById('chatF').onsubmit = async (e) => { e.preventDefault(); const t = e.target.m.value.trim(); if(t){ await push(ref(db, 'chat'), { u: state.username, t, ts: serverTimestamp() }); e.target.reset(); } }; }
             const chatBox = document.getElementById('chatBox'); if(chatBox) chatBox.scrollTop = chatBox.scrollHeight;
         }
 
