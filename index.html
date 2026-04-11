@@ -51,32 +51,32 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
-        // --- DATA iGPlus CON IMÁGENES AGREGADAS ---
+        // --- DATA iGPlus CON TUS IMÁGENES EXACTAS ---
         const track_info = {
-            'au': { name: 'Australia', length: 5.3017135, wear: 40, img: 'https://placehold.co/600x300/050505/c5a059?text=AUSTRALIA' },
-            'my': { name: 'Malasia', length: 5.5358276, wear: 80, img: 'https://placehold.co/600x300/050505/c5a059?text=MALASIA' },
-            'cn': { name: 'China', length: 5.4417996, wear: 80, img: 'https://placehold.co/600x300/050505/c5a059?text=CHINA' },
-            'bh': { name: 'Bahréin', length: 4.7273, wear: 60, img: 'https://placehold.co/600x300/050505/c5a059?text=BAHREIN' },
-            'es': { name: 'España', length: 4.4580207, wear: 85, img: 'https://placehold.co/600x300/050505/c5a059?text=ESPANA' },
-            'mc': { name: 'Mónaco', length: 4.0156865, wear: 20, img: 'https://placehold.co/600x300/050505/c5a059?text=MONACO' },
-            'tr': { name: 'Turquía', length: 5.1630893, wear: 90, img: 'https://placehold.co/600x300/050505/c5a059?text=TURQUIA' },
-            'de': { name: 'Alemania', length: 4.1797523, wear: 50, img: 'https://placehold.co/600x300/050505/c5a059?text=ALEMANIA' },
-            'hu': { name: 'Hungría', length: 3.4990127, wear: 30, img: 'https://placehold.co/600x300/050505/c5a059?text=HUNGRIA' },
-            'eu': { name: 'Europa', length: 5.5907145, wear: 45, img: 'https://placehold.co/600x300/050505/c5a059?text=EUROPA' },
-            'be': { name: 'Bélgica', length: 7.0406127, wear: 60, img: 'https://placehold.co/600x300/050505/c5a059?text=BELGICA' },
-            'it': { name: 'Italia', length: 5.4024186, wear: 35, img: 'https://placehold.co/600x300/050505/c5a059?text=ITALIA' },
-            'sg': { name: 'Singapur', length: 5.049042, wear: 45, img: 'https://placehold.co/600x300/050505/c5a059?text=SINGAPUR' },
-            'jp': { name: 'Japón', length: 5.0587635, wear: 70, img: 'https://placehold.co/600x300/050505/c5a059?text=JAPON' },
-            'br': { name: 'Brasil', length: 3.9715014, wear: 60, img: 'https://placehold.co/600x300/050505/c5a059?text=BRASIL' },
-            'ae': { name: 'Abu Dhabi', length: 5.412688, wear: 50, img: 'https://placehold.co/600x300/050505/c5a059?text=ABU+DHABI' },
-            'gb': { name: 'Gran Bretaña', length: 5.75213, wear: 65, img: 'https://placehold.co/600x300/050505/c5a059?text=GRAN+BRETANA' },
-            'fr': { name: 'Francia', length: 5.882508, wear: 80, img: 'https://placehold.co/600x300/050505/c5a059?text=FRANCIA' },
-            'at': { name: 'Austria', length: 4.044372, wear: 60, img: 'https://placehold.co/600x300/050505/c5a059?text=AUSTRIA' },
-            'ca': { name: 'Canadá', length: 4.3413563, wear: 45, img: 'https://placehold.co/600x300/050505/c5a059?text=CANADA' },
-            'az': { name: 'Azerbaiyán', length: 6.053212, wear: 45, img: 'https://placehold.co/600x300/050505/c5a059?text=AZERBAIYAN' },
-            'mx': { name: 'México', length: 4.3076024, wear: 60, img: 'https://placehold.co/600x300/050505/c5a059?text=MEXICO' },
-            'ru': { name: 'Rusia', length: 6.078335, wear: 50, img: 'https://placehold.co/600x300/050505/c5a059?text=RUSIA' },
-            'us': { name: 'EE.UU.', length: 4.60296, wear: 65, img: 'https://placehold.co/600x300/050505/c5a059?text=EE.UU.' },
+            'au': { name: 'Australia', length: 5.3017135, wear: 40, img: 'https://i.postimg.cc/fbG7FsHd/image.png' },
+            'my': { name: 'Malasia', length: 5.5358276, wear: 80, img: 'https://i.postimg.cc/63VZmv4B/image.png' },
+            'cn': { name: 'China', length: 5.4417996, wear: 80, img: 'https://i.postimg.cc/tC8gFg7v/image.png' },
+            'bh': { name: 'Bahréin', length: 4.7273, wear: 60, img: 'https://i.postimg.cc/3NV3jLr4/image.png' },
+            'es': { name: 'España', length: 4.4580207, wear: 85, img: 'https://i.postimg.cc/vZWG9LJ6/image.png' },
+            'mc': { name: 'Mónaco', length: 4.0156865, wear: 20, img: 'https://i.postimg.cc/Fzd4Kjb9/image.png' },
+            'tr': { name: 'Turquía', length: 5.1630893, wear: 90, img: 'https://i.postimg.cc/8zBVskvS/image.png' },
+            'de': { name: 'Alemania', length: 4.1797523, wear: 50, img: 'https://i.postimg.cc/LXWcGncB/image.png' },
+            'hu': { name: 'Hungría', length: 3.4990127, wear: 30, img: 'https://i.postimg.cc/4xZxWSbv/image.png' },
+            'eu': { name: 'Europa', length: 5.5907145, wear: 45, img: 'https://i.postimg.cc/C5kwNGRC/image.png' },
+            'be': { name: 'Bélgica', length: 7.0406127, wear: 60, img: 'https://i.postimg.cc/fbyZFn3c/image.png' },
+            'it': { name: 'Italia', length: 5.4024186, wear: 35, img: 'https://i.postimg.cc/Hsmmm7J0/image.png' },
+            'sg': { name: 'Singapur', length: 5.049042, wear: 45, img: 'https://i.postimg.cc/HLFGhJD9/image.png' },
+            'jp': { name: 'Japón', length: 5.0587635, wear: 70, img: 'https://i.postimg.cc/c4CW9GP9/image.png' },
+            'br': { name: 'Brasil', length: 3.9715014, wear: 60, img: 'https://i.postimg.cc/sg2tfP35/image.png' },
+            'ae': { name: 'Abu Dhabi', length: 5.412688, wear: 50, img: 'https://i.postimg.cc/tTFcv2zh/image.png' },
+            'gb': { name: 'Gran Bretaña', length: 5.75213, wear: 65, img: 'https://i.postimg.cc/dVDxcqBV/image.png' },
+            'fr': { name: 'Francia', length: 5.882508, wear: 80, img: 'https://i.postimg.cc/Qtg6JVXb/image.png' },
+            'at': { name: 'Austria', length: 4.044372, wear: 60, img: 'https://i.postimg.cc/m2pmwvGV/image.png' },
+            'ca': { name: 'Canadá', length: 4.3413563, wear: 45, img: 'https://i.postimg.cc/B63pbsxW/image.png' },
+            'az': { name: 'Azerbaiyán', length: 6.053212, wear: 45, img: 'https://i.postimg.cc/T2C0dz1S/image.png' },
+            'mx': { name: 'México', length: 4.3076024, wear: 60, img: 'https://i.postimg.cc/VkbWF5gn/image.png' },
+            'ru': { name: 'Rusia', length: 6.078335, wear: 50, img: 'https://i.postimg.cc/JnR3mxLt/image.png' },
+            'us': { name: 'EE.UU.', length: 4.60296, wear: 65, img: 'https://i.postimg.cc/CMPCTb6z/image.png' },
             'nl': { name: 'Países Bajos', length: 4.259, wear: 65, img: 'https://placehold.co/600x300/050505/c5a059?text=PAISES+BAJOS' }
         };
 
@@ -176,12 +176,8 @@
                     <h2 class="font-ds text-xl uppercase italic text-white mb-1">Setup iGPlus</h2>
                     <p class="text-[8px] text-zinc-500 uppercase font-bold tracking-[0.2em] mb-4">${trackName}</p>
                     
-                    <!-- IMAGEN DEL CIRCUITO -->
-                    <div class="w-full h-32 rounded-2xl overflow-hidden border border-zinc-800 mb-6 bg-black relative shadow-inner">
-                        <img src="${trackImg}" class="w-full h-full object-cover opacity-60" alt="Mapa">
-                        <div class="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent flex items-end justify-center pb-4">
-                            <span class="font-ds text-yellow-600 text-xs tracking-widest uppercase shadow-black">${trackName}</span>
-                        </div>
+                    <div class="w-full flex items-center justify-center mb-6">
+                        <img src="${trackImg}" class="w-full h-auto max-h-56 object-contain drop-shadow-lg" alt="Mapa">
                     </div>
                 </div>
 
@@ -223,9 +219,8 @@
                                 ${Object.keys(track_info).map(k => `<option value="${k}" ${state.calc.circuit===k?'selected':''}>${track_info[k].name}</option>`).join('')}
                             </select>
 
-                            <!-- IMAGEN DEL CIRCUITO (ESTRATEGIA) -->
-                            <div class="mt-4 w-full h-28 rounded-xl overflow-hidden border border-zinc-800 bg-black shadow-inner relative group">
-                                <img src="${trackImg}" alt="Mapa del circuito" class="w-full h-full object-cover opacity-70 group-hover:opacity-100 transition-opacity duration-500">
+                            <div class="mt-4 w-full flex items-center justify-center">
+                                <img src="${trackImg}" alt="Mapa del circuito" class="w-full h-auto max-h-48 object-contain drop-shadow-lg">
                             </div>
                         </div>
                         <div class="grid grid-cols-2 gap-3">
