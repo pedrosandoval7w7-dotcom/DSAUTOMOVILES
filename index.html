@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>DS Automobiles - Sugerencias de estrategia</title>
-    <!-- Librerías de Visualización y Datos -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
@@ -54,31 +53,42 @@
 
         // --- DATA iGPlus CLONADA ---
         const track_info = {
-            'au': { name: 'Australia', length: 5.3017135, wear: 40, laps_100: 57 },
-            'my': { name: 'Malasia', length: 5.5358276, wear: 80, laps_100: 55 },
-            'cn': { name: 'China', length: 5.4417996, wear: 80, laps_100: 55 },
-            'bh': { name: 'Bahréin', length: 4.7273, wear: 60, laps_100: 59 },
-            'es': { name: 'España', length: 4.4580207, wear: 85, laps_100: 62 },
-            'mc': { name: 'Mónaco', length: 4.0156865, wear: 20, laps_100: 59 },
-            'tr': { name: 'Turquía', length: 5.1630893, wear: 90, laps_100: 54 },
-            'de': { name: 'Alemania', length: 4.1797523, wear: 50, laps_100: 67 },
-            'hu': { name: 'Hungría', length: 3.4990127, wear: 30, laps_100: 79 },
-            'eu': { name: 'Europa', length: 5.5907145, wear: 45, laps_100: 50 },
-            'be': { name: 'Bélgica', length: 7.0406127, wear: 60, laps_100: 43 },
-            'it': { name: 'Italia', length: 5.4024186, wear: 35, laps_100: 51 },
-            'sg': { name: 'Singapur', length: 5.049042, wear: 45, laps_100: 60 },
-            'jp': { name: 'Japón', length: 5.0587635, wear: 70, laps_100: 55 },
-            'br': { name: 'Brasil', length: 3.9715014, wear: 60, laps_100: 69 },
-            'ae': { name: 'Abu Dhabi', length: 5.412688, wear: 50, laps_100: 50 },
-            'gb': { name: 'Gran Bretaña', length: 5.75213, wear: 65, laps_100: 48 },
-            'fr': { name: 'Francia', length: 5.882508, wear: 80, laps_100: 48 },
-            'at': { name: 'Austria', length: 4.044372, wear: 60, laps_100: 68 },
-            'ca': { name: 'Canadá', length: 4.3413563, wear: 45, laps_100: 63 },
-            'az': { name: 'Azerbaiyán', length: 6.053212, wear: 45, laps_100: 46 },
-            'mx': { name: 'México', length: 4.3076024, wear: 60, laps_100: 70 },
-            'ru': { name: 'Rusia', length: 6.078335, wear: 50, laps_100: 46 },
-            'us': { name: 'EE.UU.', length: 4.60296, wear: 65, laps_100: 60 },
-            'nl': { name: 'Países Bajos', length: 4.259, wear: 65, laps_100: 72 }
+            'au': { name: 'Australia', length: 5.3017135, wear: 40 },
+            'my': { name: 'Malasia', length: 5.5358276, wear: 80 },
+            'cn': { name: 'China', length: 5.4417996, wear: 80 },
+            'bh': { name: 'Bahréin', length: 4.7273, wear: 60 },
+            'es': { name: 'España', length: 4.4580207, wear: 85 },
+            'mc': { name: 'Mónaco', length: 4.0156865, wear: 20 },
+            'tr': { name: 'Turquía', length: 5.1630893, wear: 90 },
+            'de': { name: 'Alemania', length: 4.1797523, wear: 50 },
+            'hu': { name: 'Hungría', length: 3.4990127, wear: 30 },
+            'eu': { name: 'Europa', length: 5.5907145, wear: 45 },
+            'be': { name: 'Bélgica', length: 7.0406127, wear: 60 },
+            'it': { name: 'Italia', length: 5.4024186, wear: 35 },
+            'sg': { name: 'Singapur', length: 5.049042, wear: 45 },
+            'jp': { name: 'Japón', length: 5.0587635, wear: 70 },
+            'br': { name: 'Brasil', length: 3.9715014, wear: 60 },
+            'ae': { name: 'Abu Dhabi', length: 5.412688, wear: 50 },
+            'gb': { name: 'Gran Bretaña', length: 5.75213, wear: 65 },
+            'fr': { name: 'Francia', length: 5.882508, wear: 80 },
+            'at': { name: 'Austria', length: 4.044372, wear: 60 },
+            'ca': { name: 'Canadá', length: 4.3413563, wear: 45 },
+            'az': { name: 'Azerbaiyán', length: 6.053212, wear: 45 },
+            'mx': { name: 'México', length: 4.3076024, wear: 60 },
+            'ru': { name: 'Rusia', length: 6.078335, wear: 50 },
+            'us': { name: 'EE.UU.', length: 4.60296, wear: 65 },
+            'nl': { name: 'Países Bajos', length: 4.259, wear: 65 }
+        };
+
+        // MATRIZ EXACTA DE VUELTAS (Corrección #1)
+        const raceLengthMap = {
+            'ae': [50, 37, 25, 12], 'au': [57, 42, 28, 14], 'at': [68, 51, 34, 17], 'az': [46, 34, 23, 11],
+            'bh': [59, 44, 29, 14], 'be': [43, 32, 21, 10], 'br': [69, 51, 34, 17], 'ca': [63, 47, 31, 15],
+            'cn': [55, 41, 27, 13], 'eu': [50, 37, 25, 12], 'fr': [48, 36, 24, 12], 'de': [67, 50, 33, 16],
+            'jp': [55, 41, 27, 13], 'gb': [48, 36, 24, 12], 'it': [51, 38, 25, 12], 'my': [55, 41, 27, 13],
+            'mx': [70, 52, 35, 17], 'mc': [59, 44, 29, 14], 'ru': [46, 34, 23, 11], 'sg': [60, 45, 30, 15],
+            'es': [62, 46, 31, 15], 'us': [60, 45, 30, 15], 'tr': [54, 40, 27, 13], 'hu': [79, 59, 39, 19],
+            'nl': [72, 59, 36, 19]
         };
 
         const setupScale = {
@@ -98,16 +108,11 @@
             setupCalc: { height: 175 }
         };
 
-        // --- MOTOR iGPlus 100% CALIBRADO ---
         function getWear(track, comp, laps, pts, leagueLen) {
             const tr = track_info[track];
             const tyreFactors = { SS: 2.14, S: 1.4, M: 1, H: 0.78 };
-            const multipliers = { 100: 1, 75: 1.25, 50: 1.5, 25: 3 }; // Multiplicador de Longitud de Carrera
-            
-            // t = (1.29 * pts ** -0.0696) * (0.00527 * wear + 0.556) * length * multiplier * tyreWear
+            const multipliers = { 100: 1, 75: 1.25, 50: 1.5, 25: 3 }; 
             const t = (1.29 * Math.pow(pts, -0.0696)) * (0.00527 * tr.wear + 0.556) * tr.length * multipliers[leagueLen] * tyreFactors[comp];
-            
-            // Fórmula Exponencial Real: Math.exp((-t / 100 * 1.18) * laps) * 100
             const exponent = (-t / 100 * 1.18) * laps;
             return Math.max(0, Math.exp(exponent) * 100);
         }
@@ -115,7 +120,6 @@
         function getFuel(track, pts, laps, push) {
             const tr = track_info[track];
             const pushAdj = { 100: 0.02, 80: 0.01, 60: 0, 40: -0.004, 20: -0.007 }[push] || 0;
-            // fuel_calc: 0.6983736841 * f ** -0.08510976572
             const fuelPerKm = (0.6983736841 * Math.pow(pts, -0.08510976572)) + pushAdj;
             return fuelPerKm * tr.length * laps;
         }
@@ -125,7 +129,8 @@
             if (!base) return { r:0, w:0, s:0 };
             const key = Object.keys(setupScale).sort((a,b)=>b-a).find(k => parseInt(k) <= height);
             const adj = key ? setupScale[key][tier] : 0;
-            return { r: Math.max(1, base.r + adj), w: Math.max(1, base.w), s: Math.max(1, base.s + adj) };
+            // CORRECCIÓN #2: El modificador 'adj' solo aplica a Ride (Altura).
+            return { r: Math.max(1, base.r + adj), w: Math.max(1, base.w), s: Math.max(1, base.s) };
         }
 
         // --- UI ---
@@ -191,7 +196,10 @@
             
             const totalLaps = state.calc.stints.reduce((sum, s) => sum + parseInt(s.laps || 0), 0);
             const totalFuel = state.calc.stints.reduce((sum, s) => sum + getFuel(state.calc.circuit, state.calc.fPoints, s.laps, s.boost), 0);
-            const trackLaps = Math.round(track_info[state.calc.circuit].laps_100 * (state.calc.leagueLength / 100));
+            
+            // CORRECCIÓN #1: Tomar la vuelta exacta según el circuito y el selector de duración.
+            const lenIndex = {100:0, 75:1, 50:2, 25:3}[state.calc.leagueLength] || 2;
+            const trackLaps = raceLengthMap[state.calc.circuit][lenIndex];
             
             return `
                 <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
@@ -327,8 +335,8 @@
 
         window.addPoints = async (id) => { const inp = document.getElementById(`in_${id}`); const val = parseFloat(inp.value) || 0; if(val===0) return; await updateGlobalRanking(state.rankingTab, id, 'add', val); inp.value = ''; };
         window.resetPass = async (id) => { if(confirm(`¿Resetear pass de ${id}?`)) await update(ref(db, `perfiles/${id}`), { password: 'ext' }); };
-        window.removeStat = async (id) => { if(confirm(`¿Quitar de esta lista?`)) await updateGlobalRanking(state.rankingTab, id, 'remove'); };
-        window.delUser = async (id) => { if(confirm(`¿ELIMINAR PERFIL TOTAL de ${id}?`)) await set(ref(db, `perfiles/${id}`), null); };
+        window.removeStat = async (id) => { if(confirm(`¿Quitar a ${id} de esta lista?`)) await updateGlobalRanking(state.rankingTab, id, 'remove'); };
+        window.delUser = async (id) => { if(confirm(`¿ELIMINAR PERFIL COMPLETO de ${id}?`)) await set(ref(db, `perfiles/${id}`), null); };
         
         window.openChart = (id) => { state.chartUser = id; state.compareUser = ''; render(); setTimeout(() => window.drawChart(id), 50); };
         window.updateCompare = (rivalId) => { state.compareUser = rivalId; window.drawChart(state.chartUser, rivalId); };
