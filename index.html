@@ -51,36 +51,35 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
-        // --- DATA iGPlus CLONADA ---
+        // --- DATA iGPlus CON IMÁGENES AGREGADAS ---
         const track_info = {
-            'au': { name: 'Australia', length: 5.3017135, wear: 40 },
-            'my': { name: 'Malasia', length: 5.5358276, wear: 80 },
-            'cn': { name: 'China', length: 5.4417996, wear: 80 },
-            'bh': { name: 'Bahréin', length: 4.7273, wear: 60 },
-            'es': { name: 'España', length: 4.4580207, wear: 85 },
-            'mc': { name: 'Mónaco', length: 4.0156865, wear: 20 },
-            'tr': { name: 'Turquía', length: 5.1630893, wear: 90 },
-            'de': { name: 'Alemania', length: 4.1797523, wear: 50 },
-            'hu': { name: 'Hungría', length: 3.4990127, wear: 30 },
-            'eu': { name: 'Europa', length: 5.5907145, wear: 45 },
-            'be': { name: 'Bélgica', length: 7.0406127, wear: 60 },
-            'it': { name: 'Italia', length: 5.4024186, wear: 35 },
-            'sg': { name: 'Singapur', length: 5.049042, wear: 45 },
-            'jp': { name: 'Japón', length: 5.0587635, wear: 70 },
-            'br': { name: 'Brasil', length: 3.9715014, wear: 60 },
-            'ae': { name: 'Abu Dhabi', length: 5.412688, wear: 50 },
-            'gb': { name: 'Gran Bretaña', length: 5.75213, wear: 65 },
-            'fr': { name: 'Francia', length: 5.882508, wear: 80 },
-            'at': { name: 'Austria', length: 4.044372, wear: 60 },
-            'ca': { name: 'Canadá', length: 4.3413563, wear: 45 },
-            'az': { name: 'Azerbaiyán', length: 6.053212, wear: 45 },
-            'mx': { name: 'México', length: 4.3076024, wear: 60 },
-            'ru': { name: 'Rusia', length: 6.078335, wear: 50 },
-            'us': { name: 'EE.UU.', length: 4.60296, wear: 65 },
-            'nl': { name: 'Países Bajos', length: 4.259, wear: 65 }
+            'au': { name: 'Australia', length: 5.3017135, wear: 40, img: 'https://placehold.co/600x300/050505/c5a059?text=AUSTRALIA' },
+            'my': { name: 'Malasia', length: 5.5358276, wear: 80, img: 'https://placehold.co/600x300/050505/c5a059?text=MALASIA' },
+            'cn': { name: 'China', length: 5.4417996, wear: 80, img: 'https://placehold.co/600x300/050505/c5a059?text=CHINA' },
+            'bh': { name: 'Bahréin', length: 4.7273, wear: 60, img: 'https://placehold.co/600x300/050505/c5a059?text=BAHREIN' },
+            'es': { name: 'España', length: 4.4580207, wear: 85, img: 'https://placehold.co/600x300/050505/c5a059?text=ESPANA' },
+            'mc': { name: 'Mónaco', length: 4.0156865, wear: 20, img: 'https://placehold.co/600x300/050505/c5a059?text=MONACO' },
+            'tr': { name: 'Turquía', length: 5.1630893, wear: 90, img: 'https://placehold.co/600x300/050505/c5a059?text=TURQUIA' },
+            'de': { name: 'Alemania', length: 4.1797523, wear: 50, img: 'https://placehold.co/600x300/050505/c5a059?text=ALEMANIA' },
+            'hu': { name: 'Hungría', length: 3.4990127, wear: 30, img: 'https://placehold.co/600x300/050505/c5a059?text=HUNGRIA' },
+            'eu': { name: 'Europa', length: 5.5907145, wear: 45, img: 'https://placehold.co/600x300/050505/c5a059?text=EUROPA' },
+            'be': { name: 'Bélgica', length: 7.0406127, wear: 60, img: 'https://placehold.co/600x300/050505/c5a059?text=BELGICA' },
+            'it': { name: 'Italia', length: 5.4024186, wear: 35, img: 'https://placehold.co/600x300/050505/c5a059?text=ITALIA' },
+            'sg': { name: 'Singapur', length: 5.049042, wear: 45, img: 'https://placehold.co/600x300/050505/c5a059?text=SINGAPUR' },
+            'jp': { name: 'Japón', length: 5.0587635, wear: 70, img: 'https://placehold.co/600x300/050505/c5a059?text=JAPON' },
+            'br': { name: 'Brasil', length: 3.9715014, wear: 60, img: 'https://placehold.co/600x300/050505/c5a059?text=BRASIL' },
+            'ae': { name: 'Abu Dhabi', length: 5.412688, wear: 50, img: 'https://placehold.co/600x300/050505/c5a059?text=ABU+DHABI' },
+            'gb': { name: 'Gran Bretaña', length: 5.75213, wear: 65, img: 'https://placehold.co/600x300/050505/c5a059?text=GRAN+BRETANA' },
+            'fr': { name: 'Francia', length: 5.882508, wear: 80, img: 'https://placehold.co/600x300/050505/c5a059?text=FRANCIA' },
+            'at': { name: 'Austria', length: 4.044372, wear: 60, img: 'https://placehold.co/600x300/050505/c5a059?text=AUSTRIA' },
+            'ca': { name: 'Canadá', length: 4.3413563, wear: 45, img: 'https://placehold.co/600x300/050505/c5a059?text=CANADA' },
+            'az': { name: 'Azerbaiyán', length: 6.053212, wear: 45, img: 'https://placehold.co/600x300/050505/c5a059?text=AZERBAIYAN' },
+            'mx': { name: 'México', length: 4.3076024, wear: 60, img: 'https://placehold.co/600x300/050505/c5a059?text=MEXICO' },
+            'ru': { name: 'Rusia', length: 6.078335, wear: 50, img: 'https://placehold.co/600x300/050505/c5a059?text=RUSIA' },
+            'us': { name: 'EE.UU.', length: 4.60296, wear: 65, img: 'https://placehold.co/600x300/050505/c5a059?text=EE.UU.' },
+            'nl': { name: 'Países Bajos', length: 4.259, wear: 65, img: 'https://placehold.co/600x300/050505/c5a059?text=PAISES+BAJOS' }
         };
 
-        // MATRIZ EXACTA DE VUELTAS (Corrección #1)
         const raceLengthMap = {
             'ae': [50, 37, 25, 12], 'au': [57, 42, 28, 14], 'at': [68, 51, 34, 17], 'az': [46, 34, 23, 11],
             'bh': [59, 44, 29, 14], 'be': [43, 32, 21, 10], 'br': [69, 51, 34, 17], 'ca': [63, 47, 31, 15],
@@ -129,7 +128,6 @@
             if (!base) return { r:0, w:0, s:0 };
             const key = Object.keys(setupScale).sort((a,b)=>b-a).find(k => parseInt(k) <= height);
             const adj = key ? setupScale[key][tier] : 0;
-            // CORRECCIÓN #2: El modificador 'adj' solo aplica a Ride (Altura).
             return { r: Math.max(1, base.r + adj), w: Math.max(1, base.w), s: Math.max(1, base.s) };
         }
 
@@ -169,9 +167,24 @@
             const s1 = getSetupForTier(state.calc.circuit, state.setupCalc.height, 1);
             const s2 = getSetupForTier(state.calc.circuit, state.setupCalc.height, 2);
             const s3 = getSetupForTier(state.calc.circuit, state.setupCalc.height, 3);
+            const trackName = track_info[state.calc.circuit].name;
+            const trackImg = track_info[state.calc.circuit].img;
+
             return `
             <div class="glass-panel p-6 rounded-[2rem] max-w-2xl mx-auto space-y-6 border-t-4 border-yellow-600 shadow-2xl">
-                <div class="text-center"><h2 class="font-ds text-xl uppercase italic text-white mb-1">Setup iGPlus</h2><p class="text-[8px] text-zinc-500 uppercase font-bold tracking-[0.2em]">Confianza al 100% Sincronizada</p></div>
+                <div class="text-center">
+                    <h2 class="font-ds text-xl uppercase italic text-white mb-1">Setup iGPlus</h2>
+                    <p class="text-[8px] text-zinc-500 uppercase font-bold tracking-[0.2em] mb-4">${trackName}</p>
+                    
+                    <!-- IMAGEN DEL CIRCUITO -->
+                    <div class="w-full h-32 rounded-2xl overflow-hidden border border-zinc-800 mb-6 bg-black relative shadow-inner">
+                        <img src="${trackImg}" class="w-full h-full object-cover opacity-60" alt="Mapa">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent flex items-end justify-center pb-4">
+                            <span class="font-ds text-yellow-600 text-xs tracking-widest uppercase shadow-black">${trackName}</span>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="flex justify-center items-center gap-4 bg-zinc-900/50 p-4 rounded-2xl">
                     <span class="text-[9px] text-zinc-400 font-bold uppercase">Altura Piloto:</span>
                     <input type="number" value="${state.setupCalc.height}" onchange="window.upSetupH(this.value)" class="w-20 p-2 bg-black border border-zinc-800 text-yellow-600 text-center font-bold rounded-lg outline-none shadow-inner">
@@ -197,9 +210,9 @@
             const totalLaps = state.calc.stints.reduce((sum, s) => sum + parseInt(s.laps || 0), 0);
             const totalFuel = state.calc.stints.reduce((sum, s) => sum + getFuel(state.calc.circuit, state.calc.fPoints, s.laps, s.boost), 0);
             
-            // CORRECCIÓN #1: Tomar la vuelta exacta según el circuito y el selector de duración.
             const lenIndex = {100:0, 75:1, 50:2, 25:3}[state.calc.leagueLength] || 2;
             const trackLaps = raceLengthMap[state.calc.circuit][lenIndex];
+            const trackImg = track_info[state.calc.circuit].img;
             
             return `
                 <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
@@ -209,6 +222,11 @@
                             <select id="selTrack" class="w-full p-4 rounded-xl bg-zinc-900 border border-zinc-800 text-xs uppercase font-bold text-white outline-none">
                                 ${Object.keys(track_info).map(k => `<option value="${k}" ${state.calc.circuit===k?'selected':''}>${track_info[k].name}</option>`).join('')}
                             </select>
+
+                            <!-- IMAGEN DEL CIRCUITO (ESTRATEGIA) -->
+                            <div class="mt-4 w-full h-28 rounded-xl overflow-hidden border border-zinc-800 bg-black shadow-inner relative group">
+                                <img src="${trackImg}" alt="Mapa del circuito" class="w-full h-full object-cover opacity-70 group-hover:opacity-100 transition-opacity duration-500">
+                            </div>
                         </div>
                         <div class="grid grid-cols-2 gap-3">
                             <div class="text-center"><span class="text-[8px] text-zinc-600 uppercase font-bold">Neum. (te)</span><input id="numT" type="number" value="${state.calc.tPoints}" class="w-full p-3 rounded-xl bg-black border border-zinc-800 text-center text-yellow-600 font-bold outline-none shadow-inner"></div>
