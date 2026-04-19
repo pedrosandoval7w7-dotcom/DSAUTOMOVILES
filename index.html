@@ -7,36 +7,20 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
-    
     <style>
         :root { --ds-gold: #c5a059; --ds-black: #050505; }
         body { background-color: var(--ds-black); color: #e4e4e7; font-family: 'Inter', sans-serif; height: 100vh; overflow: hidden; margin: 0; }
         .font-ds { font-family: 'Orbitron', sans-serif; letter-spacing: 0.1em; }
         .glass-panel { background: rgba(20, 20, 23, 0.95); backdrop-filter: blur(20px); border: 1px solid rgba(197, 160, 89, 0.15); }
-        
-        .tyre-btn { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 900; cursor: pointer; transition: all 0.2s; border: 2px solid rgba(0,0,0,0.5); }
+        .tyre-btn { width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 900; cursor: pointer; transition: all 0.2s; border: 2px solid rgba(0,0,0,0.5); }
         .tyre-btn.active { transform: scale(1.15); border-color: white; box-shadow: 0 0 12px currentColor; }
         .compound-ss { background: #ef4444; color: white; }
         .compound-s { background: #eab308; color: black; }
         .compound-m { background: #f4f4f5; color: black; }
         .compound-h { background: #f97316; color: white; }
-        
-        .nav-container { display: flex; gap: 1.25rem; overflow-x: auto; scrollbar-width: none; padding-right: 20px; }
-        .nav-link { white-space: nowrap; font-size: 10px; font-weight: 800; text-transform: uppercase; color: #71717a; transition: all 0.3s ease; border-bottom: 2px solid transparent; padding-bottom: 6px; }
-        .nav-link.active { color: var(--ds-gold); border-bottom-color: var(--ds-gold); }
-
-        .ranking-header { display: grid; grid-template-columns: 55px 1fr 45px 70px; padding: 0.8rem 1rem; background: rgba(0,0,0,0.5); border-bottom: 1px solid rgba(197, 160, 89, 0.4); font-size: 8px; font-weight: 900; color: var(--ds-gold); letter-spacing: 0.15em; }
-        .ranking-item { display: grid; grid-template-columns: 55px 1fr 45px 70px; align-items: center; padding: 1.1rem 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); transition: background 0.3s ease; }
-        .ranking-item.trend-up { background: rgba(34, 197, 94, 0.18); }
-        .ranking-item.trend-down { background: rgba(239, 68, 68, 0.18); }
-        .ranking-item.trend-none { background: rgba(249, 115, 22, 0.12); } 
-
+        .nav-link.active { color: var(--ds-gold); border-bottom: 2px solid var(--ds-gold); }
         .no-scrollbar::-webkit-scrollbar { display: none; }
         input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
-        
-        .category-tab { padding: 0.7rem 0.2rem; border-radius: 0.6rem; font-size: 8px; font-weight: 800; text-transform: uppercase; text-align: center; border: 1px solid rgba(197, 160, 89, 0.2); background: #18181b; color: #71717a; }
-        .category-tab.active { background: var(--ds-gold); color: black; border-color: var(--ds-gold); }
-        .setup-row-elite { background: linear-gradient(90deg, rgba(197, 160, 89, 0.15), transparent); border-left: 3px solid var(--ds-gold); }
     </style>
 </head>
 <body class="flex flex-col">
@@ -51,76 +35,88 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
-        // --- DATA iGPlus CON TUS IMÁGENES EXACTAS ---
-        const track_info = {
-            'au': { name: 'Australia', length: 5.3017135, wear: 40, img: 'https://i.postimg.cc/fbG7FsHd/image.png' },
-            'my': { name: 'Malasia', length: 5.5358276, wear: 80, img: 'https://i.postimg.cc/63VZmv4B/image.png' },
-            'cn': { name: 'China', length: 5.4417996, wear: 80, img: 'https://i.postimg.cc/tC8gFg7v/image.png' },
-            'bh': { name: 'Bahréin', length: 4.7273, wear: 60, img: 'https://i.postimg.cc/3NV3jLr4/image.png' },
-            'es': { name: 'España', length: 4.4580207, wear: 85, img: 'https://i.postimg.cc/vZWG9LJ6/image.png' },
-            'mc': { name: 'Mónaco', length: 4.0156865, wear: 20, img: 'https://i.postimg.cc/Fzd4Kjb9/image.png' },
-            'tr': { name: 'Turquía', length: 5.1630893, wear: 90, img: 'https://i.postimg.cc/8zBVskvS/image.png' },
-            'de': { name: 'Alemania', length: 4.1797523, wear: 50, img: 'https://i.postimg.cc/LXWcGncB/image.png' },
-            'hu': { name: 'Hungría', length: 3.4990127, wear: 30, img: 'https://i.postimg.cc/4xZxWSbv/image.png' },
-            'eu': { name: 'Europa', length: 5.5907145, wear: 45, img: 'https://i.postimg.cc/C5kwNGRC/image.png' },
-            'be': { name: 'Bélgica', length: 7.0406127, wear: 60, img: 'https://i.postimg.cc/fbyZFn3c/image.png' },
-            'it': { name: 'Italia', length: 5.4024186, wear: 35, img: 'https://i.postimg.cc/Hsmmm7J0/image.png' },
-            'sg': { name: 'Singapur', length: 5.049042, wear: 45, img: 'https://i.postimg.cc/HLFGhJD9/image.png' },
-            'jp': { name: 'Japón', length: 5.0587635, wear: 70, img: 'https://i.postimg.cc/c4CW9GP9/image.png' },
-            'br': { name: 'Brasil', length: 3.9715014, wear: 60, img: 'https://i.postimg.cc/sg2tfP35/image.png' },
-            'ae': { name: 'Abu Dhabi', length: 5.412688, wear: 50, img: 'https://i.postimg.cc/tTFcv2zh/image.png' },
-            'gb': { name: 'Gran Bretaña', length: 5.75213, wear: 65, img: 'https://i.postimg.cc/dVDxcqBV/image.png' },
-            'fr': { name: 'Francia', length: 5.882508, wear: 80, img: 'https://i.postimg.cc/Qtg6JVXb/image.png' },
-            'at': { name: 'Austria', length: 4.044372, wear: 60, img: 'https://i.postimg.cc/m2pmwvGV/image.png' },
-            'ca': { name: 'Canadá', length: 4.3413563, wear: 45, img: 'https://i.postimg.cc/B63pbsxW/image.png' },
-            'az': { name: 'Azerbaiyán', length: 6.053212, wear: 45, img: 'https://i.postimg.cc/T2C0dz1S/image.png' },
-            'mx': { name: 'México', length: 4.3076024, wear: 60, img: 'https://i.postimg.cc/VkbWF5gn/image.png' },
-            'ru': { name: 'Rusia', length: 6.078335, wear: 50, img: 'https://i.postimg.cc/JnR3mxLt/image.png' },
-            'us': { name: 'EE.UU.', length: 4.60296, wear: 65, img: 'https://i.postimg.cc/CMPCTb6z/image.png' },
-            'nl': { name: 'Países Bajos', length: 4.259, wear: 65, img: 'https://placehold.co/600x300/050505/c5a059?text=PAISES+BAJOS' }
+        // --- LISTA DE 25 CIRCUITOS (CON IMÁGENES AÑADIDAS) ---
+        const circuitsData = {
+            "MAL": { name: "Malasia", laps: 27, length: 5.536, tyreWear: 22, img: 'https://i.postimg.cc/63VZmv4B/image.png' },
+            "AUT": { name: "Austria", laps: 34, length: 4.044, tyreWear: 19, img: 'https://i.postimg.cc/m2pmwvGV/image.png' },
+            "UAE": { name: "Abu Dhabi", laps: 25, length: 5.41, tyreWear: 17, img: 'https://i.postimg.cc/tTFcv2zh/image.png' },
+            "JPN": { name: "Japón", laps: 27, length: 5.058, tyreWear: 23, img: 'https://i.postimg.cc/c4CW9GP9/image.png' },
+            "BRA": { name: "Brasil", laps: 34, length: 3.971, tyreWear: 16, img: 'https://i.postimg.cc/sg2tfP35/image.png' },
+            "NED": { name: "Países Bajos", laps: 35, length: 4.259, tyreWear: 20, img: 'https://placehold.co/600x300/050505/c5a059?text=PAISES+BAJOS' },
+            "CAN": { name: "Canadá", laps: 31, length: 4.341, tyreWear: 15, img: 'https://i.postimg.cc/B63pbsxW/image.png' },
+            "ESP": { name: "España", laps: 31, length: 4.457, tyreWear: 25, img: 'https://i.postimg.cc/vZWG9LJ6/image.png' },
+            "SIN": { name: "Singapur", laps: 30, length: 5.049, tyreWear: 14, img: 'https://i.postimg.cc/HLFGhJD9/image.png' },
+            "GER": { name: "Alemania", laps: 33, length: 4.179, tyreWear: 18, img: 'https://i.postimg.cc/LXWcGncB/image.png' },
+            "TUR": { name: "Turquía", laps: 27, length: 5.162, tyreWear: 21, img: 'https://i.postimg.cc/8zBVskvS/image.png' },
+            "AUS": { name: "Australia", laps: 28, length: 5.301, tyreWear: 18, img: 'https://i.postimg.cc/fbG7FsHd/image.png' },
+            "BEL": { name: "Bélgica", laps: 21, length: 7.041, tyreWear: 22, img: 'https://i.postimg.cc/fbyZFn3c/image.png' },
+            "ITA": { name: "Italia", laps: 25, length: 5.401, tyreWear: 18, img: 'https://i.postimg.cc/Hsmmm7J0/image.png' },
+            "MEX": { name: "México", laps: 35, length: 4.308, tyreWear: 19, img: 'https://i.postimg.cc/VkbWF5gn/image.png' },
+            "FRA": { name: "Francia", laps: 24, length: 5.881, tyreWear: 17, img: 'https://i.postimg.cc/Qtg6JVXb/image.png' },
+            "HUN": { name: "Hungría", laps: 39, length: 3.498, tyreWear: 21, img: 'https://i.postimg.cc/4xZxWSbv/image.png' },
+            "AZE": { name: "Azerbaiyán", laps: 23, length: 6.049, tyreWear: 15, img: 'https://i.postimg.cc/T2C0dz1S/image.png' },
+            "USA": { name: "EE.UU.", laps: 30, length: 4.602, tyreWear: 18, img: 'https://i.postimg.cc/CMPCTb6z/image.png' },
+            "GBR": { name: "Gran Bretaña", laps: 24, length: 5.751, tyreWear: 23, img: 'https://i.postimg.cc/dVDxcqBV/image.png' },
+            "CHN": { name: "China", laps: 27, length: 5.442, tyreWear: 20, img: 'https://i.postimg.cc/tC8gFg7v/image.png' },
+            "MON": { name: "Mónaco", laps: 29, length: 4.015, tyreWear: 12, img: 'https://i.postimg.cc/Fzd4Kjb9/image.png' },
+            "BHR": { name: "Bahréin", laps: 29, length: 4.726, tyreWear: 24, img: 'https://i.postimg.cc/3NV3jLr4/image.png' },
+            "RUS": { name: "Rusia", laps: 23, length: 6.077, tyreWear: 16, img: 'https://i.postimg.cc/JnR3mxLt/image.png' },
+            "EUR": { name: "Europa", laps: 25, length: 5.59, tyreWear: 19, img: 'https://i.postimg.cc/C5kwNGRC/image.png' }
         };
 
-        const raceLengthMap = {
-            'ae': [50, 37, 25, 12], 'au': [57, 42, 28, 14], 'at': [68, 51, 34, 17], 'az': [46, 34, 23, 11],
-            'bh': [59, 44, 29, 14], 'be': [43, 32, 21, 10], 'br': [69, 51, 34, 17], 'ca': [63, 47, 31, 15],
-            'cn': [55, 41, 27, 13], 'eu': [50, 37, 25, 12], 'fr': [48, 36, 24, 12], 'de': [67, 50, 33, 16],
-            'jp': [55, 41, 27, 13], 'gb': [48, 36, 24, 12], 'it': [51, 38, 25, 12], 'my': [55, 41, 27, 13],
-            'mx': [70, 52, 35, 17], 'mc': [59, 44, 29, 14], 'ru': [46, 34, 23, 11], 'sg': [60, 45, 30, 15],
-            'es': [62, 46, 31, 15], 'us': [60, 45, 30, 15], 'tr': [54, 40, 27, 13], 'hu': [79, 59, 39, 19],
-            'nl': [72, 59, 35, 19]
-        };
-
-        const setupScale = {
-            190: { 3: -8, 2: -4, 1: -2 }, 185: { 3: -6, 2: -3, 1: -1 }, 180: { 3: -4, 2: -2, 1: -1 },
-            175: { 3: -2, 2: -1, 1: 0 }, 170: { 3: 0, 2: 0, 1: 0 }, 165: { 3: 2, 2: 1, 1: 0 }
-        };
+        const setupScale = { 190: { 3: -8, 2: -4, 1: -2 }, 185: { 3: -6, 2: -3, 1: -1 }, 180: { 3: -4, 2: -2, 1: -1 }, 175: { 3: -2, 2: -1, 1: 0 }, 170: { 3: 0, 2: 0, 1: 0 }, 165: { 3: 2, 2: 1, 1: 0 } };
         const setupCircuits = {
-            3: { ae:{r:6,w:1,s:12}, at:{r:4,w:0,s:14}, au:{r:9,w:4,s:8}, az:{r:8,w:1,s:12}, be:{r:6,w:3,s:9}, bh:{r:4,w:0,s:14}, br:{r:4,w:2,s:10}, ca:{r:4,w:-1,s:16}, cn:{r:2,w:2,s:10}, de:{r:4,w:2,s:10}, es:{r:2,w:5,s:6}, eu:{r:6,w:5,s:6}, fr:{r:8,w:2,s:10}, gb:{r:4,w:0,s:14}, hu:{r:5,w:6,s:4}, it:{r:6,w:-2,s:18}, jp:{r:6,w:5,s:6}, mc:{r:11,w:9,s:1}, mx:{r:3,w:2,s:10}, my:{r:6,w:1,s:12}, ru:{r:2,w:2,s:10}, sg:{r:8,w:7,s:3}, tr:{r:6,w:2,s:10}, us:{r:2,w:2,s:11}, nl:{r:1,w:1,s:10} },
-            2: { ae:{r:13,w:3,s:30}, at:{r:9,w:0,s:35}, au:{r:19,w:8,s:20}, az:{r:17,w:3,s:30}, be:{r:12,w:6,s:23}, bh:{r:8,w:0,s:35}, br:{r:8,w:5,s:25}, ca:{r:9,w:-3,s:40}, cn:{r:5,w:5,s:25}, de:{r:8,w:5,s:25}, es:{r:5,w:10,s:15}, eu:{r:12,w:10,s:15}, fr:{r:17,w:5,s:25}, gb:{r:9,w:0,s:35}, hu:{r:10,w:13,s:10}, it:{r:12,w:-5,s:45}, jp:{r:12,w:10,s:15}, mc:{r:22,w:18,s:1}, mx:{r:7,w:5,s:25}, my:{r:12,w:3,s:30}, ru:{r:4,w:5,s:25}, sg:{r:17,w:14,s:8}, tr:{r:13,w:5,s:25}, us:{r:4,w:4,s:28}, nl:{r:-1,w:-1,s:20} },
-            1: { ae:{r:25,w:5,s:60}, at:{r:18,w:0,s:70}, au:{r:38,w:15,s:40}, az:{r:33,w:5,s:60}, be:{r:23,w:12,s:45}, bh:{r:15,w:0,s:70}, br:{r:15,w:10,s:50}, ca:{r:18,w:-5,s:80}, cn:{r:10,w:10,s:50}, de:{r:15,w:10,s:50}, es:{r:10,w:20,s:30}, eu:{r:23,w:20,s:30}, fr:{r:33,w:10,s:50}, gb:{r:18,w:0,s:70}, hu:{r:20,w:25,s:20}, it:{r:23,w:-10,s:90}, jp:{r:23,w:20,s:30}, mc:{r:43,w:35,s:1}, mx:{r:13,w:10,s:50}, my:{r:23,w:5,s:60}, ru:{r:8,w:10,s:50}, sg:{r:33,w:27,s:15}, tr:{r:25,w:10,s:50}, us:{r:8,w:7,s:55}, nl:{r:-1,w:-1,s:40} }
+            3: { UAE:{r:6,w:1,s:12}, AUT:{r:4,w:0,s:14}, AUS:{r:9,w:4,s:8}, AZE:{r:8,w:1,s:12}, BEL:{r:6,w:3,s:9}, BHR:{r:4,w:0,s:14}, BRA:{r:4,w:2,s:10}, CAN:{r:4,w:-1,s:16}, CHN:{r:2,w:2,s:10}, GER:{r:4,w:2,s:10}, ESP:{r:2,w:5,s:6}, EUR:{r:6,w:5,s:6}, FRA:{r:8,w:2,s:10}, GBR:{r:4,w:0,s:14}, HUN:{r:5,w:6,s:4}, ITA:{r:6,w:-2,s:18}, JPN:{r:6,w:5,s:6}, MON:{r:11,w:9,s:1}, MEX:{r:3,w:2,s:10}, MAL:{r:6,w:1,s:12}, RUS:{r:2,w:2,s:10}, SIN:{r:8,w:7,s:3}, TUR:{r:6,w:2,s:10}, USA:{r:2,w:2,s:11}, NED:{r:1,w:1,s:10} },
+            2: { UAE:{r:13,w:3,s:30}, AUT:{r:9,w:0,s:35}, AUS:{r:19,w:8,s:20}, AZE:{r:17,w:3,s:30}, BEL:{r:12,w:6,s:23}, BHR:{r:8,w:0,s:35}, BRA:{r:8,w:5,s:25}, CAN:{r:9,w:-3,s:40}, CHN:{r:5,w:5,s:25}, GER:{r:8,w:5,s:25}, ESP:{r:5,w:10,s:15}, EUR:{r:12,w:10,s:15}, FRA:{r:17,w:5,s:25}, GBR:{r:9,w:0,s:35}, HUN:{r:10,w:13,s:10}, ITA:{r:12,w:-5,s:45}, JPN:{r:12,w:10,s:15}, MON:{r:22,w:18,s:1}, MEX:{r:7,w:5,s:25}, MAL:{r:12,w:3,s:30}, RUS:{r:4,w:5,s:25}, SIN:{r:17,w:14,s:8}, TUR:{r:13,w:5,s:25}, USA:{r:4,w:4,s:28}, NED:{r:-1,w:-1,s:20} },
+            1: { UAE:{r:25,w:5,s:60}, AUT:{r:18,w:0,s:70}, AUS:{r:38,w:15,s:40}, AZE:{r:33,w:5,s:60}, BEL:{r:23,w:12,s:45}, BHR:{r:15,w:0,s:70}, BRA:{r:15,w:10,s:50}, CAN:{r:18,w:-5,s:80}, CHN:{r:10,w:10,s:50}, GER:{r:15,w:10,s:50}, ESP:{r:10,w:20,s:30}, EUR:{r:23,w:20,s:30}, FRA:{r:33,w:10,s:50}, GBR:{r:18,w:0,s:70}, HUN:{r:20,w:25,s:20}, ITA:{r:23,w:-10,s:90}, JPN:{r:23,w:20,s:30}, MON:{r:43,w:35,s:1}, MEX:{r:13,w:10,s:50}, MAL:{r:23,w:5,s:60}, RUS:{r:8,w:10,s:50}, SIN:{r:33,w:27,s:15}, TUR:{r:25,w:10,s:50}, USA:{r:8,w:7,s:55}, NED:{r:-1,w:-1,s:40} }
+        };
+
+        const flagCodes = {
+            "MAL":"my", "AUT":"at", "UAE":"ae", "JPN":"jp", "BRA":"br", "NED":"nl", "CAN":"ca", "ESP":"es",
+            "SIN":"sg", "GER":"de", "TUR":"tr", "AUS":"au", "BEL":"be", "ITA":"it", "MEX":"mx", "FRA":"fr",
+            "HUN":"hu", "AZE":"az", "USA":"us", "GBR":"gb", "CHN":"cn", "MON":"mc", "BHR":"bh", "RUS":"ru", "EUR":"eu"
         };
 
         let state = {
-            isLoggedIn: false, step: 1, username: '', isNew: false, section: 'strategy',
-            users: {}, messages: [], rankingTab: 'puntos', showSync: false, chartUser: null, compareUser: '',
-            calc: { circuit: 'az', tPoints: 66, fPoints: 67, leagueLength: 50, stints: [{ compound: 'S', laps: 6, boost: '60' }] },
+            isLoggedIn: false,
+            step: 1, 
+            username: '',
+            pendingUsername: '',
+            isNew: false,
+            section: 'strategy',
+            users: {},
+            messages: [],
+            rankingTab: 'puntos',
+            showSync: false,
+            chartUser: null,
+            compareUser: '',
+            calc: { circuit: 'AZE', tPoints: 66, fPoints: 67, temp: 14, stints: [{ compound: 'S', laps: 6, boost: '5' }] },
             setupCalc: { height: 175 }
         };
 
-        function getWear(track, comp, laps, pts, leagueLen) {
-            const tr = track_info[track];
-            const tyreFactors = { SS: 2.14, S: 1.4, M: 1, H: 0.78 };
-            const multipliers = { 100: 1, 75: 1.25, 50: 1.5, 25: 3 }; 
-            const t = (1.29 * Math.pow(pts, -0.0696)) * (0.00527 * tr.wear + 0.556) * tr.length * multipliers[leagueLen] * tyreFactors[comp];
+        // --- ALGORITMOS MATEMÁTICOS EXACTOS DE LA EXTENSIÓN iGPlus ---
+        function getWear(track, comp, laps, pts, boost) {
+            const c = circuitsData[track];
+            // Multiplicadores originales de empuje de la extensión
+            const boostMult = { '1': 0.85, '2': 0.92, '3': 1.0, '4': 1.12, '5': 1.25 }[boost] || 1.0;
+            // Factores originales por compuesto
+            const tyreFactors = { 'SS': 2.14, 'S': 1.4, 'M': 1.0, 'H': 0.78 };
+            
+            // Ecuación exponencial de desgaste extraída del código fuente
+            const t = (1.29 * Math.pow(pts, -0.0696)) * (0.00527 * c.tyreWear + 0.556) * c.length * tyreFactors[comp] * boostMult;
             const exponent = (-t / 100 * 1.18) * laps;
+            
             return Math.max(0, Math.exp(exponent) * 100);
         }
 
-        function getFuel(track, pts, laps, push) {
-            const tr = track_info[track];
-            const pushAdj = { 100: 0.02, 80: 0.01, 60: 0, 40: -0.004, 20: -0.007 }[push] || 0;
+        function getFuel(track, pts, laps, boost) {
+            const c = circuitsData[track];
+            // Ajuste exacto de la extensión basado en el nivel de empuje
+            const pushAdj = { '5': 0.02, '4': 0.01, '3': 0, '2': -0.004, '1': -0.007 }[boost] || 0;
+            
+            // Fórmula polinómica original de combustible
             const fuelPerKm = (0.6983736841 * Math.pow(pts, -0.08510976572)) + pushAdj;
-            return fuelPerKm * tr.length * laps;
+            return fuelPerKm * c.length * laps;
         }
 
         function getSetupForTier(track, height, tier) {
@@ -131,66 +127,139 @@
             return { r: Math.max(1, base.r + adj), w: Math.max(1, base.w), s: Math.max(1, base.s) };
         }
 
-        // --- UI ---
         function render() {
             const root = document.getElementById('app');
             if (!state.isLoggedIn) { renderAuth(root); return; }
             const isAdmin = state.username === 'admin';
             root.innerHTML = `
-                <header class="bg-black border-b border-zinc-800 p-4 sticky top-0 z-50 font-ds">
-                    <div class="max-w-7xl mx-auto flex justify-between items-center gap-4">
-                        <h1 class="text-[10px] italic text-yellow-600 uppercase tracking-widest">DS PERFORMANCE</h1>
-                        <nav class="nav-container py-1 flex-grow">
-                            <button onclick="window.go('strategy')" class="nav-link ${state.section==='strategy'?'active':''}">Estrategia</button>
-                            <button onclick="window.go('setup')" class="nav-link ${state.section==='setup'?'active':''}">Setup</button>
-                            <button onclick="window.go('ranking')" class="nav-link ${state.section==='ranking'?'active':''}">Ranking</button>
-                            <button onclick="window.go('chat')" class="nav-link ${state.section==='chat'?'active':''}">Radio</button>
+                <header class="bg-black border-b border-zinc-800 p-4 sticky top-0 z-50">
+                    <div class="max-w-7xl mx-auto flex justify-between items-center">
+                        <div class="flex items-center gap-2">
+                            <h1 class="font-ds text-[10px] italic text-yellow-600 uppercase">DS PERFORMANCE</h1>
+                            <span class="text-[7px] bg-zinc-900 border border-zinc-800 px-1.5 py-0.5 rounded text-zinc-500 uppercase font-bold">${state.username}</span>
+                        </div>
+                        <nav class="flex gap-4">
+                            <button onclick="window.go('strategy')" class="nav-link text-[10px] font-bold uppercase ${state.section==='strategy'?'active':''}">Estrategia</button>
+                            <button onclick="window.go('setup')" class="nav-link text-[10px] font-bold uppercase ${state.section==='setup'?'active':''}">Setup</button>
+                            <button onclick="window.go('ranking')" class="nav-link text-[10px] font-bold uppercase ${state.section==='ranking'?'active':''}">Ranking</button>
+                            <button onclick="window.go('chat')" class="nav-link text-[10px] font-bold uppercase ${state.section==='chat'?'active':''}">Chat</button>
                         </nav>
-                        <div class="shrink-0 text-[7px] bg-zinc-900 border border-zinc-800 px-2 py-1 rounded text-zinc-400 uppercase font-bold hidden md:block">MANAGER: ${state.username}</div>
                     </div>
                 </header>
                 <main class="p-4 flex-grow overflow-y-auto no-scrollbar pb-32">
                     ${renderSection(isAdmin)}
                 </main>
+                ${state.showSync ? renderSyncModal() : ''}
                 ${state.chartUser ? renderChartModal() : ''}
             `;
             attachEvents();
         }
 
         function renderAuth(root) {
-            root.innerHTML = `<div class="min-h-screen flex items-center justify-center p-6 bg-black text-center"><div class="glass-panel w-full max-w-xs p-10 rounded-[2.5rem] border-t-2 border-yellow-600 shadow-2xl"><h2 class="font-ds text-2xl text-white italic mb-10 uppercase tracking-tighter">DS TEAM</h2><form id="step1F" class="${state.step===1?'':'hidden'} space-y-4"><input id="uInput" placeholder="NOMBRE MANAGER" class="w-full p-4 rounded-xl bg-zinc-900 border border-zinc-800 text-white uppercase text-xs outline-none focus:border-yellow-600 shadow-inner"><button class="w-full bg-yellow-600 text-black py-4 rounded-xl font-bold uppercase text-[10px]">CONTINUAR</button></form><form id="step2F" class="${state.step===2?'':'hidden'} space-y-4"><p class="text-[9px] text-zinc-500 uppercase font-bold mb-4">MANAGER: <span class="text-white">${state.username}</span></p><input id="pInput" type="password" placeholder="PASSWORD" class="w-full p-4 rounded-xl bg-zinc-900 border border-zinc-800 text-white text-xs outline-none focus:border-yellow-600 shadow-inner" autofocus><button class="w-full bg-yellow-600 text-black py-4 rounded-xl font-bold uppercase text-[10px]">ENTRAR AL BOX</button><button type="button" onclick="window.back()" class="text-[9px] text-zinc-600 font-bold uppercase mt-4">CAMBIAR USUARIO</button></form></div></div>`;
-            document.getElementById('step1F').onsubmit = async (e) => { e.preventDefault(); const u = document.getElementById('uInput').value.trim().toLowerCase(); if(u){ const snap = await get(ref(db, `perfiles/${u}`)); state.username = u; state.step = 2; state.isNew = !snap.exists() || (snap.val().password === 'ext'); render(); } };
-            document.getElementById('step2F').onsubmit = async (e) => { e.preventDefault(); const p = document.getElementById('pInput').value; if(p){ const snap = await get(ref(db, `perfiles/${state.username}`)); if (state.isNew) { await set(ref(db, `perfiles/${state.username}`), { password: p, stats: { puntos:0, temporada:1, victorias:0, podios:0, poles:0, copas:0 } }); state.isLoggedIn = true; } else { if(snap.val().password === p) state.isLoggedIn = true; else alert("Denied"); } render(); } };
+            root.innerHTML = `
+                <div class="min-h-screen flex items-center justify-center p-6 bg-black">
+                    <div class="glass-panel w-full max-w-xs p-8 rounded-[2.5rem] border-t-2 border-yellow-600 text-center shadow-2xl">
+                        <h2 class="font-ds text-2xl text-white italic mb-2 uppercase">DS TEAM</h2>
+                        ${state.step === 1 ? `
+                            <p class="text-[9px] text-zinc-500 uppercase font-bold mb-8">Ingresa tu nombre de manager</p>
+                            <form id="step1F" class="space-y-4">
+                                <input id="uInput" placeholder="NOMBRE MANAGER" class="w-full p-4 rounded-2xl bg-zinc-900 border border-zinc-800 text-white uppercase text-xs outline-none focus:border-yellow-600 shadow-inner" autocomplete="off">
+                                <button class="w-full bg-yellow-600 text-black py-4 rounded-2xl font-bold uppercase text-[10px]">SIGUIENTE</button>
+                            </form>
+                        ` : state.step === 2 ? `
+                            <p class="text-[9px] text-zinc-500 uppercase font-bold mb-2">Manager: <span class="text-white">${state.username}</span></p>
+                            <form id="step2F" class="space-y-4">
+                                <input id="pInput" type="password" placeholder="CONTRASEÑA" class="w-full p-4 rounded-2xl bg-zinc-900 border border-zinc-800 text-white text-xs outline-none focus:border-yellow-600 shadow-inner" autofocus>
+                                <button class="w-full bg-yellow-600 text-black py-4 rounded-2xl font-bold uppercase text-[10px]">ENTRAR AL BOX</button>
+                                <button type="button" onclick="window.back()" class="text-[9px] text-zinc-600 font-bold uppercase hover:text-white mt-4">Cambiar nombre</button>
+                            </form>
+                        ` : `
+                            <div class="bg-blue-900/20 border border-blue-800/50 rounded-xl p-4 mb-6">
+                                <p class="text-blue-400 font-ds text-sm uppercase tracking-widest mb-1">¡Piloto Registrado!</p>
+                                <p class="text-[9px] text-zinc-300 uppercase">El administrador ya te dio de alta como: <b class="text-white">${state.username}</b></p>
+                            </div>
+                            <p class="text-[9px] text-zinc-500 mb-4 font-bold uppercase">Crea tu contraseña personal para acceder.</p>
+                            <form id="step3F" class="space-y-4">
+                                <input id="newPass" type="password" placeholder="NUEVA CONTRASEÑA" class="w-full p-4 rounded-2xl bg-black border border-zinc-800 text-white text-xs outline-none focus:border-blue-500 shadow-inner" autofocus required>
+                                <button class="w-full bg-blue-600 text-white py-4 rounded-2xl font-bold uppercase text-[10px] hover:bg-blue-500">ACTIVAR MI CUENTA</button>
+                                <button type="button" onclick="window.back()" class="text-[9px] text-zinc-600 font-bold uppercase hover:text-white mt-4">Cambiar nombre</button>
+                            </form>
+                        `}
+                    </div>
+                </div>`;
+                
+            if(document.getElementById('step1F')) {
+                document.getElementById('step1F').onsubmit = async (e) => {
+                    e.preventDefault();
+                    const u = document.getElementById('uInput').value.trim().toLowerCase();
+                    if(!u) return;
+                    const snap = await get(ref(db, `perfiles/${u}`));
+                    state.username = u;
+                    if (!snap.exists()) {
+                        state.step = 2; state.isNew = true;
+                    } else {
+                        if (snap.val().password === 'ext') { state.step = 3; state.isNew = false; }
+                        else { state.step = 2; state.isNew = false; }
+                    }
+                    render();
+                };
+            }
+            if(document.getElementById('step2F')) {
+                document.getElementById('step2F').onsubmit = async (e) => {
+                    e.preventDefault();
+                    const p = document.getElementById('pInput').value;
+                    if(!p) return;
+                    const snap = await get(ref(db, `perfiles/${state.username}`));
+                    if (state.isNew) {
+                        const stats = { puntos:0, temporada:1, victorias:0, podios:0, poles:0, copas:0 };
+                        await set(ref(db, `perfiles/${state.username}`), { password: p, stats, pizarra: {}, historial: {} });
+                        state.isLoggedIn = true;
+                    } else {
+                        if(snap.val().password === p) { state.isLoggedIn = true; } else { alert("Contraseña incorrecta."); }
+                    }
+                    render();
+                };
+            }
+            if(document.getElementById('step3F')) {
+                document.getElementById('step3F').onsubmit = async (e) => {
+                    e.preventDefault();
+                    const p = document.getElementById('newPass').value;
+                    if(p.length < 3) return alert("Contraseña muy corta");
+                    await update(ref(db, `perfiles/${state.username}`), { password: p });
+                    alert("¡Cuenta activada con éxito!");
+                    state.isLoggedIn = true;
+                    render();
+                };
+            }
         }
 
         function renderSetup() {
             const s1 = getSetupForTier(state.calc.circuit, state.setupCalc.height, 1);
             const s2 = getSetupForTier(state.calc.circuit, state.setupCalc.height, 2);
             const s3 = getSetupForTier(state.calc.circuit, state.setupCalc.height, 3);
-            const trackName = track_info[state.calc.circuit].name;
-            const trackImg = track_info[state.calc.circuit].img;
+            const trackName = circuitsData[state.calc.circuit].name;
+            const trackImg = circuitsData[state.calc.circuit].img;
 
             return `
-            <div class="glass-panel p-6 rounded-[2rem] max-w-2xl mx-auto space-y-6 border-t-4 border-yellow-600 shadow-2xl">
+            <div class="glass-panel p-6 rounded-2xl h-fit space-y-6">
                 <div class="text-center">
                     <h2 class="font-ds text-xl uppercase italic text-white mb-1">Setup iGPlus</h2>
                     <p class="text-[8px] text-zinc-500 uppercase font-bold tracking-[0.2em] mb-4">${trackName}</p>
-                    
                     <div class="w-full flex items-center justify-center mb-6">
                         <img src="${trackImg}" class="w-full h-auto max-h-56 object-contain drop-shadow-lg" alt="Mapa">
                     </div>
                 </div>
 
-                <div class="flex justify-center items-center gap-4 bg-zinc-900/50 p-4 rounded-2xl">
+                <div class="flex justify-center items-center gap-4 bg-zinc-900/50 p-4 rounded-xl">
                     <span class="text-[9px] text-zinc-400 font-bold uppercase">Altura Piloto:</span>
-                    <input type="number" value="${state.setupCalc.height}" onchange="window.upSetupH(this.value)" class="w-20 p-2 bg-black border border-zinc-800 text-yellow-600 text-center font-bold rounded-lg outline-none shadow-inner">
+                    <input type="number" value="${state.setupCalc.height}" onchange="window.upSetupH(this.value)" class="w-20 p-2.5 bg-black border border-zinc-800 text-yellow-600 text-center font-bold rounded outline-none">
                 </div>
-                <div class="overflow-hidden rounded-2xl border border-zinc-800">
+                <div class="overflow-hidden rounded-xl border border-zinc-800">
                     <table class="w-full text-center text-[10px]">
                         <tr class="bg-black text-zinc-500 font-bold uppercase text-[8px] border-b border-zinc-800">
                             <th class="p-3 text-left">LIGA</th><th class="p-3">ALERÓN</th><th class="p-3">ALTURA</th><th class="p-3">SUSP.</th>
                         </tr>
-                        <tr class="setup-row-elite"><td class="p-4 text-left font-bold text-yellow-600">ELITE (O)</td><td class="text-white font-ds text-lg">${s1.w}</td><td class="text-white font-ds text-lg">${s1.r}</td><td class="text-white font-ds text-lg">${s1.s}</td></tr>
+                        <tr><td class="p-4 text-left font-bold text-yellow-600 border-l-4 border-yellow-600 bg-yellow-600/10">ELITE (O)</td><td class="text-white font-ds text-lg">${s1.w}</td><td class="text-white font-ds text-lg">${s1.r}</td><td class="text-white font-ds text-lg">${s1.s}</td></tr>
                         <tr class="border-t border-zinc-800/30"><td class="p-4 text-left font-bold text-zinc-400">PRO (P)</td><td class="text-zinc-200 font-ds text-lg">${s2.w}</td><td class="text-zinc-200 font-ds text-lg">${s2.r}</td><td class="text-zinc-200 font-ds text-lg">${s2.s}</td></tr>
                         <tr class="border-t border-zinc-800/30"><td class="p-4 text-left font-bold text-orange-800">ROOKIE (B)</td><td class="text-zinc-400 font-ds text-lg">${s3.w}</td><td class="text-zinc-400 font-ds text-lg">${s3.r}</td><td class="text-zinc-400 font-ds text-lg">${s3.s}</td></tr>
                     </table>
@@ -205,59 +274,49 @@
             
             const totalLaps = state.calc.stints.reduce((sum, s) => sum + parseInt(s.laps || 0), 0);
             const totalFuel = state.calc.stints.reduce((sum, s) => sum + getFuel(state.calc.circuit, state.calc.fPoints, s.laps, s.boost), 0);
-            
-            const lenIndex = {100:0, 75:1, 50:2, 25:3}[state.calc.leagueLength] || 2;
-            const trackLaps = raceLengthMap[state.calc.circuit][lenIndex];
-            const trackImg = track_info[state.calc.circuit].img;
-            
+            const trackLaps = circuitsData[state.calc.circuit].laps;
+            const trackImg = circuitsData[state.calc.circuit].img;
+
             return `
                 <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
-                    <div class="glass-panel p-6 rounded-3xl h-fit space-y-6">
+                    <div class="glass-panel p-6 rounded-2xl h-fit space-y-6">
                         <div>
-                            <label class="text-[9px] text-zinc-500 font-bold uppercase block mb-2 tracking-widest">Circuito</label>
-                            <select id="selTrack" class="w-full p-4 rounded-xl bg-zinc-900 border border-zinc-800 text-xs uppercase font-bold text-white outline-none">
-                                ${Object.keys(track_info).map(k => `<option value="${k}" ${state.calc.circuit===k?'selected':''}>${track_info[k].name}</option>`).join('')}
+                            <label class="text-[9px] text-zinc-500 font-bold uppercase block mb-2">Circuito</label>
+                            <select id="selTrack" class="w-full p-3 rounded-lg bg-zinc-900 border border-zinc-800 text-xs uppercase font-bold text-white">
+                                ${Object.keys(circuitsData).map(k => `<option value="${k}" ${state.calc.circuit===k?'selected':''}>${circuitsData[k].name} (${circuitsData[k].laps}v)</option>`).join('')}
                             </select>
-
                             <div class="mt-4 w-full flex items-center justify-center">
                                 <img src="${trackImg}" alt="Mapa del circuito" class="w-full h-auto max-h-48 object-contain drop-shadow-lg">
                             </div>
                         </div>
-                        <div class="grid grid-cols-2 gap-3">
-                            <div class="text-center"><span class="text-[8px] text-zinc-600 uppercase font-bold">Neum. (te)</span><input id="numT" type="number" value="${state.calc.tPoints}" class="w-full p-3 rounded-xl bg-black border border-zinc-800 text-center text-yellow-600 font-bold outline-none shadow-inner"></div>
-                            <div class="text-center"><span class="text-[8px] text-zinc-600 uppercase font-bold">Comb. (fe)</span><input id="numF" type="number" value="${state.calc.fPoints}" class="w-full p-3 rounded-xl bg-black border border-zinc-800 text-center text-blue-400 font-bold outline-none shadow-inner"></div>
+                        <div class="grid grid-cols-2 gap-2 mb-2">
+                            <div class="space-y-1"><span class="text-[8px] text-zinc-600 uppercase font-bold ml-1">Diseño Neum.</span><input id="numT" type="number" value="${state.calc.tPoints}" class="w-full p-3 rounded-lg bg-black border border-zinc-800 text-center text-yellow-600 font-bold outline-none"></div>
+                            <div class="space-y-1"><span class="text-[8px] text-zinc-600 uppercase font-bold ml-1">Diseño Comb.</span><input id="numF" type="number" value="${state.calc.fPoints}" class="w-full p-3 rounded-lg bg-black border border-zinc-800 text-center text-blue-400 font-bold outline-none"></div>
                         </div>
-                        <div class="space-y-2">
-                             <label class="text-[9px] text-zinc-500 font-bold uppercase block tracking-widest">Duración Carrera</label>
-                             <select id="selLen" class="w-full p-3 rounded-xl bg-zinc-900 border border-zinc-800 text-xs font-bold text-white outline-none">
-                                <option value="100" ${state.calc.leagueLength===100?'selected':''}>100%</option>
-                                <option value="75" ${state.calc.leagueLength===75?'selected':''}>75%</option>
-                                <option value="50" ${state.calc.leagueLength===50?'selected':''}>50%</option>
-                                <option value="25" ${state.calc.leagueLength===25?'selected':''}>25%</option>
-                             </select>
-                        </div>
-                        <div class="pt-6 border-t border-zinc-800 flex justify-between items-end">
-                            <div><p class="text-[20px] font-ds ${totalLaps > trackLaps ? 'text-red-500' : 'text-white'}">${totalLaps} / ${trackLaps}</p><p class="text-[8px] text-zinc-600 uppercase font-bold">Vueltas Totales</p></div>
-                            <div class="text-right"><p class="text-[20px] font-ds text-blue-400">${totalFuel.toFixed(1)}L</p><p class="text-[8px] text-zinc-600 uppercase font-bold">Consumo</p></div>
+                        <div class="pt-4 border-t border-zinc-800">
+                             <div class="flex justify-between items-end">
+                                <div><p class="text-[18px] font-ds ${totalLaps > trackLaps ? 'text-red-500' : 'text-white'}">${totalLaps} / ${trackLaps}</p><p class="text-[8px] text-zinc-600 uppercase font-bold">Vueltas Totales</p></div>
+                                <div class="text-right"><p class="text-[18px] font-ds text-blue-400">${totalFuel.toFixed(1)}L</p><p class="text-[8px] text-zinc-600 uppercase font-bold">Litros Totales</p></div>
+                             </div>
                         </div>
                     </div>
                     <div class="lg:col-span-3 space-y-4">
-                        <div class="flex justify-between items-center"><h2 class="font-ds text-lg uppercase italic text-white tracking-tight">Ingeniería de Carrera</h2><button id="addStint" class="bg-yellow-600 text-black px-5 py-2.5 rounded-xl text-[10px] font-bold active:scale-95 transition-all">NUEVO STINT</button></div>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                        <div class="flex justify-between items-center"><h2 class="font-ds text-lg uppercase italic">Sugerencias de estrategia</h2><button id="addStint" class="bg-yellow-600 text-black px-4 py-2 rounded-lg text-[10px] font-bold">Añadir Stint</button></div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             ${state.calc.stints.map((s, i) => {
-                                const wear = getWear(state.calc.circuit, s.compound, s.laps, state.calc.tPoints, state.calc.leagueLength);
+                                const wear = getWear(state.calc.circuit, s.compound, s.laps, state.calc.tPoints, s.boost);
                                 const fuel = getFuel(state.calc.circuit, state.calc.fPoints, s.laps, s.boost);
                                 return `
-                                <div class="glass-panel p-5 rounded-2xl border-l-4 border-yellow-600 relative transition-all shadow-xl">
-                                    <button onclick="window.delS(${i})" class="absolute top-4 right-5 text-zinc-700 hover:text-red-500 font-bold">✕</button>
-                                    <div class="flex justify-center gap-3 mb-6">${['SS','S','M','H'].map(c => `<button onclick="window.upS(${i},'compound','${c}')" class="tyre-btn compound-${c.toLowerCase()} ${s.compound===c?'active':''} transition-all shadow-md">${c}</button>`).join('')}</div>
-                                    <div class="grid grid-cols-2 gap-4">
-                                        <div class="text-center"><span class="text-[7px] text-zinc-600 uppercase font-bold block mb-1">Vueltas</span><input type="number" value="${s.laps}" onchange="window.upS(${i},'laps',this.value)" class="w-full p-3 rounded bg-black border border-zinc-800 text-center font-bold text-white outline-none shadow-inner"></div>
-                                        <div class="text-center"><span class="text-[7px] text-zinc-600 uppercase font-bold block mb-1 text-center">Empuje</span><select onchange="window.upS(${i},'boost',this.value)" class="w-full p-3 rounded bg-black border border-zinc-800 text-[10px] uppercase font-bold text-center outline-none text-white shadow-inner">${[100,80,60,40,20].map(v => `<option value="${v}" ${s.boost==v+''?'selected':''}>${v}%</option>`).join('')}</select></div>
+                                <div class="glass-panel p-5 rounded-xl border-l-4 border-yellow-600 relative">
+                                    <button onclick="window.delS(${i})" class="absolute top-4 right-4 text-zinc-700 hover:text-red-500">✕</button>
+                                    <div class="flex justify-center gap-2 mb-6">${['SS','S','M','H'].map(c => `<button onclick="window.upS(${i},'compound','${c}')" class="tyre-btn compound-${c.toLowerCase()} ${s.compound===c?'active':''}">${c}</button>`).join('')}</div>
+                                    <div class="grid grid-cols-2 gap-3">
+                                        <div><span class="text-[7px] text-zinc-600 uppercase font-bold block mb-1">Vueltas</span><input type="number" value="${s.laps}" onchange="window.upS(${i},'laps',this.value)" class="w-full p-2.5 rounded bg-black border border-zinc-800 text-center font-bold text-white outline-none"></div>
+                                        <div><span class="text-[7px] text-zinc-600 uppercase font-bold block mb-1">Empuje</span><select onchange="window.upS(${i},'boost',this.value)" class="w-full p-2.5 rounded bg-black border border-zinc-800 text-[10px] uppercase font-bold text-center outline-none text-white">${[1,2,3,4,5].map(v => `<option value="${v}" ${s.boost==v+''?'selected':''}>Nivel ${v}</option>`).join('')}</select></div>
                                     </div>
-                                    <div class="mt-6 pt-5 border-t border-zinc-900 flex justify-between">
-                                        <div><p class="text-[7px] text-zinc-600 uppercase font-bold">Vida Final</p><p class="font-bold text-2xl ${wear<20?'text-red-500':'text-green-500'} font-ds transition-all">${wear.toFixed(1)}%</p></div>
-                                        <div class="text-right"><p class="text-[7px] text-zinc-600 uppercase font-bold">Consumo</p><p class="font-bold text-2xl text-blue-400 font-ds transition-all">${fuel.toFixed(2)}L</p></div>
+                                    <div class="mt-4 pt-4 border-t border-zinc-900/50 flex justify-between">
+                                        <div><p class="text-[7px] text-zinc-600 uppercase font-bold">Vida Final</p><p class="font-bold text-base ${wear<20?'text-red-500':'text-green-500'} font-ds">${wear.toFixed(1)}%</p></div>
+                                        <div class="text-right"><p class="text-[7px] text-zinc-600 uppercase font-bold">Consumo</p><p class="font-bold text-base text-blue-400 font-ds">${fuel.toFixed(2)}L</p></div>
                                     </div>
                                 </div>`;
                             }).join('')}
@@ -269,64 +328,179 @@
         function renderRanking(isAdmin) {
             const tabs = ['puntos', 'temporada', 'victorias', 'podios', 'poles', 'copas'];
             const list = Object.entries(state.users)
-                .filter(([id, d]) => d.stats && d.stats[state.rankingTab] !== undefined)
-                .map(([id, d]) => ({ id, ...d, score: d.stats[state.rankingTab], trend: d.stats[`trend_${state.rankingTab}`] || 0 }))
+                .filter(([id, d]) => d.stats && d.stats[state.rankingTab] !== undefined && d.stats[state.rankingTab] !== null)
+                .map(([id, d]) => ({ id, ...d, score: d.stats[state.rankingTab], temporada: d.stats.temporada || 1 }))
                 .sort((a,b) => b.score - a.score);
 
-            const topScore = list.length > 0 ? list[0].score : 0;
+            const listWithTrends = list.map((u) => {
+                return { ...u, trend: state.users[u.id]?.stats?.[`trend_${state.rankingTab}`] || 0 };
+            });
 
-            return `<div class="space-y-4">
-                <div class="ranking-categories-grid">${tabs.map(t => `<button onclick="window.setTab('${t}')" class="category-tab ${state.rankingTab===t?'active':''}">${t}</button>`).join('')}</div>
-                ${isAdmin ? `<form id="addM" class="flex gap-2 bg-zinc-900/50 p-2.5 rounded-2xl border border-zinc-800 shadow-inner"><input name="n" placeholder="NUEVO MANAGER" class="flex-grow bg-black p-4 rounded-xl text-xs outline-none focus:border-yellow-600 border border-transparent text-white uppercase font-bold" required><button class="bg-yellow-600 text-black px-8 rounded-xl font-bold text-[10px] uppercase">CREAR</button></form>` : ''}
-                <div class="glass-panel rounded-[2rem] overflow-hidden shadow-2xl">
-                    <div class="ranking-header"><div>POS</div><div>MANAGER</div><div class="text-center">DIF</div><div class="text-right uppercase">${state.rankingTab.substring(0,3)}</div></div>
-                    <div class="flex flex-col">${list.map((u, i) => {
-                        let tClass = 'trend-none'; let tIcon = '-'; 
-                        if (u.trend === 1) { tClass = 'trend-up'; tIcon = '▲'; } else if (u.trend === -1) { tClass = 'trend-down'; tIcon = '▼'; }
-                        return `<div class="ranking-item ${tClass}">
-                            <div class="text-[11px] font-bold text-zinc-100 whitespace-nowrap">#${i+1} <span class="ml-1">${tIcon}</span></div>
-                            <div class="flex flex-col truncate pr-2">
-                                <span class="text-[13px] uppercase font-ds font-bold text-zinc-100 cursor-pointer hover:text-yellow-600 transition-colors" onclick="window.openChart('${u.id}')">${u.id}</span>
-                                ${isAdmin ? `<div class="flex items-center gap-1 mt-2">
-                                    <input id="in_${u.id}" type="number" class="w-12 bg-black border border-zinc-800 rounded p-1 text-center text-[10px] text-white" placeholder="+0">
-                                    <button onclick="window.addPoints('${u.id}')" class="bg-zinc-800 hover:bg-green-600 text-white w-6 h-6 rounded text-[10px]">✓</button>
-                                    <button onclick="window.resetPass('${u.id}')" class="bg-zinc-800 hover:bg-blue-600 text-white w-6 h-6 rounded text-[10px]" title="Reset Pass">🔑</button>
-                                    <button onclick="window.removeStat('${u.id}')" class="bg-zinc-800 hover:bg-yellow-700 text-white w-6 h-6 rounded text-[10px]" title="Quitar lista">✕</button>
-                                    <button onclick="window.delUser('${u.id}')" class="bg-zinc-800 hover:bg-red-600 text-white w-6 h-6 rounded text-[10px]" title="Borrar manager">🗑️</button>
-                                </div>` : ''}
+            return `
+                <div class="space-y-4">
+                    <div class="flex justify-between items-center overflow-x-auto no-scrollbar gap-4 pb-2">
+                        <div class="flex gap-1.5">${tabs.map(t => `<button onclick="window.setTab('${t}')" class="px-4 py-2 rounded-xl bg-zinc-900 text-[9px] uppercase font-bold border border-zinc-800 ${state.rankingTab===t?'text-yellow-600 border-yellow-600 bg-yellow-600/5':''} transition-all">${t}</button>`).join('')}</div>
+                    </div>
+                    ${isAdmin ? `<form id="addM" class="flex gap-2 bg-zinc-900/50 p-2 rounded-2xl border border-zinc-800"><input name="n" placeholder="NOMBRE DEL MANAGER" class="flex-grow bg-black p-3 rounded-xl text-xs outline-none focus:border-yellow-600 border border-transparent" required><button class="bg-yellow-600 text-black px-6 rounded-xl font-bold text-[10px] uppercase">CREAR</button></form>` : ''}
+                    <div class="glass-panel rounded-2xl overflow-hidden border border-zinc-800/50">
+                        <table class="w-full text-xs text-left">
+                            <tr class="bg-zinc-900 text-zinc-500 uppercase text-[8px]">
+                                <th class="p-5">Pos</th>
+                                <th class="p-5">Manager</th>
+                                <th class="p-5 text-center">Dif</th>
+                                <th class="p-5 text-right uppercase">${state.rankingTab}</th>
+                                ${isAdmin?'<th class="p-5 text-center">Acción</th>':''}
+                            </tr>
+                            ${listWithTrends.map((u, i) => {
+                                let trendIcon = '<span class="text-orange-500 text-[10px] ml-1.5 font-black" title="Mantiene Posición">-</span>';
+                                let rowBgStyle = 'background-color: rgba(249, 115, 22, 0.15);';
+
+                                if (u.trend === 1) {
+                                    trendIcon = '<span class="text-green-500 text-[10px] ml-1.5 font-black" title="Sube Posición">▲</span>';
+                                    rowBgStyle = 'background-color: rgba(34, 197, 94, 0.15);';
+                                } else if (u.trend === -1) {
+                                    trendIcon = '<span class="text-red-500 text-[10px] ml-1.5 font-black" title="Baja Posición">▼</span>';
+                                    rowBgStyle = 'background-color: rgba(239, 68, 68, 0.15);';
+                                }
+
+                                const safeDomId = 'in_' + u.id.replace(/[^a-zA-Z0-9]/g, '_');
+                                const safeNameParam = u.id.replace(/'/g, "\\'");
+                                
+                                let difText = "-";
+                                if (i > 0) {
+                                    const diff = listWithTrends[i-1].score - u.score;
+                                    const cleanDiff = Math.round(diff * 10) / 10;
+                                    difText = cleanDiff === 0 ? "0" : `-${cleanDiff}`;
+                                }
+
+                                return `
+                                <tr class="border-b border-zinc-900/50 transition-colors" style="${rowBgStyle}">
+                                    <td class="p-5 font-bold text-zinc-100 whitespace-nowrap">#${i+1} ${trendIcon}</td>
+                                    <td class="p-5 uppercase font-bold text-zinc-100 cursor-pointer hover:text-yellow-500 transition-colors" onclick="window.openChart('${safeNameParam}')" title="Ver Perfil e Historial">${u.id}</td>
+                                    <td class="p-5 text-center text-zinc-400 font-ds text-[10px]">${difText}</td>
+                                    <td class="p-5 text-right text-yellow-600 font-bold font-ds text-sm">${u.score}</td>
+                                    ${isAdmin ? `
+                                    <td class="p-5 text-center flex justify-center items-center gap-1">
+                                        <input id="${safeDomId}" type="number" class="w-12 bg-black border border-zinc-800 rounded-md p-1.5 text-center text-[10px] text-white" placeholder="+0">
+                                        <button onclick="window.addPoints('${safeNameParam}')" class="bg-zinc-800 hover:bg-green-600 text-white w-6 h-6 rounded-md text-[10px] font-bold transition-colors" title="Sumar">✓</button>
+                                        <button onclick="window.clearStat('${safeNameParam}')" class="bg-zinc-800 hover:bg-yellow-600 text-white w-6 h-6 rounded-md text-[10px] font-bold transition-colors" title="Poner a 0">0</button>
+                                        <button onclick="window.resetPass('${safeNameParam}')" class="bg-zinc-800 hover:bg-blue-600 text-white w-6 h-6 rounded-md text-[10px] font-bold transition-colors" title="Reset Contraseña">🔑</button>
+                                        <button onclick="window.removeStat('${safeNameParam}')" class="text-zinc-700 hover:text-red-500 w-6 h-6 transition-colors" title="Quitar de esta lista">✕</button>
+                                    </td>` : ''}
+                                </tr>`;
+                            }).join('')}
+                        </table>
+                    </div>
+
+                    <div class="glass-panel rounded-2xl overflow-hidden shadow-2xl mt-8 border-t border-[#c5a059]/30">
+                        <div class="p-5 border-b border-zinc-800/50 bg-[#141417] flex flex-col md:flex-row justify-between items-center gap-4">
+                            <h3 class="font-ds text-sm text-white uppercase tracking-widest shrink-0">Pizarra de Temporada (Actual)</h3>
+                            <div class="flex gap-2 w-full md:w-auto items-center">
+                                ${isAdmin ? `
+                                <form id="addBoardM" class="flex gap-2 w-full">
+                                    <input name="n" placeholder="ESCRIBE MANAGER..." class="bg-black border border-zinc-800 p-2.5 rounded-xl text-[10px] text-white outline-none focus:border-yellow-600 uppercase w-full font-bold" required>
+                                    <button class="bg-zinc-800 text-white px-4 rounded-xl font-bold text-[10px] uppercase transition-colors hover:bg-zinc-700">AÑADIR</button>
+                                </form>
+                                <button onclick="window.archiveSeason()" class="bg-blue-600 text-white px-4 py-2.5 rounded-xl text-[9px] font-bold uppercase transition-colors hover:bg-blue-500 whitespace-nowrap">
+                                    ARCHIVAR TEMPORADA
+                                </button>
+                                ` : ''}
                             </div>
-                            <div class="text-center font-ds text-[10px] text-zinc-400">-${(topScore - u.score).toFixed(0)}</div>
-                            <div class="text-right text-2xl text-yellow-600 font-bold font-ds tracking-tighter">${u.score}</div>
-                        </div>`;
-                    }).join('')}</div>
-                </div>
-            </div>`;
+                        </div>
+                        <div class="overflow-x-auto no-scrollbar pb-2">
+                            <table class="w-max text-center border-collapse text-[10px]">
+                                <thead>
+                                    <tr class="border-b border-zinc-800 text-zinc-600 font-bold uppercase tracking-[0.2em]">
+                                        <th class="p-3 text-left sticky left-0 bg-[#141417] z-10 shadow-[4px_0_10px_rgba(0,0,0,0.5)]">Piloto</th>
+                                        ${Object.keys(circuitsData).map(tc => {
+                                            const fc = flagCodes[tc] || 'un';
+                                            return `<th class="p-3 min-w-[50px]"><img src="https://flagcdn.com/w20/${fc}.png" class="w-4 h-4 rounded-full object-cover mx-auto mb-1 opacity-80" onerror="this.style.display='none'"><span class="text-[8px]">${tc}</span></th>`;
+                                        }).join('')}
+                                    </tr>
+                                </thead>
+                                <tbody class="font-bold">
+                                    ${Object.entries(state.users).sort((a,b) => (b[1].stats?.puntos||0) - (a[1].stats?.puntos||0)).map(([id, u]) => {
+                                        const safeNameParam = id.replace(/'/g, "\\'");
+                                        return `<tr class="border-b border-zinc-800/30 hover:bg-zinc-900/50 transition-colors">
+                                            <td class="p-3 text-left sticky left-0 bg-[#141417] z-10 shadow-[4px_0_10px_rgba(0,0,0,0.5)]">
+                                                <span class="font-ds text-white text-xs uppercase cursor-pointer hover:text-yellow-500 transition-colors" onclick="window.openChart('${safeNameParam}')" title="Ver Perfil e Historial">${id}</span>
+                                            </td>
+                                            ${Object.keys(circuitsData).map(tc => {
+                                                const res = u.pizarra && u.pizarra[tc] ? u.pizarra[tc] : '-';
+                                                let color = 'text-zinc-600';
+                                                if(res === 'P1') color = 'text-yellow-500 drop-shadow-[0_0_5px_rgba(234,179,8,0.5)] text-sm';
+                                                else if(res.startsWith('P') && res.length <= 3) color = 'text-zinc-200';
+                                                else if(res === 'DNF') color = 'text-red-500';
+                                                
+                                                const clickEvent = isAdmin ? `onclick="window.setTrackResult('${safeNameParam}', '${tc}')" class="cursor-pointer hover:bg-zinc-800 rounded transition-colors"` : '';
+                                                return `<td class="p-3 font-ds ${color}" ${clickEvent}>${res}</td>`;
+                                            }).join('')}
+                                        </tr>`;
+                                    }).join('')}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>`;
         }
 
         function renderChartModal() {
             const otherUsers = Object.keys(state.users).filter(u => u !== state.chartUser);
-            return `<div class="fixed inset-0 bg-black/90 z-[100] flex items-center justify-center p-6 backdrop-blur-md">
-                <div class="glass-panel p-8 rounded-[3rem] w-full max-w-md text-center border-t-2 border-yellow-600 relative shadow-2xl">
-                    <button onclick="window.closeChart()" class="absolute top-6 right-8 text-zinc-500 hover:text-white font-bold text-xl transition-all">✕</button>
-                    <h3 class="font-ds text-yellow-600 mb-6 italic uppercase text-2xl tracking-tighter">${state.chartUser}</h3>
-                    <div class="mb-6 flex justify-center items-center gap-3">
-                        <span class="text-[9px] text-zinc-500 font-bold uppercase tracking-widest">VS:</span>
-                        <select onchange="window.updateCompare(this.value)" class="bg-black border border-zinc-800 text-white text-[10px] p-2.5 rounded-xl outline-none focus:border-yellow-600 uppercase font-bold cursor-pointer transition-all">
-                            <option value="">-- PROMEDIO EQUIPO --</option>
-                            ${otherUsers.map(u => `<option value="${u}" ${state.compareUser === u ? 'selected' : ''}>${u}</option>`).join('')}
-                        </select>
+            const u = state.users[state.chartUser];
+            if(!u) return '';
+
+            let historyHtml = '<p class="text-zinc-500 text-[10px] uppercase font-bold text-center py-4">No hay temporadas archivadas aún.</p>';
+            if (u.historial && Object.keys(u.historial).length > 0) {
+                historyHtml = Object.entries(u.historial).map(([tempName, tracks]) => {
+                    const tracksHtml = Object.entries(tracks).map(([tc, res]) => {
+                        const colorClass = res === 'P1' ? 'text-yellow-500 drop-shadow-[0_0_3px_rgba(234,179,8,0.5)]' : (res === 'DNF' ? 'text-red-500' : 'text-zinc-300');
+                        const fc = flagCodes[tc] || 'un';
+                        return `
+                            <div class="bg-zinc-900/50 p-2 rounded-lg border border-zinc-800 flex justify-between items-center">
+                                <div class="flex items-center gap-1.5">
+                                    <img src="https://flagcdn.com/w20/${fc}.png" class="w-3.5 h-3.5 rounded-full opacity-80" onerror="this.style.display='none'">
+                                    <span class="text-[8px] text-zinc-400 font-bold uppercase tracking-wider">${tc}</span>
+                                </div>
+                                <span class="font-ds text-[10px] font-bold ${colorClass}">${res}</span>
+                            </div>`;
+                    }).join('');
+
+                    return `<div class="mt-6 border-l-2 border-zinc-800 pl-4"><h4 class="text-yellow-600 font-ds text-xs uppercase mb-3">${tempName}</h4><div class="grid grid-cols-3 sm:grid-cols-4 gap-3">${tracksHtml}</div></div>`;
+                }).join('');
+            }
+
+            return `
+            <div class="fixed inset-0 bg-black/90 z-[100] flex items-center justify-center p-4 backdrop-blur-sm">
+                <div class="glass-panel p-6 md:p-8 rounded-[2.5rem] w-full max-w-2xl text-center border-t-2 border-yellow-600 relative shadow-2xl flex flex-col max-h-[90vh]">
+                    <button onclick="window.closeChart()" class="absolute top-5 right-6 text-zinc-500 hover:text-white font-bold text-lg transition-colors">✕</button>
+                    <h3 class="font-ds text-yellow-600 mb-1 italic uppercase text-2xl tracking-tighter">${state.chartUser}</h3>
+                    <div class="text-[9px] text-zinc-500 font-bold uppercase tracking-widest mb-6">Perfil Oficial del Piloto</div>
+                    <div class="overflow-y-auto no-scrollbar flex-grow text-left space-y-6">
+                        <div class="bg-black/40 rounded-2xl border border-zinc-800/50 p-5">
+                            <div class="mb-5 flex justify-between items-center gap-3">
+                                <span class="font-ds text-sm text-white uppercase tracking-widest">Estadísticas</span>
+                                <select onchange="window.updateCompare(this.value)" class="bg-black border border-zinc-800 text-white text-[9px] p-2 rounded-lg outline-none focus:border-yellow-600 uppercase font-bold cursor-pointer">
+                                    <option value="">-- VS PROMEDIO EQUIPO --</option>
+                                    ${otherUsers.map(uid => `<option value="${uid}" ${state.compareUser === uid ? 'selected' : ''}>VS ${uid}</option>`).join('')}
+                                </select>
+                            </div>
+                            <div id="statsBarsContainer" class="w-full flex flex-col gap-4"></div>
+                        </div>
+                        <div class="bg-black/40 rounded-2xl border border-zinc-800/50 p-5">
+                            <h3 class="font-ds text-sm text-white uppercase tracking-widest border-b border-zinc-800 pb-3 mb-2">Historial de Carreras (Archivo)</h3>
+                            ${historyHtml}
+                        </div>
                     </div>
-                    <div id="statsBarsContainer" class="p-2 w-full flex flex-col gap-6 text-left"></div>
-                    <button onclick="window.closeChart()" class="w-full mt-8 py-4 rounded-2xl bg-zinc-900 text-white text-[9px] font-bold uppercase border border-zinc-800 transition-all active:scale-95 shadow-md">CERRAR</button>
                 </div>
             </div>`;
         }
 
         function renderChat() {
-            return `<div class="flex flex-col h-[75vh] glass-panel rounded-3xl overflow-hidden border border-zinc-800 shadow-2xl transition-all"><div id="chatBox" class="flex-grow p-5 overflow-y-auto space-y-4 no-scrollbar">${state.messages.map(m => `<div class="flex flex-col ${m.u === state.username ? 'items-end' : 'items-start'} transition-all"><span class="text-[7px] font-bold text-zinc-600 uppercase mb-1 ml-1 mr-1">${m.u}</span><div class="p-4 rounded-2xl text-xs max-w-[80%] ${m.u === state.username ? 'bg-yellow-600 text-black font-semibold shadow-lg' : 'bg-zinc-900 text-white border border-zinc-800 shadow-md'}">${m.t}</div></div>`).join('')}</div><form id="chatF" class="p-4 bg-zinc-900/80 border-t border-zinc-800/50 flex gap-2"><input name="m" placeholder="Escribe al box..." class="flex-grow bg-black p-4 rounded-2xl text-xs outline-none focus:border-yellow-600 text-white transition-all shadow-inner" autocomplete="off"><button class="bg-yellow-600 text-black px-8 rounded-2xl font-bold text-[10px] uppercase shadow-lg active:scale-95">Radio</button></form></div>`;
+            return `<div class="flex flex-col h-[70vh] glass-panel rounded-3xl overflow-hidden border border-zinc-800"><div id="chatBox" class="flex-grow p-5 overflow-y-auto space-y-4 no-scrollbar">
+                ${state.messages.map(m => `<div class="flex flex-col ${m.u === state.username ? 'items-end' : 'items-start'}"><span class="text-[7px] font-bold text-zinc-600 uppercase mb-1 ml-1 mr-1">${m.u}</span><div class="p-3.5 rounded-2xl text-xs max-w-[80%] ${m.u === state.username ? 'bg-yellow-600 text-black' : 'bg-zinc-900 text-white border border-zinc-800'}">${m.t}</div></div>`).join('')}
+                </div><form id="chatF" class="p-4 bg-zinc-900/80 border-t border-zinc-800/50 flex gap-2"><input name="m" placeholder="Escribe al equipo..." class="flex-grow bg-black p-3.5 rounded-2xl text-xs outline-none focus:border-yellow-600 text-white" autocomplete="off"><button class="bg-yellow-600 text-black px-6 rounded-2xl font-bold text-[10px] uppercase">Enviar</button></form></div>`;
         }
 
-        // --- ACCIONES GLOBALES ---
         window.go = (s) => { state.section = s; render(); };
         window.upS = (i, k, v) => { state.calc.stints[i][k] = v; render(); };
         window.delS = (i) => { state.calc.stints.splice(i, 1); render(); };
@@ -349,7 +523,31 @@
         window.addPoints = async (id) => { const inp = document.getElementById(`in_${id}`); const val = parseFloat(inp.value) || 0; if(val===0) return; await updateGlobalRanking(state.rankingTab, id, 'add', val); inp.value = ''; };
         window.resetPass = async (id) => { if(confirm(`¿Resetear pass de ${id}?`)) await update(ref(db, `perfiles/${id}`), { password: 'ext' }); };
         window.removeStat = async (id) => { if(confirm(`¿Quitar a ${id} de esta lista?`)) await updateGlobalRanking(state.rankingTab, id, 'remove'); };
-        window.delUser = async (id) => { if(confirm(`¿ELIMINAR PERFIL COMPLETO de ${id}?`)) await set(ref(db, `perfiles/${id}`), null); };
+        window.clearStat = async (id) => { if(confirm(`¿Poner a 0 la lista de ${state.rankingTab} para ${id}?`)) await updateGlobalRanking(state.rankingTab, id, 'clear'); };
+        
+        window.archiveSeason = async () => {
+            if(!confirm("¿Estás seguro de archivar la temporada actual? Esto guardará la pizarra en el historial de cada piloto y la dejará en blanco para el nuevo campeonato.")) return;
+            let updates = {};
+            Object.entries(state.users).forEach(([uid, u]) => {
+                const currentTemp = u.stats?.temporada || 1;
+                if (u.pizarra) {
+                    updates[`perfiles/${uid}/historial/Temporada ${currentTemp}`] = u.pizarra;
+                    updates[`perfiles/${uid}/pizarra`] = null;
+                }
+                updates[`perfiles/${uid}/stats/temporada`] = currentTemp + 1;
+            });
+            await update(ref(db), updates);
+            alert("¡Temporada archivada con éxito en los historiales de los pilotos!");
+        };
+
+        window.setTrackResult = async (managerId, trackCode) => {
+            const currentRes = (state.users[managerId].pizarra && state.users[managerId].pizarra[trackCode]) ? state.users[managerId].pizarra[trackCode] : '';
+            const res = prompt(`RESULTADO PARA ${managerId.toUpperCase()} EN [${trackCode.toUpperCase()}]\nEjemplos: P1, P2, DNF, -`, currentRes);
+            if (res !== null) {
+                const resultStr = res.toUpperCase().trim();
+                await update(ref(db, `perfiles/${managerId}/pizarra`), { [trackCode]: resultStr });
+            }
+        };
         
         window.openChart = (id) => { state.chartUser = id; state.compareUser = ''; render(); setTimeout(() => window.drawChart(id), 50); };
         window.updateCompare = (rivalId) => { state.compareUser = rivalId; window.drawChart(state.chartUser, rivalId); };
@@ -371,10 +569,28 @@
 
         function attachEvents() {
             if(document.getElementById('selTrack')) document.getElementById('selTrack').onchange = (e) => { state.calc.circuit = e.target.value; render(); };
-            if(document.getElementById('selLen')) document.getElementById('selLen').onchange = (e) => { state.calc.leagueLength = parseInt(e.target.value); render(); };
             if(document.getElementById('numT')) document.getElementById('numT').onchange = (e) => { state.calc.tPoints = e.target.value; render(); };
             if(document.getElementById('numF')) document.getElementById('numF').onchange = (e) => { state.calc.fPoints = e.target.value; render(); };
-            if(document.getElementById('addStint')) document.getElementById('addStint').onclick = () => { state.calc.stints.push({ compound: 'M', laps: 10, boost: '60' }); render(); };
+            if(document.getElementById('addStint')) document.getElementById('addStint').onclick = () => { state.calc.stints.push({ compound: 'M', laps: 5, boost: '3' }); render(); };
+            
+            if(document.getElementById('addBoardM')) {
+                document.getElementById('addBoardM').onsubmit = async (e) => {
+                    e.preventDefault();
+                    const n = e.target.n.value.trim().toLowerCase();
+                    if(n && !state.users[n]) {
+                        await set(ref(db, `perfiles/${n}`), { 
+                            password: 'ext', 
+                            stats: { puntos:0, temporada:1, victorias:0, podios:0, poles:0, copas:0 },
+                            pizarra: {},
+                            historial: {}
+                        });
+                    } else if(state.users[n]) {
+                        alert("Este manager ya existe. Se mostrará en la pizarra automáticamente.");
+                    }
+                    e.target.reset();
+                };
+            }
+
             if(document.getElementById('addM')) { document.getElementById('addM').onsubmit = async (e) => { e.preventDefault(); const n = e.target.n.value.trim().toLowerCase(); if(n) await set(ref(db, `perfiles/${n}`), { password: 'ext', stats: { puntos:0, temporada:1, victorias:0, podios:0, poles:0, copas:0 } }); e.target.reset(); }; }
             if(document.getElementById('chatF')) { document.getElementById('chatF').onsubmit = async (e) => { e.preventDefault(); const t = e.target.m.value.trim(); if(t){ await push(ref(db, 'chat'), { u: state.username, t, ts: serverTimestamp() }); e.target.reset(); } }; }
             const chatBox = document.getElementById('chatBox'); if(chatBox) chatBox.scrollTop = chatBox.scrollHeight;
