@@ -97,12 +97,9 @@
         // --- ALGORITMOS MATEMÁTICOS EXACTOS DE LA EXTENSIÓN iGPlus ---
         function getWear(track, comp, laps, pts, boost) {
             const c = circuitsData[track];
-            // Multiplicadores originales de empuje de la extensión
             const boostMult = { '1': 0.85, '2': 0.92, '3': 1.0, '4': 1.12, '5': 1.25 }[boost] || 1.0;
-            // Factores originales por compuesto
             const tyreFactors = { 'SS': 2.14, 'S': 1.4, 'M': 1.0, 'H': 0.78 };
             
-            // Ecuación exponencial de desgaste extraída del código fuente
             const t = (1.29 * Math.pow(pts, -0.0696)) * (0.00527 * c.tyreWear + 0.556) * c.length * tyreFactors[comp] * boostMult;
             const exponent = (-t / 100 * 1.18) * laps;
             
@@ -111,10 +108,7 @@
 
         function getFuel(track, pts, laps, boost) {
             const c = circuitsData[track];
-            // Ajuste exacto de la extensión basado en el nivel de empuje
             const pushAdj = { '5': 0.02, '4': 0.01, '3': 0, '2': -0.004, '1': -0.007 }[boost] || 0;
-            
-            // Fórmula polinómica original de combustible
             const fuelPerKm = (0.6983736841 * Math.pow(pts, -0.08510976572)) + pushAdj;
             return fuelPerKm * c.length * laps;
         }
@@ -419,11 +413,16 @@
                                     </tr>
                                 </thead>
                                 <tbody class="font-bold">
-                                    ${Object.entries(state.users).sort((a,b) => (b[1].stats?.puntos||0) - (a[1].stats?.puntos||0)).map(([id, u]) => {
+                                    ${Object.entries(state.users)
+                                        .filter(([id, u]) => !u.hidePizarra)
+                                        .sort((a,b) => (b[1].stats?.puntos||0) - (a[1].stats?.puntos||0)).map(([id, u]) => {
                                         const safeNameParam = id.replace(/'/g, "\\'");
                                         return `<tr class="border-b border-zinc-800/30 hover:bg-zinc-900/50 transition-colors">
                                             <td class="p-3 text-left sticky left-0 bg-[#141417] z-10 shadow-[4px_0_10px_rgba(0,0,0,0.5)]">
-                                                <span class="font-ds text-white text-xs uppercase cursor-pointer hover:text-yellow-500 transition-colors" onclick="window.openChart('${safeNameParam}')" title="Ver Perfil e Historial">${id}</span>
+                                                <div class="flex items-center gap-2">
+                                                    ${isAdmin ? `<button onclick="window.removeBoard('${safeNameParam}')" class="text-zinc-600 hover:text-red-500 font-bold transition-colors" title="Ocultar de la Pizarra">✕</button>` : ''}
+                                                    <span class="font-ds text-white text-xs uppercase cursor-pointer hover:text-yellow-500 transition-colors" onclick="window.openChart('${safeNameParam}')" title="Ver Perfil e Historial">${id}</span>
+                                                </div>
                                             </td>
                                             ${Object.keys(circuitsData).map(tc => {
                                                 const res = u.pizarra && u.pizarra[tc] ? u.pizarra[tc] : '-';
@@ -548,6 +547,12 @@
                 await update(ref(db, `perfiles/${managerId}/pizarra`), { [trackCode]: resultStr });
             }
         };
+
+        window.removeBoard = async (id) => {
+            if(confirm(`¿Ocultar a ${id} de la Pizarra de Temporada? Sus estadísticas globales no se borrarán.`)) {
+                await update(ref(db, `perfiles/${id}`), { hidePizarra: true });
+            }
+        };
         
         window.openChart = (id) => { state.chartUser = id; state.compareUser = ''; render(); setTimeout(() => window.drawChart(id), 50); };
         window.updateCompare = (rivalId) => { state.compareUser = rivalId; window.drawChart(state.chartUser, rivalId); };
@@ -585,7 +590,12 @@
                             historial: {}
                         });
                     } else if(state.users[n]) {
-                        alert("Este manager ya existe. Se mostrará en la pizarra automáticamente.");
+                        if (state.users[n].hidePizarra) {
+                            await update(ref(db, `perfiles/${n}`), { hidePizarra: null });
+                            alert("El manager ha sido restaurado en la pizarra.");
+                        } else {
+                            alert("Este manager ya existe y está en la pizarra.");
+                        }
                     }
                     e.target.reset();
                 };
