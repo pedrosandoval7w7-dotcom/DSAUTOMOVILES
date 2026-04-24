@@ -91,6 +91,7 @@
             chartUser: null,
             compareUser: '',
             weather: null, // Nuevo estado para el clima en vivo
+            forecast: null, // Datos para la gráfica de 24h
             calc: { circuit: 'AZE', tPoints: 66, fPoints: 67, temp: 14, stints: [{ compound: 'S', laps: 6, boost: '5' }] },
             setupCalc: { height: 175 }
         };
@@ -124,6 +125,7 @@
         // --- FUNCIÓN DE CLIMA EN VIVO (OPEN-METEO) ---
         window.fetchWeather = async (trackCode) => {
             state.weather = 'loading';
+            state.forecast = null;
             const wDiv = document.getElementById('weatherWidget');
             if(wDiv) wDiv.innerHTML = getWeatherDisplay(state.weather);
             
@@ -131,15 +133,23 @@
             if (!track || !track.lat) return;
             
             try {
-                const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${track.lat}&longitude=${track.lon}&current_weather=true`);
+                const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${track.lat}&longitude=${track.lon}&current_weather=true&hourly=temperature_2m,precipitation_probability&timezone=auto`);
                 const data = await res.json();
                 if (data && data.current_weather) {
                     state.weather = {
                         temp: data.current_weather.temperature,
                         code: data.current_weather.weathercode
                     };
+                    state.forecast = {
+                        times: data.hourly.time.slice(0, 24).map(t => t.split('T')[1]),
+                        temps: data.hourly.temperature_2m.slice(0, 24),
+                        rains: data.hourly.precipitation_probability.slice(0, 24)
+                    };
                     if(document.getElementById('weatherWidget')) {
                         document.getElementById('weatherWidget').innerHTML = getWeatherDisplay(state.weather);
+                    }
+                    if(state.section === 'strategy' && window.drawWeatherChart) {
+                        window.drawWeatherChart();
                     }
                 }
             } catch(e) {
@@ -203,7 +213,10 @@
             attachEvents();
 
             if (state.section === 'strategy') {
-                setTimeout(() => window.drawWearChart(), 50);
+                setTimeout(() => {
+                    window.drawWearChart();
+                    if(window.drawWeatherChart) window.drawWeatherChart();
+                }, 50);
             }
         }
 
@@ -400,9 +413,17 @@
                             }).join('')}
                         </div>
                         
-                        <div class="glass-panel p-4 rounded-xl mt-6 h-48 w-full border border-zinc-800/50 relative">
-                            <span class="absolute top-3 left-4 text-[9px] text-zinc-500 font-bold uppercase tracking-widest">Telemetría de Desgaste</span>
-                            <canvas id="wearChart"></canvas>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
+                            <div class="glass-panel p-4 rounded-xl h-48 w-full border border-zinc-800/50 relative">
+                                <span class="absolute top-3 left-4 text-[9px] text-zinc-500 font-bold uppercase tracking-widest">Telemetría de Desgaste</span>
+                                <canvas id="wearChart"></canvas>
+                            </div>
+                            
+                            <!-- GRÁFICA DE CLIMA EN VIVO (ESTILO FOTO) -->
+                            <div class="glass-panel p-4 rounded-xl h-48 w-full border border-zinc-800/50 relative">
+                                <span class="absolute top-3 left-4 text-[9px] text-zinc-500 font-bold uppercase tracking-widest">Pronóstico Meteorológico (24h)</span>
+                                <canvas id="weatherChart"></canvas>
+                            </div>
                         </div>
 
                     </div>
@@ -711,6 +732,62 @@
                         x: { grid: { color: '#27272a' }, ticks: { color: '#a1a1aa', font: {size: 9} } }
                     },
                     plugins: { legend: { display: false }, tooltip: { padding: 10, bodyFont: { size: 10 } } }
+                }
+            });
+        };
+
+        window.weatherChartInst = null;
+        window.drawWeatherChart = () => {
+            const ctx = document.getElementById('weatherChart');
+            if(!ctx || !state.forecast) return;
+            if(window.weatherChartInst) window.weatherChartInst.destroy();
+            
+            const track = circuitsData[state.calc.circuit];
+            const latStr = track.lat >= 0 ? `${track.lat}°N` : `${Math.abs(track.lat)}°S`;
+            const lonStr = track.lon >= 0 ? `${track.lon}°E` : `${Math.abs(track.lon)}°W`;
+            const subtitle = `${state.weather.temp}°C - ${track.name} ${latStr} ${lonStr}`;
+
+            window.weatherChartInst = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: state.forecast.times,
+                    datasets: [
+                        { 
+                            label: 'temperature', 
+                            data: state.forecast.temps, 
+                            borderColor: '#ef4444', 
+                            borderWidth: 1.5, 
+                            yAxisID: 'y', 
+                            tension: 0.4, 
+                            pointRadius: 0 
+                        },
+                        { 
+                            label: 'precipitation', 
+                            data: state.forecast.rains, 
+                            backgroundColor: '#22d3ee', 
+                            borderColor: 'transparent',
+                            fill: true, 
+                            yAxisID: 'y1', 
+                            type: 'line', 
+                            pointRadius: 0, 
+                            borderWidth: 0,
+                            tension: 0 // Esto hace los picos triangulares exactos de la foto
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true, 
+                    maintainAspectRatio: false,
+                    interaction: { mode: 'index', intersect: false },
+                    plugins: { 
+                        legend: { display: true, position: 'right', labels: { color: '#a1a1aa', boxWidth: 10, font: { size: 9 } } },
+                        title: { display: true, text: subtitle, color: '#71717a', font: { size: 10, weight: 'normal' }, padding: { top: 0, bottom: 10 } }
+                    },
+                    scales: {
+                        y: { position: 'left', grid: { color: 'rgba(255,255,255,0.05)', drawBorder: false }, ticks: { display: false } },
+                        y1: { position: 'right', min: 0, max: 100, grid: { display: false, drawBorder: false }, ticks: { display: false } },
+                        x: { grid: { color: 'rgba(255,255,255,0.05)', drawBorder: false }, ticks: { color: '#71717a', font:{size:9}, maxRotation: 0, maxTicksLimit: 12 } }
+                    }
                 }
             });
         };
