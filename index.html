@@ -35,33 +35,33 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
-        // --- VALORES EXACTOS DE EXTENSIÓN (INCLUYENDO TIEMPOS DE PIT) ---
+        // --- VALORES EXACTOS DE EXTENSIÓN (INCLUYENDO PIT TIME Y COORDENADAS PARA CLIMA EN VIVO) ---
         const circuitsData = {
-            "AUS": { name: "Australia", laps: 29, length: 5.3017, tyreWear: 40, pitTime: 24, img: 'https://i.postimg.cc/fbG7FsHd/image.png' },
-            "MAL": { name: "Malasia", laps: 28, length: 5.5358, tyreWear: 80, pitTime: 22, img: 'https://i.postimg.cc/63VZmv4B/image.png' },
-            "CHN": { name: "China", laps: 28, length: 5.4418, tyreWear: 80, pitTime: 26, img: 'https://i.postimg.cc/tC8gFg7v/image.png' },
-            "BHR": { name: "Bahréin", laps: 29, length: 4.7273, tyreWear: 60, pitTime: 23, img: 'https://i.postimg.cc/3NV3jLr4/image.png' },
-            "ESP": { name: "España", laps: 33, length: 4.4580, tyreWear: 85, pitTime: 25, img: 'https://i.postimg.cc/vZWG9LJ6/image.png' },
-            "MON": { name: "Mónaco", laps: 39, length: 4.0157, tyreWear: 20, pitTime: 16, img: 'https://i.postimg.cc/Fzd4Kjb9/image.png' },
-            "TUR": { name: "Turquía", laps: 27, length: 5.1631, tyreWear: 90, pitTime: 18, img: 'https://i.postimg.cc/8zBVskvS/image.png' },
-            "GER": { name: "Alemania", laps: 33, length: 4.1798, tyreWear: 50, pitTime: 17, img: 'https://i.postimg.cc/LXWcGncB/image.png' },
-            "HUN": { name: "Hungría", laps: 35, length: 3.4990, tyreWear: 30, pitTime: 17, img: 'https://i.postimg.cc/4xZxWSbv/image.png' },
-            "EUR": { name: "Europa", laps: 25, length: 5.5907, tyreWear: 45, pitTime: 17, img: 'https://i.postimg.cc/C5kwNGRC/image.png' },
-            "BEL": { name: "Bélgica", laps: 22, length: 7.0406, tyreWear: 60, pitTime: 15, img: 'https://i.postimg.cc/fbyZFn3c/image.png' },
-            "ITA": { name: "Italia", laps: 27, length: 5.4024, tyreWear: 35, pitTime: 24, img: 'https://i.postimg.cc/Hsmmm7J0/image.png' },
-            "SIN": { name: "Singapur", laps: 31, length: 5.0490, tyreWear: 45, pitTime: 20, img: 'https://i.postimg.cc/HLFGhJD9/image.png' },
-            "JPN": { name: "Japón", laps: 27, length: 5.0588, tyreWear: 70, pitTime: 20, img: 'https://i.postimg.cc/c4CW9GP9/image.png' },
-            "BRA": { name: "Brasil", laps: 36, length: 3.9715, tyreWear: 60, pitTime: 21, img: 'https://i.postimg.cc/sg2tfP35/image.png' },
-            "UAE": { name: "Abu Dhabi", laps: 28, length: 5.4127, tyreWear: 50, pitTime: 23, img: 'https://i.postimg.cc/tTFcv2zh/image.png' },
-            "GBR": { name: "Gran Bretaña", laps: 26, length: 5.7521, tyreWear: 65, pitTime: 23, img: 'https://i.postimg.cc/dVDxcqBV/image.png' },
-            "FRA": { name: "Francia", laps: 24, length: 5.8825, tyreWear: 80, pitTime: 20, img: 'https://i.postimg.cc/Qtg6JVXb/image.png' },
-            "AUT": { name: "Austria", laps: 36, length: 4.0444, tyreWear: 60, pitTime: 27, img: 'https://i.postimg.cc/m2pmwvGV/image.png' },
-            "CAN": { name: "Canadá", laps: 35, length: 4.3414, tyreWear: 45, pitTime: 17, img: 'https://i.postimg.cc/B63pbsxW/image.png' },
-            "AZE": { name: "Azerbaiyán", laps: 26, length: 6.0532, tyreWear: 45, pitTime: 17, img: 'https://i.postimg.cc/T2C0dz1S/image.png' },
-            "MEX": { name: "México", laps: 36, length: 4.3076, tyreWear: 60, pitTime: 19, img: 'https://i.postimg.cc/VkbWF5gn/image.png' },
-            "RUS": { name: "Rusia", laps: 27, length: 6.0783, tyreWear: 50, pitTime: 21, img: 'https://i.postimg.cc/JnR3mxLt/image.png' },
-            "USA": { name: "EE.UU.", laps: 28, length: 4.6030, tyreWear: 65, pitTime: 16, img: 'https://i.postimg.cc/CMPCTb6z/image.png' },
-            "NED": { name: "Países Bajos", laps: 35, length: 4.2590, tyreWear: 65, pitTime: 20, img: 'https://placehold.co/600x300/050505/c5a059?text=PAISES+BAJOS' }
+            "AUS": { name: "Australia", laps: 29, length: 5.3017, tyreWear: 40, pitTime: 24, lat: -37.8497, lon: 144.968, img: 'https://i.postimg.cc/fbG7FsHd/image.png' },
+            "MAL": { name: "Malasia", laps: 28, length: 5.5358, tyreWear: 80, pitTime: 22, lat: 2.7608, lon: 101.738, img: 'https://i.postimg.cc/63VZmv4B/image.png' },
+            "CHN": { name: "China", laps: 28, length: 5.4418, tyreWear: 80, pitTime: 26, lat: 31.3389, lon: 121.22, img: 'https://i.postimg.cc/tC8gFg7v/image.png' },
+            "BHR": { name: "Bahréin", laps: 29, length: 4.7273, tyreWear: 60, pitTime: 23, lat: 26.0325, lon: 50.5106, img: 'https://i.postimg.cc/3NV3jLr4/image.png' },
+            "ESP": { name: "España", laps: 33, length: 4.4580, tyreWear: 85, pitTime: 25, lat: 41.57, lon: 2.2611, img: 'https://i.postimg.cc/vZWG9LJ6/image.png' },
+            "MON": { name: "Mónaco", laps: 39, length: 4.0157, tyreWear: 20, pitTime: 16, lat: 43.7347, lon: 7.4206, img: 'https://i.postimg.cc/Fzd4Kjb9/image.png' },
+            "TUR": { name: "Turquía", laps: 27, length: 5.1631, tyreWear: 90, pitTime: 18, lat: 40.9517, lon: 29.405, img: 'https://i.postimg.cc/8zBVskvS/image.png' },
+            "GER": { name: "Alemania", laps: 33, length: 4.1798, tyreWear: 50, pitTime: 17, lat: 49.3278, lon: 8.5658, img: 'https://i.postimg.cc/LXWcGncB/image.png' },
+            "HUN": { name: "Hungría", laps: 35, length: 3.4990, tyreWear: 30, pitTime: 17, lat: 47.583, lon: 19.2503, img: 'https://i.postimg.cc/4xZxWSbv/image.png' },
+            "EUR": { name: "Europa", laps: 25, length: 5.5907, tyreWear: 45, pitTime: 17, lat: 39.4589, lon: -0.3314, img: 'https://i.postimg.cc/C5kwNGRC/image.png' },
+            "BEL": { name: "Bélgica", laps: 22, length: 7.0406, tyreWear: 60, pitTime: 15, lat: 50.4372, lon: 5.9714, img: 'https://i.postimg.cc/fbyZFn3c/image.png' },
+            "ITA": { name: "Italia", laps: 27, length: 5.4024, tyreWear: 35, pitTime: 24, lat: 45.6156, lon: 9.2811, img: 'https://i.postimg.cc/Hsmmm7J0/image.png' },
+            "SIN": { name: "Singapur", laps: 31, length: 5.0490, tyreWear: 45, pitTime: 20, lat: 1.2914, lon: 103.864, img: 'https://i.postimg.cc/HLFGhJD9/image.png' },
+            "JPN": { name: "Japón", laps: 27, length: 5.0588, tyreWear: 70, pitTime: 20, lat: 34.8431, lon: 136.541, img: 'https://i.postimg.cc/c4CW9GP9/image.png' },
+            "BRA": { name: "Brasil", laps: 36, length: 3.9715, tyreWear: 60, pitTime: 21, lat: -23.7036, lon: -46.6997, img: 'https://i.postimg.cc/sg2tfP35/image.png' },
+            "UAE": { name: "Abu Dhabi", laps: 28, length: 5.4127, tyreWear: 50, pitTime: 23, lat: 24.4672, lon: 54.6031, img: 'https://i.postimg.cc/tTFcv2zh/image.png' },
+            "GBR": { name: "Gran Bretaña", laps: 26, length: 5.7521, tyreWear: 65, pitTime: 23, lat: 52.0786, lon: -1.0169, img: 'https://i.postimg.cc/dVDxcqBV/image.png' },
+            "FRA": { name: "Francia", laps: 24, length: 5.8825, tyreWear: 80, pitTime: 20, lat: 43.2506, lon: 5.7917, img: 'https://i.postimg.cc/Qtg6JVXb/image.png' },
+            "AUT": { name: "Austria", laps: 36, length: 4.0444, tyreWear: 60, pitTime: 27, lat: 47.2197, lon: 14.7647, img: 'https://i.postimg.cc/m2pmwvGV/image.png' },
+            "CAN": { name: "Canadá", laps: 35, length: 4.3414, tyreWear: 45, pitTime: 17, lat: 45.5000, lon: -73.5228, img: 'https://i.postimg.cc/B63pbsxW/image.png' },
+            "AZE": { name: "Azerbaiyán", laps: 26, length: 6.0532, tyreWear: 45, pitTime: 17, lat: 40.3725, lon: 49.8533, img: 'https://i.postimg.cc/T2C0dz1S/image.png' },
+            "MEX": { name: "México", laps: 36, length: 4.3076, tyreWear: 60, pitTime: 19, lat: 19.4042, lon: -99.0889, img: 'https://i.postimg.cc/VkbWF5gn/image.png' },
+            "RUS": { name: "Rusia", laps: 27, length: 6.0783, tyreWear: 50, pitTime: 21, lat: 43.4056, lon: 39.9578, img: 'https://i.postimg.cc/JnR3mxLt/image.png' },
+            "USA": { name: "EE.UU.", laps: 28, length: 4.6030, tyreWear: 65, pitTime: 16, lat: 30.1328, lon: -97.6411, img: 'https://i.postimg.cc/CMPCTb6z/image.png' },
+            "NED": { name: "Países Bajos", laps: 35, length: 4.2590, tyreWear: 65, pitTime: 20, lat: 52.3888, lon: 4.5446, img: 'https://placehold.co/600x300/050505/c5a059?text=PAISES+BAJOS' }
         };
 
         const setupScale = { 190: { 3: -8, 2: -4, 1: -2 }, 185: { 3: -6, 2: -3, 1: -1 }, 180: { 3: -4, 2: -2, 1: -1 }, 175: { 3: -2, 2: -1, 1: 0 }, 170: { 3: 0, 2: 0, 1: 0 }, 165: { 3: 2, 2: 1, 1: 0 } };
@@ -90,11 +90,12 @@
             showSync: false,
             chartUser: null,
             compareUser: '',
+            weather: null, // Nuevo estado para el clima en vivo
             calc: { circuit: 'AZE', tPoints: 66, fPoints: 67, temp: 14, stints: [{ compound: 'S', laps: 6, boost: '5' }] },
             setupCalc: { height: 175 }
         };
 
-        // --- ALGORITMOS MATEMÁTICOS DE DESGASTE Y COMBUSTIBLE ---
+        // --- ALGORITMOS MATEMÁTICOS INTACTOS ---
         function getWear(track, comp, laps, pts, boost) {
             const c = circuitsData[track];
             const boostMult = { '1': 0.85, '2': 0.92, '3': 1.0, '4': 1.12, '5': 1.25 }[boost] || 1.0;
@@ -120,11 +121,64 @@
             return { r: Math.max(1, base.r + adj), w: Math.max(1, base.w), s: Math.max(1, base.s) };
         }
 
+        // --- FUNCIÓN DE CLIMA EN VIVO (OPEN-METEO) ---
+        window.fetchWeather = async (trackCode) => {
+            state.weather = 'loading';
+            const wDiv = document.getElementById('weatherWidget');
+            if(wDiv) wDiv.innerHTML = getWeatherDisplay(state.weather);
+            
+            const track = circuitsData[trackCode];
+            if (!track || !track.lat) return;
+            
+            try {
+                const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${track.lat}&longitude=${track.lon}&current_weather=true`);
+                const data = await res.json();
+                if (data && data.current_weather) {
+                    state.weather = {
+                        temp: data.current_weather.temperature,
+                        code: data.current_weather.weathercode
+                    };
+                    if(document.getElementById('weatherWidget')) {
+                        document.getElementById('weatherWidget').innerHTML = getWeatherDisplay(state.weather);
+                    }
+                }
+            } catch(e) {
+                console.error("Weather fetch error", e);
+                state.weather = { error: true };
+                if(document.getElementById('weatherWidget')) {
+                    document.getElementById('weatherWidget').innerHTML = getWeatherDisplay(state.weather);
+                }
+            }
+        };
+
+        function getWeatherDisplay(weather) {
+            if (!weather || weather === 'loading') return '<span class="animate-pulse text-zinc-500 font-bold">📡 Conectando al radar meteorológico...</span>';
+            if (weather.error) return '<span class="text-red-500 font-bold">❌ Error conectando al radar</span>';
+            
+            const code = weather.code;
+            let icon = '☀️'; let text = 'Despejado';
+            if(code >= 1 && code <= 3) { icon = '⛅'; text = 'Nublado'; }
+            if(code >= 45 && code <= 48) { icon = '🌫️'; text = 'Niebla'; }
+            if(code >= 51 && code <= 67) { icon = '🌧️'; text = 'Lluvia'; }
+            if(code >= 71 && code <= 77) { icon = '❄️'; text = 'Nieve'; }
+            if(code >= 80 && code <= 82) { icon = '🌦️'; text = 'Chubascos'; }
+            if(code >= 95) { icon = '⛈️'; text = 'Tormenta'; }
+
+            return `<span class="text-xl mr-2">${icon}</span> <span class="text-white font-ds font-bold">${weather.temp}°C</span> <span class="text-zinc-400 ml-2 uppercase tracking-widest text-[10px] font-bold">${text}</span>`;
+        }
+
         // --- RENDERIZADO VISUAL ---
         function render() {
             const root = document.getElementById('app');
             if (!state.isLoggedIn) { renderAuth(root); return; }
             const isAdmin = state.username === 'admin';
+            
+            // Disparar la petición de clima si estamos en la sección y no se ha cargado
+            if (state.section === 'strategy' && state.weather === null) {
+                state.weather = 'loading';
+                setTimeout(() => window.fetchWeather(state.calc.circuit), 100);
+            }
+
             root.innerHTML = `
                 <header class="bg-black border-b border-zinc-800 p-4 sticky top-0 z-50">
                     <div class="max-w-7xl mx-auto flex justify-between items-center">
@@ -148,7 +202,6 @@
             `;
             attachEvents();
 
-            // Renderizar la gráfica después de que se cargue el DOM
             if (state.section === 'strategy') {
                 setTimeout(() => window.drawWearChart(), 50);
             }
@@ -279,7 +332,7 @@
             const cData = circuitsData[state.calc.circuit];
             const trackLaps = cData.laps;
             const trackImg = cData.img;
-            const lostTimeInPits = numPits * cData.pitTime; // OPCIÓN 1: Cronómetro de Pits
+            const lostTimeInPits = numPits * cData.pitTime;
 
             return `
                 <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
@@ -289,6 +342,11 @@
                             <select id="selTrack" class="w-full p-3 rounded-lg bg-zinc-900 border border-zinc-800 text-xs uppercase font-bold text-white outline-none">
                                 ${Object.keys(circuitsData).map(k => `<option value="${k}" ${state.calc.circuit===k?'selected':''}>${circuitsData[k].name} (${circuitsData[k].laps}v)</option>`).join('')}
                             </select>
+
+                            <!-- WIDGET DE CLIMA EN VIVO -->
+                            <div id="weatherWidget" class="mt-3 bg-zinc-900/50 border border-zinc-800/50 rounded-lg p-2.5 flex items-center justify-center text-xs shadow-inner">
+                                ${getWeatherDisplay(state.weather)}
+                            </div>
 
                             <div class="mt-4 w-full flex items-center justify-center">
                                 <img src="${trackImg}" alt="Mapa del circuito" class="w-full h-auto max-h-48 object-contain drop-shadow-lg">
@@ -537,15 +595,19 @@
                 </div><form id="chatF" class="p-4 bg-zinc-900/80 border-t border-zinc-800/50 flex gap-2"><input name="m" placeholder="Escribe al equipo..." class="flex-grow bg-black p-3.5 rounded-2xl text-xs outline-none focus:border-yellow-600 text-white" autocomplete="off"><button class="bg-yellow-600 text-black px-6 rounded-2xl font-bold text-[10px] uppercase">Enviar</button></form></div>`;
         }
 
-        // --- FUNCIONES Y ACCIONES GLOBALES ---
+        function renderSyncModal() {
+            const url = `https://ds-automobiles-f0a17-default-rtdb.firebaseio.com/perfiles.json?print=pretty`;
+            return `<div class="fixed inset-0 bg-black/90 z-[100] flex items-center justify-center p-6 backdrop-blur-sm"><div class="glass-panel p-8 rounded-[2.5rem] max-w-sm w-full text-center border-yellow-600/30"><h3 class="font-ds text-white mb-2 italic uppercase">Sincronización Total</h3><div class="bg-black p-4 rounded-2xl border border-zinc-800 mb-6"><code class="text-[9px] text-blue-400 break-all select-all font-mono">=IMPORTDATA("${url}")</code></div><button onclick="window.toggleSync(false)" class="w-full py-4 rounded-2xl bg-zinc-900 text-white text-[10px] font-bold uppercase border border-zinc-800">Cerrar</button></div></div>`;
+        }
+
         window.go = (s) => { state.section = s; render(); };
         window.upS = (i, k, v) => { state.calc.stints[i][k] = v; render(); };
         window.delS = (i) => { state.calc.stints.splice(i, 1); render(); };
         window.setTab = (t) => { state.rankingTab = t; render(); };
+        window.toggleSync = (v) => { state.showSync = v; render(); };
         window.back = () => { state.step = 1; render(); };
         window.upSetupH = (v) => { state.setupCalc.height = parseInt(v) || 175; render(); };
 
-        // OPCIÓN 4: Función para Copiar Estrategia al Portapapeles
         window.copyRadio = () => {
             const c = circuitsData[state.calc.circuit];
             const pits = Math.max(0, state.calc.stints.length - 1);
@@ -564,7 +626,6 @@
             });
         };
 
-        // LA MAGIA DE CONSOLA RÁPIDA: Buscador en la Pizarra
         window.quickCommand = async (e, managerId) => {
             if (e.key === 'Enter') {
                 const val = e.target.value.trim().toLowerCase();
@@ -584,7 +645,7 @@
                     
                     if (matchedCode) {
                         await update(ref(db, `perfiles/${managerId}/pizarra`), { [matchedCode]: result });
-                        e.target.value = ''; // Limpiar el input tras enviarlo
+                        e.target.value = ''; 
                     } else {
                         alert(`Circuito no encontrado: "${searchTrack}". Usa códigos como 'mex', 'mon', 'aze'.`);
                     }
@@ -592,7 +653,6 @@
             }
         };
 
-        // OPCIÓN 3: Gráfica de Telemetría con Chart.js
         window.wearChartInst = null;
         window.drawWearChart = () => {
             const ctx = document.getElementById('wearChart');
@@ -619,7 +679,6 @@
                     colors.push(typeColors[s.compound] || '#fff');
                 }
                 
-                // Simular el paso por Pits (Regresa a 100%) si no es el último stint
                 if(idx < state.calc.stints.length - 1) {
                     labels.push('PIT');
                     dataPoints.push(100);
@@ -722,7 +781,13 @@
         };
 
         function attachEvents() {
-            if(document.getElementById('selTrack')) document.getElementById('selTrack').onchange = (e) => { state.calc.circuit = e.target.value; render(); };
+            if(document.getElementById('selTrack')) {
+                document.getElementById('selTrack').onchange = (e) => { 
+                    state.calc.circuit = e.target.value; 
+                    render(); 
+                    window.fetchWeather(state.calc.circuit); // Actualiza clima al cambiar pista
+                }; 
+            }
             if(document.getElementById('numT')) document.getElementById('numT').onchange = (e) => { state.calc.tPoints = e.target.value; render(); };
             if(document.getElementById('numF')) document.getElementById('numF').onchange = (e) => { state.calc.fPoints = e.target.value; render(); };
             if(document.getElementById('addStint')) document.getElementById('addStint').onclick = () => { state.calc.stints.push({ compound: 'M', laps: 5, boost: '3' }); render(); };
@@ -757,6 +822,8 @@
 
         onValue(ref(db, 'perfiles'), (s) => { state.users = s.val() || {}; render(); });
         onValue(ref(db, 'chat'), (s) => { const data = s.val() || {}; state.messages = Object.values(data).sort((a,b) => a.ts - b.ts).slice(-50); if(state.section === 'chat') render(); });
+        
+        // Arranca con la petición de clima para el circuito por defecto
         render();
     </script>
 </body>
