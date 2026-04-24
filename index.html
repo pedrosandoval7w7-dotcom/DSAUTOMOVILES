@@ -35,33 +35,33 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
-        // --- LISTA DE 25 CIRCUITOS (CON IMÁGENES AÑADIDAS) ---
+        // --- VALORES EXACTOS DE EXTENSIÓN (INCLUYENDO TIEMPOS DE PIT) ---
         const circuitsData = {
-            "MAL": { name: "Malasia", laps: 27, length: 5.536, tyreWear: 22, img: 'https://i.postimg.cc/63VZmv4B/image.png' },
-            "AUT": { name: "Austria", laps: 34, length: 4.044, tyreWear: 19, img: 'https://i.postimg.cc/m2pmwvGV/image.png' },
-            "UAE": { name: "Abu Dhabi", laps: 25, length: 5.41, tyreWear: 17, img: 'https://i.postimg.cc/tTFcv2zh/image.png' },
-            "JPN": { name: "Japón", laps: 27, length: 5.058, tyreWear: 23, img: 'https://i.postimg.cc/c4CW9GP9/image.png' },
-            "BRA": { name: "Brasil", laps: 34, length: 3.971, tyreWear: 16, img: 'https://i.postimg.cc/sg2tfP35/image.png' },
-            "NED": { name: "Países Bajos", laps: 35, length: 4.259, tyreWear: 20, img: 'https://placehold.co/600x300/050505/c5a059?text=PAISES+BAJOS' },
-            "CAN": { name: "Canadá", laps: 31, length: 4.341, tyreWear: 15, img: 'https://i.postimg.cc/B63pbsxW/image.png' },
-            "ESP": { name: "España", laps: 31, length: 4.457, tyreWear: 25, img: 'https://i.postimg.cc/vZWG9LJ6/image.png' },
-            "SIN": { name: "Singapur", laps: 30, length: 5.049, tyreWear: 14, img: 'https://i.postimg.cc/HLFGhJD9/image.png' },
-            "GER": { name: "Alemania", laps: 33, length: 4.179, tyreWear: 18, img: 'https://i.postimg.cc/LXWcGncB/image.png' },
-            "TUR": { name: "Turquía", laps: 27, length: 5.162, tyreWear: 21, img: 'https://i.postimg.cc/8zBVskvS/image.png' },
-            "AUS": { name: "Australia", laps: 28, length: 5.301, tyreWear: 18, img: 'https://i.postimg.cc/fbG7FsHd/image.png' },
-            "BEL": { name: "Bélgica", laps: 21, length: 7.041, tyreWear: 22, img: 'https://i.postimg.cc/fbyZFn3c/image.png' },
-            "ITA": { name: "Italia", laps: 25, length: 5.401, tyreWear: 18, img: 'https://i.postimg.cc/Hsmmm7J0/image.png' },
-            "MEX": { name: "México", laps: 35, length: 4.308, tyreWear: 19, img: 'https://i.postimg.cc/VkbWF5gn/image.png' },
-            "FRA": { name: "Francia", laps: 24, length: 5.881, tyreWear: 17, img: 'https://i.postimg.cc/Qtg6JVXb/image.png' },
-            "HUN": { name: "Hungría", laps: 39, length: 3.498, tyreWear: 21, img: 'https://i.postimg.cc/4xZxWSbv/image.png' },
-            "AZE": { name: "Azerbaiyán", laps: 23, length: 6.049, tyreWear: 15, img: 'https://i.postimg.cc/T2C0dz1S/image.png' },
-            "USA": { name: "EE.UU.", laps: 30, length: 4.602, tyreWear: 18, img: 'https://i.postimg.cc/CMPCTb6z/image.png' },
-            "GBR": { name: "Gran Bretaña", laps: 24, length: 5.751, tyreWear: 23, img: 'https://i.postimg.cc/dVDxcqBV/image.png' },
-            "CHN": { name: "China", laps: 27, length: 5.442, tyreWear: 20, img: 'https://i.postimg.cc/tC8gFg7v/image.png' },
-            "MON": { name: "Mónaco", laps: 29, length: 4.015, tyreWear: 12, img: 'https://i.postimg.cc/Fzd4Kjb9/image.png' },
-            "BHR": { name: "Bahréin", laps: 29, length: 4.726, tyreWear: 24, img: 'https://i.postimg.cc/3NV3jLr4/image.png' },
-            "RUS": { name: "Rusia", laps: 23, length: 6.077, tyreWear: 16, img: 'https://i.postimg.cc/JnR3mxLt/image.png' },
-            "EUR": { name: "Europa", laps: 25, length: 5.59, tyreWear: 19, img: 'https://i.postimg.cc/C5kwNGRC/image.png' }
+            "AUS": { name: "Australia", laps: 29, length: 5.3017, tyreWear: 40, pitTime: 24, img: 'https://i.postimg.cc/fbG7FsHd/image.png' },
+            "MAL": { name: "Malasia", laps: 28, length: 5.5358, tyreWear: 80, pitTime: 22, img: 'https://i.postimg.cc/63VZmv4B/image.png' },
+            "CHN": { name: "China", laps: 28, length: 5.4418, tyreWear: 80, pitTime: 26, img: 'https://i.postimg.cc/tC8gFg7v/image.png' },
+            "BHR": { name: "Bahréin", laps: 29, length: 4.7273, tyreWear: 60, pitTime: 23, img: 'https://i.postimg.cc/3NV3jLr4/image.png' },
+            "ESP": { name: "España", laps: 33, length: 4.4580, tyreWear: 85, pitTime: 25, img: 'https://i.postimg.cc/vZWG9LJ6/image.png' },
+            "MON": { name: "Mónaco", laps: 39, length: 4.0157, tyreWear: 20, pitTime: 16, img: 'https://i.postimg.cc/Fzd4Kjb9/image.png' },
+            "TUR": { name: "Turquía", laps: 27, length: 5.1631, tyreWear: 90, pitTime: 18, img: 'https://i.postimg.cc/8zBVskvS/image.png' },
+            "GER": { name: "Alemania", laps: 33, length: 4.1798, tyreWear: 50, pitTime: 17, img: 'https://i.postimg.cc/LXWcGncB/image.png' },
+            "HUN": { name: "Hungría", laps: 35, length: 3.4990, tyreWear: 30, pitTime: 17, img: 'https://i.postimg.cc/4xZxWSbv/image.png' },
+            "EUR": { name: "Europa", laps: 25, length: 5.5907, tyreWear: 45, pitTime: 17, img: 'https://i.postimg.cc/C5kwNGRC/image.png' },
+            "BEL": { name: "Bélgica", laps: 22, length: 7.0406, tyreWear: 60, pitTime: 15, img: 'https://i.postimg.cc/fbyZFn3c/image.png' },
+            "ITA": { name: "Italia", laps: 27, length: 5.4024, tyreWear: 35, pitTime: 24, img: 'https://i.postimg.cc/Hsmmm7J0/image.png' },
+            "SIN": { name: "Singapur", laps: 31, length: 5.0490, tyreWear: 45, pitTime: 20, img: 'https://i.postimg.cc/HLFGhJD9/image.png' },
+            "JPN": { name: "Japón", laps: 27, length: 5.0588, tyreWear: 70, pitTime: 20, img: 'https://i.postimg.cc/c4CW9GP9/image.png' },
+            "BRA": { name: "Brasil", laps: 36, length: 3.9715, tyreWear: 60, pitTime: 21, img: 'https://i.postimg.cc/sg2tfP35/image.png' },
+            "UAE": { name: "Abu Dhabi", laps: 28, length: 5.4127, tyreWear: 50, pitTime: 23, img: 'https://i.postimg.cc/tTFcv2zh/image.png' },
+            "GBR": { name: "Gran Bretaña", laps: 26, length: 5.7521, tyreWear: 65, pitTime: 23, img: 'https://i.postimg.cc/dVDxcqBV/image.png' },
+            "FRA": { name: "Francia", laps: 24, length: 5.8825, tyreWear: 80, pitTime: 20, img: 'https://i.postimg.cc/Qtg6JVXb/image.png' },
+            "AUT": { name: "Austria", laps: 36, length: 4.0444, tyreWear: 60, pitTime: 27, img: 'https://i.postimg.cc/m2pmwvGV/image.png' },
+            "CAN": { name: "Canadá", laps: 35, length: 4.3414, tyreWear: 45, pitTime: 17, img: 'https://i.postimg.cc/B63pbsxW/image.png' },
+            "AZE": { name: "Azerbaiyán", laps: 26, length: 6.0532, tyreWear: 45, pitTime: 17, img: 'https://i.postimg.cc/T2C0dz1S/image.png' },
+            "MEX": { name: "México", laps: 36, length: 4.3076, tyreWear: 60, pitTime: 19, img: 'https://i.postimg.cc/VkbWF5gn/image.png' },
+            "RUS": { name: "Rusia", laps: 27, length: 6.0783, tyreWear: 50, pitTime: 21, img: 'https://i.postimg.cc/JnR3mxLt/image.png' },
+            "USA": { name: "EE.UU.", laps: 28, length: 4.6030, tyreWear: 65, pitTime: 16, img: 'https://i.postimg.cc/CMPCTb6z/image.png' },
+            "NED": { name: "Países Bajos", laps: 35, length: 4.2590, tyreWear: 65, pitTime: 20, img: 'https://placehold.co/600x300/050505/c5a059?text=PAISES+BAJOS' }
         };
 
         const setupScale = { 190: { 3: -8, 2: -4, 1: -2 }, 185: { 3: -6, 2: -3, 1: -1 }, 180: { 3: -4, 2: -2, 1: -1 }, 175: { 3: -2, 2: -1, 1: 0 }, 170: { 3: 0, 2: 0, 1: 0 }, 165: { 3: 2, 2: 1, 1: 0 } };
@@ -94,23 +94,22 @@
             setupCalc: { height: 175 }
         };
 
-        // --- ALGORITMOS MATEMÁTICOS EXACTOS DE LA EXTENSIÓN iGPlus ---
+        // --- ALGORITMOS MATEMÁTICOS DE DESGASTE Y COMBUSTIBLE ---
         function getWear(track, comp, laps, pts, boost) {
             const c = circuitsData[track];
             const boostMult = { '1': 0.85, '2': 0.92, '3': 1.0, '4': 1.12, '5': 1.25 }[boost] || 1.0;
-            const tyreFactors = { 'SS': 2.14, 'S': 1.4, 'M': 1.0, 'H': 0.78 };
-            
-            const t = (1.29 * Math.pow(pts, -0.0696)) * (0.00527 * c.tyreWear + 0.556) * c.length * tyreFactors[comp] * boostMult;
-            const exponent = (-t / 100 * 1.18) * laps;
-            
-            return Math.max(0, Math.exp(exponent) * 100);
+            const tyreFactors = { 'SS': 1.5, 'S': 1.2, 'M': 1.0, 'H': 0.8 };
+            const teFactor = 1.29 * Math.pow(pts, -0.07);
+            const trackFactor = (c.tyreWear * 0.005 + 0.5) * c.length;
+            const wearPerLap = trackFactor * tyreFactors[comp] * boostMult * teFactor * 1.734; 
+            return Math.max(0, 100 - (wearPerLap * laps)); 
         }
 
         function getFuel(track, pts, laps, boost) {
             const c = circuitsData[track];
             const pushAdj = { '5': 0.02, '4': 0.01, '3': 0, '2': -0.004, '1': -0.007 }[boost] || 0;
-            const fuelPerKm = (0.6983736841 * Math.pow(pts, -0.08510976572)) + pushAdj;
-            return fuelPerKm * c.length * laps;
+            const baseFuelPerKm = 0.6983736841 * Math.pow(pts, -0.08510976572);
+            return (baseFuelPerKm + pushAdj) * c.length * laps;
         }
 
         function getSetupForTier(track, height, tier) {
@@ -121,6 +120,7 @@
             return { r: Math.max(1, base.r + adj), w: Math.max(1, base.w), s: Math.max(1, base.s) };
         }
 
+        // --- RENDERIZADO VISUAL ---
         function render() {
             const root = document.getElementById('app');
             if (!state.isLoggedIn) { renderAuth(root); return; }
@@ -147,6 +147,11 @@
                 ${state.chartUser ? renderChartModal() : ''}
             `;
             attachEvents();
+
+            // Renderizar la gráfica después de que se cargue el DOM
+            if (state.section === 'strategy') {
+                setTimeout(() => window.drawWearChart(), 50);
+            }
         }
 
         function renderAuth(root) {
@@ -266,37 +271,58 @@
             if(state.section === 'chat') return renderChat();
             if(state.section === 'setup') return renderSetup();
             
+            const numStints = state.calc.stints.length;
+            const numPits = Math.max(0, numStints - 1);
             const totalLaps = state.calc.stints.reduce((sum, s) => sum + parseInt(s.laps || 0), 0);
             const totalFuel = state.calc.stints.reduce((sum, s) => sum + getFuel(state.calc.circuit, state.calc.fPoints, s.laps, s.boost), 0);
-            const trackLaps = circuitsData[state.calc.circuit].laps;
-            const trackImg = circuitsData[state.calc.circuit].img;
+            
+            const cData = circuitsData[state.calc.circuit];
+            const trackLaps = cData.laps;
+            const trackImg = cData.img;
+            const lostTimeInPits = numPits * cData.pitTime; // OPCIÓN 1: Cronómetro de Pits
 
             return `
                 <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
                     <div class="glass-panel p-6 rounded-2xl h-fit space-y-6">
                         <div>
-                            <label class="text-[9px] text-zinc-500 font-bold uppercase block mb-2">Circuito</label>
-                            <select id="selTrack" class="w-full p-3 rounded-lg bg-zinc-900 border border-zinc-800 text-xs uppercase font-bold text-white">
+                            <label class="text-[9px] text-zinc-500 font-bold uppercase block mb-2 tracking-widest">Circuito</label>
+                            <select id="selTrack" class="w-full p-3 rounded-lg bg-zinc-900 border border-zinc-800 text-xs uppercase font-bold text-white outline-none">
                                 ${Object.keys(circuitsData).map(k => `<option value="${k}" ${state.calc.circuit===k?'selected':''}>${circuitsData[k].name} (${circuitsData[k].laps}v)</option>`).join('')}
                             </select>
+
                             <div class="mt-4 w-full flex items-center justify-center">
                                 <img src="${trackImg}" alt="Mapa del circuito" class="w-full h-auto max-h-48 object-contain drop-shadow-lg">
                             </div>
                         </div>
+                        
                         <div class="grid grid-cols-2 gap-2 mb-2">
                             <div class="space-y-1"><span class="text-[8px] text-zinc-600 uppercase font-bold ml-1">Diseño Neum.</span><input id="numT" type="number" value="${state.calc.tPoints}" class="w-full p-3 rounded-lg bg-black border border-zinc-800 text-center text-yellow-600 font-bold outline-none"></div>
                             <div class="space-y-1"><span class="text-[8px] text-zinc-600 uppercase font-bold ml-1">Diseño Comb.</span><input id="numF" type="number" value="${state.calc.fPoints}" class="w-full p-3 rounded-lg bg-black border border-zinc-800 text-center text-blue-400 font-bold outline-none"></div>
                         </div>
+                        
                         <div class="pt-4 border-t border-zinc-800">
-                             <div class="flex justify-between items-end">
+                             <div class="flex justify-between items-end mb-3">
                                 <div><p class="text-[18px] font-ds ${totalLaps > trackLaps ? 'text-red-500' : 'text-white'}">${totalLaps} / ${trackLaps}</p><p class="text-[8px] text-zinc-600 uppercase font-bold">Vueltas Totales</p></div>
                                 <div class="text-right"><p class="text-[18px] font-ds text-blue-400">${totalFuel.toFixed(1)}L</p><p class="text-[8px] text-zinc-600 uppercase font-bold">Litros Totales</p></div>
                              </div>
+                             
+                             <div class="flex justify-between items-end bg-zinc-900/50 p-2 rounded-lg border border-zinc-800">
+                                <div><p class="text-[14px] font-ds text-zinc-300">${numPits}</p><p class="text-[8px] text-zinc-500 uppercase font-bold">Paradas</p></div>
+                                <div class="text-right"><p class="text-[14px] font-ds text-orange-500">~${lostTimeInPits}s</p><p class="text-[8px] text-zinc-500 uppercase font-bold">Tiempo en Pits</p></div>
+                             </div>
                         </div>
                     </div>
+                    
                     <div class="lg:col-span-3 space-y-4">
-                        <div class="flex justify-between items-center"><h2 class="font-ds text-lg uppercase italic">Sugerencias de estrategia</h2><button id="addStint" class="bg-yellow-600 text-black px-4 py-2 rounded-lg text-[10px] font-bold">Añadir Stint</button></div>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="flex justify-between items-center">
+                            <h2 class="font-ds text-lg uppercase italic">Sugerencias de estrategia</h2>
+                            <div class="flex gap-2">
+                                <button onclick="window.copyRadio()" class="bg-zinc-800 text-zinc-300 hover:text-white hover:bg-zinc-700 px-4 py-2 rounded-lg text-[10px] font-bold uppercase transition-colors border border-zinc-700">Copiar Estrategia</button>
+                                <button id="addStint" class="bg-yellow-600 text-black px-4 py-2 rounded-lg text-[10px] font-bold uppercase">Añadir Stint</button>
+                            </div>
+                        </div>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                             ${state.calc.stints.map((s, i) => {
                                 const wear = getWear(state.calc.circuit, s.compound, s.laps, state.calc.tPoints, s.boost);
                                 const fuel = getFuel(state.calc.circuit, state.calc.fPoints, s.laps, s.boost);
@@ -315,6 +341,12 @@
                                 </div>`;
                             }).join('')}
                         </div>
+                        
+                        <div class="glass-panel p-4 rounded-xl mt-6 h-48 w-full border border-zinc-800/50 relative">
+                            <span class="absolute top-3 left-4 text-[9px] text-zinc-500 font-bold uppercase tracking-widest">Telemetría de Desgaste</span>
+                            <canvas id="wearChart"></canvas>
+                        </div>
+
                     </div>
                 </div>`;
         }
@@ -336,6 +368,7 @@
                         <div class="flex gap-1.5">${tabs.map(t => `<button onclick="window.setTab('${t}')" class="px-4 py-2 rounded-xl bg-zinc-900 text-[9px] uppercase font-bold border border-zinc-800 ${state.rankingTab===t?'text-yellow-600 border-yellow-600 bg-yellow-600/5':''} transition-all">${t}</button>`).join('')}</div>
                     </div>
                     ${isAdmin ? `<form id="addM" class="flex gap-2 bg-zinc-900/50 p-2 rounded-2xl border border-zinc-800"><input name="n" placeholder="NOMBRE DEL MANAGER" class="flex-grow bg-black p-3 rounded-xl text-xs outline-none focus:border-yellow-600 border border-transparent" required><button class="bg-yellow-600 text-black px-6 rounded-xl font-bold text-[10px] uppercase">CREAR</button></form>` : ''}
+                    
                     <div class="glass-panel rounded-2xl overflow-hidden border border-zinc-800/50">
                         <table class="w-full text-xs text-left">
                             <tr class="bg-zinc-900 text-zinc-500 uppercase text-[8px]">
@@ -419,9 +452,13 @@
                                         const safeNameParam = id.replace(/'/g, "\\'");
                                         return `<tr class="border-b border-zinc-800/30 hover:bg-zinc-900/50 transition-colors">
                                             <td class="p-3 text-left sticky left-0 bg-[#141417] z-10 shadow-[4px_0_10px_rgba(0,0,0,0.5)]">
-                                                <div class="flex items-center gap-2">
-                                                    ${isAdmin ? `<button onclick="window.removeBoard('${safeNameParam}')" class="text-zinc-600 hover:text-red-500 font-bold transition-colors" title="Ocultar de la Pizarra">✕</button>` : ''}
-                                                    <span class="font-ds text-white text-xs uppercase cursor-pointer hover:text-yellow-500 transition-colors" onclick="window.openChart('${safeNameParam}')" title="Ver Perfil e Historial">${id}</span>
+                                                <div class="flex flex-col gap-1.5">
+                                                    <div class="flex items-center gap-2">
+                                                        ${isAdmin ? `<button onclick="window.removeBoard('${safeNameParam}')" class="text-zinc-600 hover:text-red-500 font-bold transition-colors" title="Ocultar de la Pizarra">✕</button>` : ''}
+                                                        <span class="font-ds text-white text-xs uppercase cursor-pointer hover:text-yellow-500 transition-colors" onclick="window.openChart('${safeNameParam}')" title="Ver Perfil e Historial">${id}</span>
+                                                    </div>
+                                                    
+                                                    ${isAdmin ? `<input type="text" placeholder="Ej: mex p2" onkeydown="window.quickCommand(event, '${safeNameParam}')" class="bg-black border border-zinc-800 text-[8px] p-1.5 rounded text-zinc-300 outline-none w-20 focus:border-yellow-600 uppercase placeholder-zinc-700">` : ''}
                                                 </div>
                                             </td>
                                             ${Object.keys(circuitsData).map(tc => {
@@ -500,12 +537,124 @@
                 </div><form id="chatF" class="p-4 bg-zinc-900/80 border-t border-zinc-800/50 flex gap-2"><input name="m" placeholder="Escribe al equipo..." class="flex-grow bg-black p-3.5 rounded-2xl text-xs outline-none focus:border-yellow-600 text-white" autocomplete="off"><button class="bg-yellow-600 text-black px-6 rounded-2xl font-bold text-[10px] uppercase">Enviar</button></form></div>`;
         }
 
+        // --- FUNCIONES Y ACCIONES GLOBALES ---
         window.go = (s) => { state.section = s; render(); };
         window.upS = (i, k, v) => { state.calc.stints[i][k] = v; render(); };
         window.delS = (i) => { state.calc.stints.splice(i, 1); render(); };
         window.setTab = (t) => { state.rankingTab = t; render(); };
         window.back = () => { state.step = 1; render(); };
         window.upSetupH = (v) => { state.setupCalc.height = parseInt(v) || 175; render(); };
+
+        // OPCIÓN 4: Función para Copiar Estrategia al Portapapeles
+        window.copyRadio = () => {
+            const c = circuitsData[state.calc.circuit];
+            const pits = Math.max(0, state.calc.stints.length - 1);
+            let text = `🏁 DS Estrategia: ${c.name} 🏁\n\n`;
+            
+            state.calc.stints.forEach((s, i) => {
+                text += `Stint ${i+1}: Neumático ${s.compound} | ${s.laps} vueltas | Nivel ${s.boost}\n`;
+            });
+            
+            const fuel = state.calc.stints.reduce((sum, s) => sum + getFuel(state.calc.circuit, state.calc.fPoints, s.laps, s.boost), 0);
+            text += `\n⛽ Combustible Total: ${fuel.toFixed(1)}L\n`;
+            text += `⏱️ Paradas en Pits: ${pits} (~${pits * c.pitTime} seg)\n`;
+            
+            navigator.clipboard.writeText(text).then(() => {
+                alert("¡Estrategia copiada para WhatsApp/Discord!");
+            });
+        };
+
+        // LA MAGIA DE CONSOLA RÁPIDA: Buscador en la Pizarra
+        window.quickCommand = async (e, managerId) => {
+            if (e.key === 'Enter') {
+                const val = e.target.value.trim().toLowerCase();
+                const parts = val.split(' ');
+                
+                if (parts.length >= 2) {
+                    const searchTrack = parts[0];
+                    const result = parts[1].toUpperCase();
+                    
+                    let matchedCode = null;
+                    for (const code of Object.keys(circuitsData)) {
+                        if (code.toLowerCase().includes(searchTrack) || circuitsData[code].name.toLowerCase().includes(searchTrack)) {
+                            matchedCode = code;
+                            break;
+                        }
+                    }
+                    
+                    if (matchedCode) {
+                        await update(ref(db, `perfiles/${managerId}/pizarra`), { [matchedCode]: result });
+                        e.target.value = ''; // Limpiar el input tras enviarlo
+                    } else {
+                        alert(`Circuito no encontrado: "${searchTrack}". Usa códigos como 'mex', 'mon', 'aze'.`);
+                    }
+                }
+            }
+        };
+
+        // OPCIÓN 3: Gráfica de Telemetría con Chart.js
+        window.wearChartInst = null;
+        window.drawWearChart = () => {
+            const ctx = document.getElementById('wearChart');
+            if(!ctx) return;
+            if(window.wearChartInst) window.wearChartInst.destroy();
+
+            let labels = [0];
+            let dataPoints = [100];
+            let currentLap = 0;
+            let colors = [];
+            
+            const typeColors = { 'SS': '#ef4444', 'S': '#eab308', 'M': '#f4f4f5', 'H': '#f97316' };
+
+            state.calc.stints.forEach((s, idx) => {
+                const totalWear = 100 - getWear(state.calc.circuit, s.compound, s.laps, state.calc.tPoints, s.boost);
+                const wearPerLap = totalWear / (s.laps || 1);
+                let currentWear = 100;
+
+                for(let i = 1; i <= s.laps; i++){
+                    currentLap++;
+                    currentWear -= wearPerLap;
+                    labels.push(currentLap);
+                    dataPoints.push(Math.max(0, currentWear));
+                    colors.push(typeColors[s.compound] || '#fff');
+                }
+                
+                // Simular el paso por Pits (Regresa a 100%) si no es el último stint
+                if(idx < state.calc.stints.length - 1) {
+                    labels.push('PIT');
+                    dataPoints.push(100);
+                    colors.push('#000');
+                }
+            });
+
+            window.wearChartInst = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Vida %',
+                        data: dataPoints,
+                        borderColor: '#c5a059',
+                        borderWidth: 2,
+                        pointBackgroundColor: ['#c5a059', ...colors],
+                        pointBorderColor: '#000',
+                        pointRadius: 4,
+                        fill: true,
+                        backgroundColor: 'rgba(197, 160, 89, 0.1)',
+                        tension: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: { min: 0, max: 100, grid: { color: '#27272a' }, ticks: { color: '#a1a1aa', font: {size: 9} } },
+                        x: { grid: { color: '#27272a' }, ticks: { color: '#a1a1aa', font: {size: 9} } }
+                    },
+                    plugins: { legend: { display: false }, tooltip: { padding: 10, bodyFont: { size: 10 } } }
+                }
+            });
+        };
 
         const updateGlobalRanking = async (tab, id, action, val = 0) => {
             let scores = {}; Object.entries(state.users).forEach(([uid, d]) => { if (d.stats && d.stats[tab] !== undefined) scores[uid] = parseFloat(d.stats[tab]); });
