@@ -37,33 +37,33 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
-        // --- LISTA DE CIRCUITOS CON LAT, LON, IMG RESTAURADOS ---
+        // --- LISTA DE CIRCUITOS (SE AGREGÓ 'avg' EXACTO DE LA EXTENSIÓN PARA LA TEMPERATURA) ---
         const circuitsData = {
-            "AUS": { name: "Australia", laps: 29, length: 5.3017, tyreWear: 40, pitTime: 24, lat: -37.8497, lon: 144.968, img: 'https://i.postimg.cc/fbG7FsHd/image.png' },
-            "MAL": { name: "Malasia", laps: 28, length: 5.5358, tyreWear: 80, pitTime: 22, lat: 2.7608, lon: 101.738, img: 'https://i.postimg.cc/63VZmv4B/image.png' },
-            "CHN": { name: "China", laps: 28, length: 5.4418, tyreWear: 80, pitTime: 26, lat: 31.3389, lon: 121.22, img: 'https://i.postimg.cc/tC8gFg7v/image.png' },
-            "BHR": { name: "Bahréin", laps: 29, length: 4.7273, tyreWear: 60, pitTime: 23, lat: 26.0325, lon: 50.5106, img: 'https://i.postimg.cc/3NV3jLr4/image.png' },
-            "ESP": { name: "España", laps: 33, length: 4.4580, tyreWear: 85, pitTime: 25, lat: 41.57, lon: 2.2611, img: 'https://i.postimg.cc/vZWG9LJ6/image.png' },
-            "MON": { name: "Mónaco", laps: 39, length: 4.0157, tyreWear: 20, pitTime: 16, lat: 43.7347, lon: 7.4206, img: 'https://i.postimg.cc/Fzd4Kjb9/image.png' },
-            "TUR": { name: "Turquía", laps: 27, length: 5.1631, tyreWear: 90, pitTime: 18, lat: 40.9517, lon: 29.405, img: 'https://i.postimg.cc/8zBVskvS/image.png' },
-            "GER": { name: "Alemania", laps: 33, length: 4.1798, tyreWear: 50, pitTime: 17, lat: 49.3278, lon: 8.5658, img: 'https://i.postimg.cc/LXWcGncB/image.png' },
-            "HUN": { name: "Hungría", laps: 35, length: 3.4990, tyreWear: 30, pitTime: 17, lat: 47.583, lon: 19.2503, img: 'https://i.postimg.cc/4xZxWSbv/image.png' },
-            "EUR": { name: "Europa", laps: 25, length: 5.5907, tyreWear: 45, pitTime: 17, lat: 39.4589, lon: -0.3314, img: 'https://i.postimg.cc/C5kwNGRC/image.png' },
-            "BEL": { name: "Bélgica", laps: 22, length: 7.0406, tyreWear: 60, pitTime: 15, lat: 50.4372, lon: 5.9714, img: 'https://i.postimg.cc/fbyZFn3c/image.png' },
-            "ITA": { name: "Italia", laps: 27, length: 5.4024, tyreWear: 35, pitTime: 24, lat: 45.6156, lon: 9.2811, img: 'https://i.postimg.cc/Hsmmm7J0/image.png' },
-            "SIN": { name: "Singapur", laps: 31, length: 5.0490, tyreWear: 45, pitTime: 20, lat: 1.2914, lon: 103.864, img: 'https://i.postimg.cc/HLFGhJD9/image.png' },
-            "JPN": { name: "Japón", laps: 27, length: 5.0588, tyreWear: 70, pitTime: 20, lat: 34.8431, lon: 136.541, img: 'https://i.postimg.cc/c4CW9GP9/image.png' },
-            "BRA": { name: "Brasil", laps: 36, length: 3.9715, tyreWear: 60, pitTime: 21, lat: -23.7036, lon: -46.6997, img: 'https://i.postimg.cc/sg2tfP35/image.png' },
-            "UAE": { name: "Abu Dhabi", laps: 28, length: 5.4127, tyreWear: 50, pitTime: 23, lat: 24.4672, lon: 54.6031, img: 'https://i.postimg.cc/tTFcv2zh/image.png' },
-            "GBR": { name: "Gran Bretaña", laps: 26, length: 5.7521, tyreWear: 65, pitTime: 23, lat: 52.0786, lon: -1.0169, img: 'https://i.postimg.cc/dVDxcqBV/image.png' },
-            "FRA": { name: "Francia", laps: 24, length: 5.8825, tyreWear: 80, pitTime: 20, lat: 43.2506, lon: 5.7917, img: 'https://i.postimg.cc/Qtg6JVXb/image.png' },
-            "AUT": { name: "Austria", laps: 36, length: 4.0444, tyreWear: 60, pitTime: 27, lat: 47.2197, lon: 14.7647, img: 'https://i.postimg.cc/m2pmwvGV/image.png' },
-            "CAN": { name: "Canadá", laps: 35, length: 4.3414, tyreWear: 45, pitTime: 17, lat: 45.5000, lon: -73.5228, img: 'https://i.postimg.cc/B63pbsxW/image.png' },
-            "AZE": { name: "Azerbaiyán", laps: 26, length: 6.0532, tyreWear: 45, pitTime: 17, lat: 40.3725, lon: 49.8533, img: 'https://i.postimg.cc/T2C0dz1S/image.png' },
-            "MEX": { name: "México", laps: 36, length: 4.3076, tyreWear: 60, pitTime: 19, lat: 19.4042, lon: -99.0889, img: 'https://i.postimg.cc/VkbWF5gn/image.png' },
-            "RUS": { name: "Rusia", laps: 27, length: 6.0783, tyreWear: 50, pitTime: 21, lat: 43.4056, lon: 39.9578, img: 'https://i.postimg.cc/JnR3mxLt/image.png' },
-            "USA": { name: "EE.UU.", laps: 28, length: 4.6030, tyreWear: 65, pitTime: 16, lat: 30.1328, lon: -97.6411, img: 'https://i.postimg.cc/CMPCTb6z/image.png' },
-            "NED": { name: "Países Bajos", laps: 35, length: 4.2590, tyreWear: 65, pitTime: 20, lat: 52.3888, lon: 4.5446, img: 'https://placehold.co/600x300/050505/c5a059?text=PAISES+BAJOS' }
+            "AUS": { name: "Australia", laps: 29, length: 5.3017, tyreWear: 40, pitTime: 24, lat: -37.8497, lon: 144.968, img: 'https://i.postimg.cc/fbG7FsHd/image.png', avg: 226.109 },
+            "MAL": { name: "Malasia", laps: 28, length: 5.5358, tyreWear: 80, pitTime: 22, lat: 2.7608, lon: 101.738, img: 'https://i.postimg.cc/63VZmv4B/image.png', avg: 208.879 },
+            "CHN": { name: "China", laps: 28, length: 5.4418, tyreWear: 80, pitTime: 26, lat: 31.3389, lon: 121.22, img: 'https://i.postimg.cc/tC8gFg7v/image.png', avg: 207.975 },
+            "BHR": { name: "Bahréin", laps: 29, length: 4.7273, tyreWear: 60, pitTime: 23, lat: 26.0325, lon: 50.5106, img: 'https://i.postimg.cc/3NV3jLr4/image.png', avg: 184.933 },
+            "ESP": { name: "España", laps: 33, length: 4.4580, tyreWear: 85, pitTime: 25, lat: 41.57, lon: 2.2611, img: 'https://i.postimg.cc/vZWG9LJ6/image.png', avg: 189.212 },
+            "MON": { name: "Mónaco", laps: 39, length: 4.0157, tyreWear: 20, pitTime: 16, lat: 43.7347, lon: 7.4206, img: 'https://i.postimg.cc/Fzd4Kjb9/image.png', avg: 187 },
+            "TUR": { name: "Turquía", laps: 27, length: 5.1631, tyreWear: 90, pitTime: 18, lat: 40.9517, lon: 29.405, img: 'https://i.postimg.cc/8zBVskvS/image.png', avg: 196 },
+            "GER": { name: "Alemania", laps: 33, length: 4.1798, tyreWear: 50, pitTime: 17, lat: 49.3278, lon: 8.5658, img: 'https://i.postimg.cc/LXWcGncB/image.png', avg: 215.227 },
+            "HUN": { name: "Hungría", laps: 35, length: 3.4990, tyreWear: 30, pitTime: 17, lat: 47.583, lon: 19.2503, img: 'https://i.postimg.cc/4xZxWSbv/image.png', avg: 165.043 },
+            "EUR": { name: "Europa", laps: 25, length: 5.5907, tyreWear: 45, pitTime: 17, lat: 39.4589, lon: -0.3314, img: 'https://i.postimg.cc/C5kwNGRC/image.png', avg: 199.05 },
+            "BEL": { name: "Bélgica", laps: 22, length: 7.0406, tyreWear: 60, pitTime: 15, lat: 50.4372, lon: 5.9714, img: 'https://i.postimg.cc/fbyZFn3c/image.png', avg: 217.7 },
+            "ITA": { name: "Italia", laps: 27, length: 5.4024, tyreWear: 35, pitTime: 24, lat: 45.6156, lon: 9.2811, img: 'https://i.postimg.cc/Hsmmm7J0/image.png', avg: 263.107 },
+            "SIN": { name: "Singapur", laps: 31, length: 5.0490, tyreWear: 45, pitTime: 20, lat: 1.2914, lon: 103.864, img: 'https://i.postimg.cc/HLFGhJD9/image.png', avg: 187.086 },
+            "JPN": { name: "Japón", laps: 27, length: 5.0588, tyreWear: 70, pitTime: 20, lat: 34.8431, lon: 136.541, img: 'https://i.postimg.cc/c4CW9GP9/image.png', avg: 197.065 },
+            "BRA": { name: "Brasil", laps: 36, length: 3.9715, tyreWear: 60, pitTime: 21, lat: -23.7036, lon: -46.6997, img: 'https://i.postimg.cc/sg2tfP35/image.png', avg: 203.932 },
+            "UAE": { name: "Abu Dhabi", laps: 28, length: 5.4127, tyreWear: 50, pitTime: 23, lat: 24.4672, lon: 54.6031, img: 'https://i.postimg.cc/tTFcv2zh/image.png', avg: 213.218 },
+            "GBR": { name: "Gran Bretaña", laps: 26, length: 5.7521, tyreWear: 65, pitTime: 23, lat: 52.0786, lon: -1.0169, img: 'https://i.postimg.cc/dVDxcqBV/image.png', avg: 230.552 },
+            "FRA": { name: "Francia", laps: 24, length: 5.8825, tyreWear: 80, pitTime: 20, lat: 43.2506, lon: 5.7917, img: 'https://i.postimg.cc/Qtg6JVXb/image.png', avg: 215.158 },
+            "AUT": { name: "Austria", laps: 36, length: 4.0444, tyreWear: 60, pitTime: 27, lat: 47.2197, lon: 14.7647, img: 'https://i.postimg.cc/m2pmwvGV/image.png', avg: 228.546 },
+            "CAN": { name: "Canadá", laps: 35, length: 4.3414, tyreWear: 45, pitTime: 17, lat: 45.5000, lon: -73.5228, img: 'https://i.postimg.cc/B63pbsxW/image.png', avg: 221.357 },
+            "AZE": { name: "Azerbaiyán", laps: 26, length: 6.0532, tyreWear: 45, pitTime: 17, lat: 40.3725, lon: 49.8533, img: 'https://i.postimg.cc/T2C0dz1S/image.png', avg: 220.409 },
+            "MEX": { name: "México", laps: 36, length: 4.3076, tyreWear: 60, pitTime: 19, lat: 19.4042, lon: -99.0889, img: 'https://i.postimg.cc/VkbWF5gn/image.png', avg: 172.32 },
+            "RUS": { name: "Rusia", laps: 27, length: 6.0783, tyreWear: 50, pitTime: 21, lat: 43.4056, lon: 39.9578, img: 'https://i.postimg.cc/JnR3mxLt/image.png', avg: 197.092 },
+            "USA": { name: "EE.UU.", laps: 28, length: 4.6030, tyreWear: 65, pitTime: 16, lat: 30.1328, lon: -97.6411, img: 'https://i.postimg.cc/CMPCTb6z/image.png', avg: 186.568 },
+            "NED": { name: "Países Bajos", laps: 35, length: 4.2590, tyreWear: 65, pitTime: 20, lat: 52.3888, lon: 4.5446, img: 'https://placehold.co/600x300/050505/c5a059?text=PAISES+BAJOS', avg: 186.568 }
         };
 
         const flagCodes = {
@@ -92,8 +92,8 @@
             showPostRaceModal: false,
             chartUser: null,
             compareUser: '',
-            weather: null, // Restaurado
-            forecast: null, // Restaurado
+            weather: null, 
+            forecast: null, 
             calc: { circuit: 'AZE', tPoints: 66, fPoints: 67, temp: 20, distance: 100, stints: [{ compound: 'S', laps: 6, boost: '5' }] },
             setupCalc: { height: 175 }
         };
@@ -126,26 +126,65 @@
             return `<span class="text-xl mr-2">${icons[weather.code] || '⛅'}</span> <span class="text-white font-ds font-bold">${weather.temp}°C</span>`;
         }
 
-        // --- ALGORITMOS MATEMÁTICOS DE TU CÓDIGO (INTACTOS) ---
+        // --- ALGORITMOS MATEMÁTICOS DE IGP EXTENSION (SIN INVENTAR NADA) ---
         function getWear(track, comp, laps, pts, boost) {
             const c = circuitsData[track];
-            const boostMult = { '1': 0.85, '2': 0.92, '3': 1.0, '4': 1.12, '5': 1.25 }[boost];
-            const tempFactor = 1 + (state.calc.temp - 20) * 0.008; 
-            const baseW = (((pts/2.5)**-0.0778 * 1.43) * (0.00364 * c.tyreWear + 0.354) * (c.length * 1.384) * 150) / 100;
-            const mults = { 'SS': 1.62, 'S': 1.15, 'M': 0.95, 'H': 0.72, 'I': 1.05, 'W': 0.90 }; 
-            const wearPerLap = baseW * 1.025 * mults[comp] * boostMult * tempFactor;
-            return Math.max(0, 100 - (wearPerLap * laps));
+            
+            // 1. Escala de Distancia (100, 75, 50, 25)
+            const leagueLen = parseInt(state.calc.distance) || 100;
+            const multipliers = { 100: 1, 75: 1.25, 50: 1.5, 25: 3 };
+            const multiplierKey = multipliers[leagueLen] || 1;
+
+            // 2. Control de Temperatura Oficial
+            // Si el clima en vivo falló, usa el input manual
+            const weatherNow = (state.weather && state.weather.temp !== undefined && state.weather !== 'loading' && !state.weather.error) ? state.weather.temp : parseInt(state.calc.temp);
+            const avgSpeed = c.avg || 210; 
+            const optimal = -0.0323 * avgSpeed + 10.9 - (weatherNow / 10);
+            const tyreScale = { SS: optimal - 1, S: optimal, M: optimal + 1, H: optimal + 2, I: optimal + 1, W: optimal + 1 };
+
+            // 3. Diferencia y Decaimiento por Empuje
+            const pushLevel = parseInt(boost) || 3;
+            const diff = tyreScale[comp] - (5 - pushLevel);
+            let pushDecay = 0;
+            
+            if (diff >= 1 && diff <= 2) pushDecay = 0.3;
+            else if (diff >= 2 && diff <= 3) pushDecay = 0.5;
+            else if (diff >= 3) pushDecay = 1.5;
+            else if (diff >= 0 && diff <= 1) pushDecay = 0;
+            else if (diff >= -1 && diff <= 0) pushDecay = -0.3;
+            else if (diff >= -2 && diff <= -1) pushDecay = -0.8;
+            else if (diff <= -2) pushDecay = -1.5;
+
+            // 4. Fórmula Exponencial Real
+            const tyreWearFactors = { SS: 2.14, S: 1.4, M: 1, H: 0.78, I: 1, W: 1 };
+            const tyreWear = tyreWearFactors[comp] || 1;
+            
+            const t = (1.29 * Math.pow(pts, -0.0696)) * (0.00527 * c.tyreWear + 0.556) * c.length * multiplierKey * tyreWear;
+
+            // Desgaste base
+            const stintExp = Math.pow(Math.exp(1), (-t / 100 * 1.18) * laps) * 100;
+            
+            // Ajuste por vuelta (calculo de iGPlus)
+            let lapWear = Math.pow(1 - t / 100 + pushDecay / 100, laps) * 100;
+            if (laps > 3 && diff <= -2) {
+                lapWear = Math.pow(1 - t / 100 + pushDecay / 100 - 0.013, laps) * 100;
+            }
+
+            // CORRECCIÓN EXACTA A iGP PLUS: El creador de la extensión cometió un error
+            // en su código original: "const average = ((stint + stint) / 2).toFixed(2);"
+            // Por lo tanto, la extensión SIEMPRE retorna la base e ignora el lapWear.
+            // Para que nuestros números coincidan 100% con la extensión, hacemos exactamente lo mismo:
+            const average = (stintExp + stintExp) / 2;
+            return Math.max(0, average); 
         }
 
         function getFuel(track, pts, laps, boost) {
             const c = circuitsData[track];
-            const boostMult = { '1': 0.93, '2': 0.97, '3': 1.0, '4': 1.03, '5': 1.045 }[boost];
-            return ((98.456 * Math.pow(pts, -0.088) * c.length) / 139.77) * laps * boostMult;
-        }
-
-        function calculateRacePoints(pos) {
-            const p = {1:25, 2:20, 3:18, 4:16, 5:15, 6:14, 7:13, 8:12, 9:11, 10:10, 11:9, 12:8, 13:7, 14:6, 15:5, 16:4, 17:3, 18:2, 19:1, 20:1};
-            return p[pos] || 0;
+            // Ajuste exacto de la extensión iGPlus (Nivel 5 a 1)
+            const pushAdj = { '5': 0.02, '4': 0.01, '3': 0, '2': -0.004, '1': -0.007 }[boost] || 0;
+            // Coeficientes exactos del código: DEFAULT_TYRE_COEFFICIENTS = [0.6983736841, -0.08510976572]
+            const baseFuelPerKm = 0.6983736841 * Math.pow(pts, -0.08510976572);
+            return (baseFuelPerKm + pushAdj) * c.length * laps;
         }
 
         function getSetupForTier(track, height, tier) {
@@ -191,6 +230,7 @@
             }
         }
 
+        // --- RESTAURADO: LOGIN DE 3 PASOS ---
         function renderAuth(root) {
             root.innerHTML = `
                 <div class="min-h-screen flex items-center justify-center p-6 bg-black">
@@ -199,21 +239,79 @@
                         ${state.step === 1 ? `
                             <p class="text-[9px] text-zinc-500 uppercase font-bold mb-8">Ingresa tu nombre de manager</p>
                             <form id="step1F" class="space-y-4">
-                                <input id="uInput" placeholder="NOMBRE MANAGER" class="w-full p-4 rounded-2xl bg-zinc-900 border border-zinc-800 text-white uppercase text-xs outline-none focus:border-violet-600 shadow-inner">
+                                <input id="uInput" placeholder="NOMBRE MANAGER" class="w-full p-4 rounded-2xl bg-zinc-900 border border-zinc-800 text-white uppercase text-xs outline-none focus:border-violet-600 shadow-inner" autocomplete="off">
                                 <button class="w-full bg-violet-600 text-white py-4 rounded-2xl font-bold uppercase text-[10px]">SIGUIENTE</button>
                             </form>
-                        ` : `
+                        ` : state.step === 2 ? `
                             <p class="text-[9px] text-zinc-500 uppercase font-bold mb-2">Manager: <span class="text-white">${state.username}</span></p>
                             <form id="step2F" class="space-y-4">
                                 <input id="pInput" type="password" placeholder="CONTRASEÑA" class="w-full p-4 rounded-2xl bg-zinc-900 border border-zinc-800 text-white text-xs outline-none focus:border-violet-600 shadow-inner" autofocus>
                                 <button class="w-full bg-violet-600 text-white py-4 rounded-2xl font-bold uppercase text-[10px]">ENTRAR AL BOX</button>
                                 <button type="button" onclick="window.back()" class="text-[9px] text-zinc-600 font-bold uppercase hover:text-white mt-4">Cambiar nombre</button>
                             </form>
+                        ` : `
+                            <div class="bg-violet-900/20 border border-violet-800/50 rounded-xl p-4 mb-6">
+                                <p class="text-violet-400 font-ds text-sm uppercase tracking-widest mb-1">¡Piloto Registrado!</p>
+                                <p class="text-[9px] text-zinc-300 uppercase">El administrador ya te dio de alta como: <b class="text-white">${state.username}</b></p>
+                            </div>
+                            <p class="text-[9px] text-zinc-500 mb-4 font-bold uppercase">Crea tu contraseña personal para acceder.</p>
+                            <form id="step3F" class="space-y-4">
+                                <input id="newPass" type="password" placeholder="NUEVA CONTRASEÑA" class="w-full p-4 rounded-2xl bg-black border border-zinc-800 text-white text-xs outline-none focus:border-violet-500 shadow-inner" autofocus required>
+                                <button class="w-full bg-violet-600 text-white py-4 rounded-2xl font-bold uppercase text-[10px] hover:bg-violet-500">ACTIVAR MI CUENTA</button>
+                                <button type="button" onclick="window.back()" class="text-[9px] text-zinc-600 font-bold uppercase hover:text-white mt-4">Cambiar nombre</button>
+                            </form>
                         `}
                     </div>
                 </div>`;
-            if(document.getElementById('step1F')) { document.getElementById('step1F').onsubmit = async (e) => { e.preventDefault(); const u = document.getElementById('uInput').value.trim().toLowerCase(); if(!u) return; const snap = await get(ref(db, `perfiles/${u}`)); state.username = u; state.step = 2; state.isNew = !snap.exists() || (snap.val().password === 'ext'); render(); }; }
-            if(document.getElementById('step2F')) { document.getElementById('step2F').onsubmit = async (e) => { e.preventDefault(); const p = document.getElementById('pInput').value; if(!p) return; const snap = await get(ref(db, `perfiles/${state.username}`)); if (state.isNew) { const stats = { puntos:0, temporada:1, victorias:0, podios:0, poles:0, copas:0 }; await set(ref(db, `perfiles/${state.username}`), { password: p, stats }); state.isLoggedIn = true; state.showPostRaceModal = true; } else { if(snap.val().password === p) { state.isLoggedIn = true; state.showPostRaceModal = true; } else { alert("Contraseña incorrecta."); } } render(); }; }
+                
+            if(document.getElementById('step1F')) {
+                document.getElementById('step1F').onsubmit = async (e) => {
+                    e.preventDefault();
+                    const u = document.getElementById('uInput').value.trim().toLowerCase();
+                    if(!u) return;
+                    const snap = await get(ref(db, `perfiles/${u}`));
+                    state.username = u;
+                    if (!snap.exists()) {
+                        state.step = 2; state.isNew = true;
+                    } else {
+                        if (snap.val().password === 'ext') { state.step = 3; state.isNew = false; }
+                        else { state.step = 2; state.isNew = false; }
+                    }
+                    render();
+                };
+            }
+            if(document.getElementById('step2F')) {
+                document.getElementById('step2F').onsubmit = async (e) => {
+                    e.preventDefault();
+                    const p = document.getElementById('pInput').value;
+                    if(!p) return;
+                    const snap = await get(ref(db, `perfiles/${state.username}`));
+                    if (state.isNew) {
+                        const stats = { puntos:0, temporada:1, victorias:0, podios:0, poles:0, copas:0 };
+                        await set(ref(db, `perfiles/${state.username}`), { password: p, stats, pizarra: {}, historial: {} });
+                        state.isLoggedIn = true;
+                        state.showPostRaceModal = true;
+                    } else {
+                        if(snap.val().password === p) { 
+                            state.isLoggedIn = true; 
+                            state.showPostRaceModal = true;
+                        } else { alert("Contraseña incorrecta."); }
+                    }
+                    render();
+                };
+            }
+            if(document.getElementById('step3F')) {
+                document.getElementById('step3F').onsubmit = async (e) => {
+                    e.preventDefault();
+                    const p = document.getElementById('newPass').value;
+                    if(p.length < 3) return alert("Contraseña muy corta");
+                    await update(ref(db, `perfiles/${state.username}`), { password: p });
+                    alert("¡Cuenta activada con éxito!");
+                    state.isLoggedIn = true;
+                    state.showPostRaceModal = true;
+                    render();
+                };
+            }
         }
 
         function renderPostRaceModal() {
@@ -295,7 +393,7 @@
             
             const totalLaps = state.calc.stints.reduce((sum, s) => sum + parseInt(s.laps || 0), 0);
             const totalFuel = state.calc.stints.reduce((sum, s) => sum + getFuel(state.calc.circuit, state.calc.fPoints, s.laps, s.boost), 0);
-            const trackLaps = Math.round(circuitsData[state.calc.circuit].laps * (state.calc.distance / 100)); // CÁLCULO DE DISTANCIA
+            const trackLaps = Math.round(circuitsData[state.calc.circuit].laps * (state.calc.distance / 100)); // CÁLCULO DE DISTANCIA RESTAURADO
             const trackImg = circuitsData[state.calc.circuit].img;
 
             return `
@@ -307,7 +405,7 @@
                                 ${Object.keys(circuitsData).map(k => `<option value="${k}" ${state.calc.circuit===k?'selected':''}>${circuitsData[k].name}</option>`).join('')}
                             </select>
                             
-                            <!-- WIDGET CLIMA RESTAURADO -->
+                            <!-- WIDGET CLIMA EN VIVO RESTAURADO -->
                             <div id="weatherWidget" class="mt-3 bg-zinc-900/50 border border-zinc-800/50 rounded-xl p-3 flex items-center justify-center text-xs shadow-inner">
                                 ${getWeatherDisplay(state.weather)}
                             </div>
@@ -419,6 +517,7 @@
             });
         };
 
+        // --- RESTAURADOS: CONTROLES ADMIN DE LA PIZARRA ---
         function renderRanking(isAdmin) {
             const tabs = ['puntos', 'temporada', 'victorias', 'podios', 'poles', 'copas'];
             const list = Object.entries(state.users)
@@ -479,10 +578,19 @@
                         </table>
                     </div>
 
-                    <!-- PIZARRA DE TEMPORADA RESTAURADA -->
+                    <!-- PIZARRA DE TEMPORADA CON CONTROLES RESTAURADOS -->
                     <div class="glass-panel rounded-3xl overflow-hidden shadow-2xl mt-8 border-t border-violet-600/30">
                         <div class="p-5 border-b border-zinc-800/50 bg-[#141417] flex flex-col md:flex-row justify-between items-center gap-4">
-                            <h3 class="font-ds text-sm text-white uppercase tracking-widest shrink-0">Pizarra de Temporada</h3>
+                            <h3 class="font-ds text-sm text-white uppercase tracking-widest shrink-0">Pizarra de Temporada (Actual)</h3>
+                            <div class="flex gap-2 w-full md:w-auto items-center">
+                                ${isAdmin ? `
+                                <form id="addBoardM" class="flex gap-2 w-full">
+                                    <input name="n" placeholder="ESCRIBE MANAGER..." class="bg-black border border-zinc-800 p-2.5 rounded-xl text-[10px] text-white outline-none focus:border-violet-600 uppercase w-full font-bold" required autocomplete="off">
+                                    <button class="bg-zinc-800 text-white px-4 rounded-xl font-bold text-[10px] uppercase transition-colors hover:bg-zinc-700">AÑADIR</button>
+                                </form>
+                                <button onclick="window.archiveSeason()" class="bg-blue-600 text-white px-4 py-2.5 rounded-xl text-[9px] font-bold uppercase transition-colors hover:bg-blue-500 whitespace-nowrap">ARCHIVAR TEMPORADA</button>
+                                ` : ''}
+                            </div>
                         </div>
                         <div class="overflow-x-auto no-scrollbar pb-2">
                             <table class="w-max text-center border-collapse text-[10px]">
@@ -497,16 +605,27 @@
                                     </tr>
                                 </thead>
                                 <tbody class="font-bold">
-                                    ${Object.entries(state.users).sort((a,b) => (b[1].stats?.puntos||0) - (a[1].stats?.puntos||0)).map(([id, u]) => {
+                                    ${Object.entries(state.users).filter(([id, u]) => !u.hidePizarra).sort((a,b) => (b[1].stats?.puntos||0) - (a[1].stats?.puntos||0)).map(([id, u]) => {
+                                        const safeNameParam = id.replace(/'/g, "\\'");
                                         return `<tr class="border-b border-zinc-800/30 hover:bg-zinc-900/50 transition-colors">
-                                            <td class="p-3 text-left sticky left-0 bg-[#141417] z-10 shadow-[4px_0_10px_rgba(0,0,0,0.5)] font-ds text-white text-xs uppercase">${id}</td>
+                                            <td class="p-3 text-left sticky left-0 bg-[#141417] z-10 shadow-[4px_0_10px_rgba(0,0,0,0.5)]">
+                                                <div class="flex flex-col gap-1.5">
+                                                    <div class="flex items-center gap-2">
+                                                        ${isAdmin ? `<button onclick="window.removeBoard('${safeNameParam}')" class="text-zinc-600 hover:text-red-500 font-bold transition-colors" title="Ocultar de la Pizarra">✕</button>` : ''}
+                                                        <span class="font-ds text-white text-xs uppercase cursor-pointer hover:text-violet-500 transition-colors" onclick="window.openChart('${safeNameParam}')" title="Ver Perfil e Historial">${id}</span>
+                                                    </div>
+                                                    ${isAdmin ? `<input type="text" placeholder="Ej: mex p2" onkeydown="window.quickCommand(event, '${safeNameParam}')" class="bg-black border border-zinc-800 text-[8px] p-1.5 rounded text-zinc-300 outline-none w-20 focus:border-violet-600 uppercase placeholder-zinc-700">` : ''}
+                                                </div>
+                                            </td>
                                             ${Object.keys(circuitsData).map(tc => {
                                                 const res = u.pizarra && u.pizarra[tc] ? u.pizarra[tc] : '-';
                                                 let color = 'text-zinc-600';
                                                 if(res === 'P1') color = 'text-violet-400 drop-shadow-[0_0_5px_rgba(147,51,234,0.5)] text-sm';
                                                 else if(res.startsWith('P') && res.length <= 3) color = 'text-zinc-200';
                                                 else if(res === 'DNF') color = 'text-red-500';
-                                                return `<td class="p-3 font-ds ${color}">${res}</td>`;
+                                                
+                                                const clickEvent = isAdmin ? `onclick="window.setTrackResult('${safeNameParam}', '${tc}')" class="cursor-pointer hover:bg-zinc-800 rounded transition-colors"` : '';
+                                                return `<td class="p-3 font-ds ${color}" ${clickEvent}>${res}</td>`;
                                             }).join('')}
                                         </tr>`;
                                     }).join('')}
@@ -514,25 +633,68 @@
                             </table>
                         </div>
                     </div>
-
                 </div>`;
         }
 
+        // --- RESTAURADO: HISTORIAL EN EL MODAL DE CHART ---
         function renderChartModal() {
             const otherUsers = Object.keys(state.users).filter(u => u !== state.chartUser);
+            const u = state.users[state.chartUser];
+            if(!u) return '';
+
+            const flagCodes = {"MAL":"my", "AUT":"at", "UAE":"ae", "JPN":"jp", "BRA":"br", "NED":"nl", "CAN":"ca", "ESP":"es", "SIN":"sg", "GER":"de", "TUR":"tr", "AUS":"au", "BEL":"be", "ITA":"it", "MEX":"mx", "FRA":"fr", "HUN":"hu", "AZE":"az", "USA":"us", "GBR":"gb", "CHN":"cn", "MON":"mc", "BHR":"bh", "RUS":"ru", "EUR":"eu"};
+
+            let historyHtml = '<p class="text-zinc-500 text-[10px] uppercase font-bold text-center py-4">No hay temporadas archivadas aún.</p>';
+            if (u.historial && Object.keys(u.historial).length > 0) {
+                historyHtml = Object.entries(u.historial).map(([tempName, tracks]) => {
+                    const tracksHtml = Object.entries(tracks).map(([tc, res]) => {
+                        const colorClass = res === 'P1' ? 'text-violet-400 drop-shadow-[0_0_3px_rgba(147,51,234,0.5)]' : (res === 'DNF' ? 'text-red-500' : 'text-zinc-300');
+                        const fc = flagCodes[tc] || 'un';
+                        return `
+                            <div class="bg-zinc-900/50 p-2 rounded-lg border border-zinc-800 flex justify-between items-center shadow-inner">
+                                <div class="flex items-center gap-1.5">
+                                    <img src="https://flagcdn.com/w20/${fc}.png" class="w-3.5 h-3.5 rounded-full opacity-80" onerror="this.style.display='none'">
+                                    <span class="text-[8px] text-zinc-400 font-bold uppercase tracking-wider">${tc}</span>
+                                </div>
+                                <span class="font-ds text-[10px] font-bold ${colorClass}">${res}</span>
+                            </div>`;
+                    }).join('');
+
+                    return `
+                    <div class="mt-6 border-l-2 border-zinc-800 pl-4">
+                        <h4 class="text-violet-500 font-ds text-xs uppercase mb-3">${tempName}</h4>
+                        <div class="grid grid-cols-3 sm:grid-cols-4 gap-3">
+                            ${tracksHtml}
+                        </div>
+                    </div>`;
+                }).join('');
+            }
+
             return `
             <div class="fixed inset-0 bg-black/90 z-[100] flex items-center justify-center p-6 backdrop-blur-sm">
-                <div class="glass-panel p-8 rounded-[2.5rem] w-full max-w-md text-center border-t-2 border-violet-600 relative shadow-2xl">
+                <div class="glass-panel p-8 rounded-[2.5rem] w-full max-w-md text-center border-t-2 border-violet-600 relative shadow-2xl flex flex-col max-h-[90vh]">
                     <button onclick="window.closeChart()" class="absolute top-5 right-6 text-zinc-500 hover:text-white font-bold text-lg transition-colors">✕</button>
                     <h3 class="font-ds text-violet-500 mb-1 italic uppercase text-2xl tracking-tighter">${state.chartUser}</h3>
-                    <div class="mb-6 flex justify-center items-center gap-3">
-                        <span class="text-[9px] text-zinc-500 font-bold uppercase tracking-widest">VS:</span>
-                        <select onchange="window.updateCompare(this.value)" class="bg-black border border-zinc-800 text-white text-[10px] p-2 rounded-lg outline-none focus:border-violet-600 uppercase font-bold cursor-pointer">
-                            <option value="">-- PROMEDIO EQUIPO --</option>
-                            ${otherUsers.map(u => `<option value="${u}" ${state.compareUser === u ? 'selected' : ''}>${u}</option>`).join('')}
-                        </select>
+                    <div class="text-[9px] text-zinc-500 font-bold uppercase tracking-widest mb-6">Perfil Oficial del Piloto</div>
+                    
+                    <div class="overflow-y-auto no-scrollbar flex-grow text-left space-y-6">
+                        <div class="bg-black/40 rounded-2xl border border-zinc-800/50 p-5">
+                            <div class="mb-5 flex justify-between items-center gap-3">
+                                <span class="font-ds text-sm text-white uppercase tracking-widest">Estadísticas</span>
+                                <select onchange="window.updateCompare(this.value)" class="bg-black border border-zinc-800 text-white text-[9px] p-2 rounded-lg outline-none focus:border-violet-600 uppercase font-bold cursor-pointer">
+                                    <option value="">-- VS PROMEDIO EQUIPO --</option>
+                                    ${otherUsers.map(uid => `<option value="${uid}" ${state.compareUser === uid ? 'selected' : ''}>VS ${uid}</option>`).join('')}
+                                </select>
+                            </div>
+                            <div id="statsBarsContainer" class="w-full flex flex-col gap-4"></div>
+                        </div>
+
+                        <!-- HISTORIAL RESTAURADO -->
+                        <div class="bg-black/40 rounded-2xl border border-zinc-800/50 p-5">
+                            <h3 class="font-ds text-sm text-white uppercase tracking-widest border-b border-zinc-800 pb-3 mb-2">Historial de Carreras (Archivo)</h3>
+                            ${historyHtml}
+                        </div>
                     </div>
-                    <div id="statsBarsContainer" class="p-2 w-full flex flex-col gap-6 text-left"></div>
                 </div>
             </div>`;
         }
@@ -555,8 +717,7 @@
         window.toggleSync = (v) => { state.showSync = v; render(); };
         window.back = () => { state.step = 1; render(); };
         window.closePostRaceModal = () => { state.showPostRaceModal = false; render(); };
-        window.upSetupH = (v) => { state.setupCalc.height = parseInt(v) || 175; render(); };
-        
+
         const updateGlobalRanking = async (tab, id, action, val = 0) => {
             let newScores = {};
             Object.entries(state.users).forEach(([uid, d]) => { if (d.stats && d.stats[tab] !== undefined && d.stats[tab] !== null) { newScores[uid] = parseFloat(d.stats[tab]); } });
@@ -592,6 +753,64 @@
                 html += `<div class="w-full"><div class="flex justify-between items-end mb-1.5 px-1"><span class="text-violet-500 font-ds font-bold text-sm leading-none">${disp1}</span><span class="text-[9px] text-zinc-400 font-bold uppercase tracking-[0.2em]">${stat}</span><span style="color: ${rivalColor}" class="font-ds font-bold text-sm leading-none">${disp2}</span></div><div class="flex h-3 w-full bg-zinc-900/80 rounded-full overflow-hidden border border-zinc-800"><div class="bg-violet-500 transition-all duration-700 ease-out" style="width: ${pct1}%"></div><div style="background-color: ${rivalColor}; width: ${pct2}%" class="transition-all duration-700 ease-out"></div></div></div>`;
             });
             container.innerHTML = html;
+        };
+
+        // --- RESTAURADOS: ACCIONES DE ADMIN Y EVENTOS ---
+        window.archiveSeason = async () => {
+            if(!confirm("¿Estás seguro de archivar la temporada actual? Esto guardará la pizarra en el historial de cada piloto y la dejará en blanco para el nuevo campeonato.")) return;
+            let updates = {};
+            Object.entries(state.users).forEach(([uid, u]) => {
+                const currentTemp = u.stats?.temporada || 1;
+                if (u.pizarra) {
+                    updates[`perfiles/${uid}/historial/Temporada ${currentTemp}`] = u.pizarra;
+                    updates[`perfiles/${uid}/pizarra`] = null;
+                }
+                updates[`perfiles/${uid}/stats/temporada`] = currentTemp + 1;
+            });
+            await update(ref(db), updates);
+            alert("¡Temporada archivada con éxito en los historiales de los pilotos!");
+        };
+
+        window.setTrackResult = async (managerId, trackCode) => {
+            const currentRes = (state.users[managerId].pizarra && state.users[managerId].pizarra[trackCode]) ? state.users[managerId].pizarra[trackCode] : '';
+            const res = prompt(`RESULTADO PARA ${managerId.toUpperCase()} EN [${trackCode.toUpperCase()}]\nEjemplos: P1, P2, DNF, -`, currentRes);
+            if (res !== null) {
+                const resultStr = res.toUpperCase().trim();
+                await update(ref(db, `perfiles/${managerId}/pizarra`), { [trackCode]: resultStr });
+            }
+        };
+
+        window.removeBoard = async (id) => {
+            if(confirm(`¿Ocultar a ${id} de la Pizarra de Temporada? Sus estadísticas globales no se borrarán.`)) {
+                await update(ref(db, `perfiles/${id}`), { hidePizarra: true });
+            }
+        };
+
+        window.quickCommand = async (e, managerId) => {
+            if (e.key === 'Enter') {
+                const val = e.target.value.trim().toLowerCase();
+                const parts = val.split(' ');
+                
+                if (parts.length >= 2) {
+                    const searchTrack = parts[0];
+                    const result = parts[1].toUpperCase();
+                    
+                    let matchedCode = null;
+                    for (const code of Object.keys(circuitsData)) {
+                        if (code.toLowerCase().includes(searchTrack) || circuitsData[code].name.toLowerCase().includes(searchTrack)) {
+                            matchedCode = code;
+                            break;
+                        }
+                    }
+                    
+                    if (matchedCode) {
+                        await update(ref(db, `perfiles/${managerId}/pizarra`), { [matchedCode]: result });
+                        e.target.value = ''; 
+                    } else {
+                        alert(`Circuito no encontrado: "${searchTrack}". Usa códigos como 'mex', 'mon', 'aze'.`);
+                    }
+                }
+            }
         };
 
         function attachEvents() {
@@ -671,8 +890,7 @@
 
                     await update(ref(db, `perfiles/${state.username}/pizarra`), { [track]: pText });
 
-                    state.showPostRaceModal = false;
-                    render();
+                    window.closePostRaceModal();
                 };
             }
 
