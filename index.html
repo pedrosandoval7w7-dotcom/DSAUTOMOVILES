@@ -3,7 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Porsche - Sugerencias de estrategia</title>
+    <title>Porsche Performance - Estrategia</title>
+    
+    <!-- ESCUDO DE SEGURIDAD: Bloqueo de Clic Derecho y F12 -->
+    <script>
+        document.addEventListener('contextmenu', e => e.preventDefault());
+        document.addEventListener('keydown', e => {
+            if (e.key === 'F12' || 
+                (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'C' || e.key === 'J')) || 
+                (e.ctrlKey && e.key === 'U')) {
+                e.preventDefault();
+            }
+        });
+    </script>
+
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
@@ -37,33 +50,40 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
-        // --- LISTA DE CIRCUITOS (SE AGREGÓ 'avg' EXACTO DE LA EXTENSIÓN PARA LA TEMPERATURA) ---
+        // --- VALORES EXACTOS DE LA EXTENSIÓN iGPLUS ---
         const circuitsData = {
-            "AUS": { name: "Australia", laps: 29, length: 5.3017, tyreWear: 40, pitTime: 24, lat: -37.8497, lon: 144.968, img: 'https://i.postimg.cc/fbG7FsHd/image.png', avg: 226.109 },
-            "MAL": { name: "Malasia", laps: 28, length: 5.5358, tyreWear: 80, pitTime: 22, lat: 2.7608, lon: 101.738, img: 'https://i.postimg.cc/63VZmv4B/image.png', avg: 208.879 },
-            "CHN": { name: "China", laps: 28, length: 5.4418, tyreWear: 80, pitTime: 26, lat: 31.3389, lon: 121.22, img: 'https://i.postimg.cc/tC8gFg7v/image.png', avg: 207.975 },
-            "BHR": { name: "Bahréin", laps: 29, length: 4.7273, tyreWear: 60, pitTime: 23, lat: 26.0325, lon: 50.5106, img: 'https://i.postimg.cc/3NV3jLr4/image.png', avg: 184.933 },
-            "ESP": { name: "España", laps: 33, length: 4.4580, tyreWear: 85, pitTime: 25, lat: 41.57, lon: 2.2611, img: 'https://i.postimg.cc/vZWG9LJ6/image.png', avg: 189.212 },
-            "MON": { name: "Mónaco", laps: 39, length: 4.0157, tyreWear: 20, pitTime: 16, lat: 43.7347, lon: 7.4206, img: 'https://i.postimg.cc/Fzd4Kjb9/image.png', avg: 187 },
-            "TUR": { name: "Turquía", laps: 27, length: 5.1631, tyreWear: 90, pitTime: 18, lat: 40.9517, lon: 29.405, img: 'https://i.postimg.cc/8zBVskvS/image.png', avg: 196 },
-            "GER": { name: "Alemania", laps: 33, length: 4.1798, tyreWear: 50, pitTime: 17, lat: 49.3278, lon: 8.5658, img: 'https://i.postimg.cc/LXWcGncB/image.png', avg: 215.227 },
-            "HUN": { name: "Hungría", laps: 35, length: 3.4990, tyreWear: 30, pitTime: 17, lat: 47.583, lon: 19.2503, img: 'https://i.postimg.cc/4xZxWSbv/image.png', avg: 165.043 },
-            "EUR": { name: "Europa", laps: 25, length: 5.5907, tyreWear: 45, pitTime: 17, lat: 39.4589, lon: -0.3314, img: 'https://i.postimg.cc/C5kwNGRC/image.png', avg: 199.05 },
-            "BEL": { name: "Bélgica", laps: 22, length: 7.0406, tyreWear: 60, pitTime: 15, lat: 50.4372, lon: 5.9714, img: 'https://i.postimg.cc/fbyZFn3c/image.png', avg: 217.7 },
-            "ITA": { name: "Italia", laps: 27, length: 5.4024, tyreWear: 35, pitTime: 24, lat: 45.6156, lon: 9.2811, img: 'https://i.postimg.cc/Hsmmm7J0/image.png', avg: 263.107 },
-            "SIN": { name: "Singapur", laps: 31, length: 5.0490, tyreWear: 45, pitTime: 20, lat: 1.2914, lon: 103.864, img: 'https://i.postimg.cc/HLFGhJD9/image.png', avg: 187.086 },
-            "JPN": { name: "Japón", laps: 27, length: 5.0588, tyreWear: 70, pitTime: 20, lat: 34.8431, lon: 136.541, img: 'https://i.postimg.cc/c4CW9GP9/image.png', avg: 197.065 },
-            "BRA": { name: "Brasil", laps: 36, length: 3.9715, tyreWear: 60, pitTime: 21, lat: -23.7036, lon: -46.6997, img: 'https://i.postimg.cc/sg2tfP35/image.png', avg: 203.932 },
-            "UAE": { name: "Abu Dhabi", laps: 28, length: 5.4127, tyreWear: 50, pitTime: 23, lat: 24.4672, lon: 54.6031, img: 'https://i.postimg.cc/tTFcv2zh/image.png', avg: 213.218 },
-            "GBR": { name: "Gran Bretaña", laps: 26, length: 5.7521, tyreWear: 65, pitTime: 23, lat: 52.0786, lon: -1.0169, img: 'https://i.postimg.cc/dVDxcqBV/image.png', avg: 230.552 },
-            "FRA": { name: "Francia", laps: 24, length: 5.8825, tyreWear: 80, pitTime: 20, lat: 43.2506, lon: 5.7917, img: 'https://i.postimg.cc/Qtg6JVXb/image.png', avg: 215.158 },
-            "AUT": { name: "Austria", laps: 36, length: 4.0444, tyreWear: 60, pitTime: 27, lat: 47.2197, lon: 14.7647, img: 'https://i.postimg.cc/m2pmwvGV/image.png', avg: 228.546 },
-            "CAN": { name: "Canadá", laps: 35, length: 4.3414, tyreWear: 45, pitTime: 17, lat: 45.5000, lon: -73.5228, img: 'https://i.postimg.cc/B63pbsxW/image.png', avg: 221.357 },
-            "AZE": { name: "Azerbaiyán", laps: 26, length: 6.0532, tyreWear: 45, pitTime: 17, lat: 40.3725, lon: 49.8533, img: 'https://i.postimg.cc/T2C0dz1S/image.png', avg: 220.409 },
-            "MEX": { name: "México", laps: 36, length: 4.3076, tyreWear: 60, pitTime: 19, lat: 19.4042, lon: -99.0889, img: 'https://i.postimg.cc/VkbWF5gn/image.png', avg: 172.32 },
-            "RUS": { name: "Rusia", laps: 27, length: 6.0783, tyreWear: 50, pitTime: 21, lat: 43.4056, lon: 39.9578, img: 'https://i.postimg.cc/JnR3mxLt/image.png', avg: 197.092 },
-            "USA": { name: "EE.UU.", laps: 28, length: 4.6030, tyreWear: 65, pitTime: 16, lat: 30.1328, lon: -97.6411, img: 'https://i.postimg.cc/CMPCTb6z/image.png', avg: 186.568 },
-            "NED": { name: "Países Bajos", laps: 35, length: 4.2590, tyreWear: 65, pitTime: 20, lat: 52.3888, lon: 4.5446, img: 'https://placehold.co/600x300/050505/c5a059?text=PAISES+BAJOS', avg: 186.568 }
+            "AUS": { name: "Australia", laps: 58, length: 5.3017, tyreWear: 40, pitTime: 24, lat: -37.8497, lon: 144.968, img: 'https://i.postimg.cc/fbG7FsHd/image.png' },
+            "MAL": { name: "Malasia", laps: 56, length: 5.5358, tyreWear: 80, pitTime: 22, lat: 2.7608, lon: 101.738, img: 'https://i.postimg.cc/63VZmv4B/image.png' },
+            "CHN": { name: "China", laps: 56, length: 5.4418, tyreWear: 80, pitTime: 26, lat: 31.3389, lon: 121.22, img: 'https://i.postimg.cc/tC8gFg7v/image.png' },
+            "BHR": { name: "Bahréin", laps: 57, length: 4.7273, tyreWear: 60, pitTime: 23, lat: 26.0325, lon: 50.5106, img: 'https://i.postimg.cc/3NV3jLr4/image.png' },
+            "ESP": { name: "España", laps: 66, length: 4.4580, tyreWear: 85, pitTime: 25, lat: 41.57, lon: 2.2611, img: 'https://i.postimg.cc/vZWG9LJ6/image.png' },
+            "MON": { name: "Mónaco", laps: 78, length: 4.0157, tyreWear: 20, pitTime: 16, lat: 43.7347, lon: 7.4206, img: 'https://i.postimg.cc/Fzd4Kjb9/image.png' },
+            "TUR": { name: "Turquía", laps: 58, length: 5.1631, tyreWear: 90, pitTime: 18, lat: 40.9517, lon: 29.405, img: 'https://i.postimg.cc/8zBVskvS/image.png' },
+            "GER": { name: "Alemania", laps: 67, length: 4.1798, tyreWear: 50, pitTime: 17, lat: 49.3278, lon: 8.5658, img: 'https://i.postimg.cc/LXWcGncB/image.png' },
+            "HUN": { name: "Hungría", laps: 70, length: 3.4990, tyreWear: 30, pitTime: 17, lat: 47.583, lon: 19.2503, img: 'https://i.postimg.cc/4xZxWSbv/image.png' },
+            "EUR": { name: "Europa", laps: 57, length: 5.5907, tyreWear: 45, pitTime: 17, lat: 39.4589, lon: -0.3314, img: 'https://i.postimg.cc/C5kwNGRC/image.png' },
+            "BEL": { name: "Bélgica", laps: 44, length: 7.0406, tyreWear: 60, pitTime: 15, lat: 50.4372, lon: 5.9714, img: 'https://i.postimg.cc/fbyZFn3c/image.png' },
+            "ITA": { name: "Italia", laps: 53, length: 5.4024, tyreWear: 35, pitTime: 24, lat: 45.6156, lon: 9.2811, img: 'https://i.postimg.cc/Hsmmm7J0/image.png' },
+            "SIN": { name: "Singapur", laps: 61, length: 5.0490, tyreWear: 45, pitTime: 20, lat: 1.2914, lon: 103.864, img: 'https://i.postimg.cc/HLFGhJD9/image.png' },
+            "JPN": { name: "Japón", laps: 53, length: 5.0588, tyreWear: 70, pitTime: 20, lat: 34.8431, lon: 136.541, img: 'https://i.postimg.cc/c4CW9GP9/image.png' },
+            "BRA": { name: "Brasil", laps: 71, length: 3.9715, tyreWear: 60, pitTime: 21, lat: -23.7036, lon: -46.6997, img: 'https://i.postimg.cc/sg2tfP35/image.png' },
+            "UAE": { name: "Abu Dhabi", laps: 55, length: 5.4127, tyreWear: 50, pitTime: 23, lat: 24.4672, lon: 54.6031, img: 'https://i.postimg.cc/tTFcv2zh/image.png' },
+            "GBR": { name: "Gran Bretaña", laps: 52, length: 5.7521, tyreWear: 65, pitTime: 23, lat: 52.0786, lon: -1.0169, img: 'https://i.postimg.cc/dVDxcqBV/image.png' },
+            "FRA": { name: "Francia", laps: 53, length: 5.8825, tyreWear: 80, pitTime: 20, lat: 43.2506, lon: 5.7917, img: 'https://i.postimg.cc/Qtg6JVXb/image.png' },
+            "AUT": { name: "Austria", laps: 71, length: 4.0444, tyreWear: 60, pitTime: 27, lat: 47.2197, lon: 14.7647, img: 'https://i.postimg.cc/m2pmwvGV/image.png' },
+            "CAN": { name: "Canadá", laps: 70, length: 4.3414, tyreWear: 45, pitTime: 17, lat: 45.5000, lon: -73.5228, img: 'https://i.postimg.cc/B63pbsxW/image.png' },
+            "AZE": { name: "Azerbaiyán", laps: 51, length: 6.0532, tyreWear: 45, pitTime: 17, lat: 40.3725, lon: 49.8533, img: 'https://i.postimg.cc/T2C0dz1S/image.png' },
+            "MEX": { name: "México", laps: 71, length: 4.3076, tyreWear: 60, pitTime: 19, lat: 19.4042, lon: -99.0889, img: 'https://i.postimg.cc/VkbWF5gn/image.png' },
+            "RUS": { name: "Rusia", laps: 53, length: 6.0783, tyreWear: 50, pitTime: 21, lat: 43.4056, lon: 39.9578, img: 'https://i.postimg.cc/JnR3mxLt/image.png' },
+            "USA": { name: "EE.UU.", laps: 56, length: 4.6030, tyreWear: 65, pitTime: 16, lat: 30.1328, lon: -97.6411, img: 'https://i.postimg.cc/CMPCTb6z/image.png' },
+            "NED": { name: "Países Bajos", laps: 72, length: 4.2590, tyreWear: 65, pitTime: 20, lat: 52.3888, lon: 4.5446, img: 'https://placehold.co/600x300/050505/9333ea?text=PAISES+BAJOS' }
+        };
+
+        const setupScale = { 190: { 3: -8, 2: -4, 1: -2 }, 185: { 3: -6, 2: -3, 1: -1 }, 180: { 3: -4, 2: -2, 1: -1 }, 175: { 3: -2, 2: -1, 1: 0 }, 170: { 3: 0, 2: 0, 1: 0 }, 165: { 3: 2, 2: 1, 1: 0 } };
+        const setupCircuits = {
+            3: { UAE:{r:6,w:1,s:12}, AUT:{r:4,w:0,s:14}, AUS:{r:9,w:4,s:8}, AZE:{r:8,w:1,s:12}, BEL:{r:6,w:3,s:9}, BHR:{r:4,w:0,s:14}, BRA:{r:4,w:2,s:10}, CAN:{r:4,w:-1,s:16}, CHN:{r:2,w:2,s:10}, GER:{r:4,w:2,s:10}, ESP:{r:2,w:5,s:6}, EUR:{r:6,w:5,s:6}, FRA:{r:8,w:2,s:10}, GBR:{r:4,w:0,s:14}, HUN:{r:5,w:6,s:4}, ITA:{r:6,w:-2,s:18}, JPN:{r:6,w:5,s:6}, MON:{r:11,w:9,s:1}, MEX:{r:3,w:2,s:10}, MAL:{r:6,w:1,s:12}, RUS:{r:2,w:2,s:10}, SIN:{r:8,w:7,s:3}, TUR:{r:6,w:2,s:10}, USA:{r:2,w:2,s:11}, NED:{r:1,w:1,s:10} },
+            2: { UAE:{r:13,w:3,s:30}, AUT:{r:9,w:0,s:35}, AUS:{r:19,w:8,s:20}, AZE:{r:17,w:3,s:30}, BEL:{r:12,w:6,s:23}, BHR:{r:8,w:0,s:35}, BRA:{r:8,w:5,s:25}, CAN:{r:9,w:-3,s:40}, CHN:{r:5,w:5,s:25}, GER:{r:8,w:5,s:25}, ESP:{r:5,w:10,s:15}, EUR:{r:12,w:10,s:15}, FRA:{r:17,w:5,s:25}, GBR:{r:9,w:0,s:35}, HUN:{r:10,w:13,s:10}, ITA:{r:12,w:-5,s:45}, JPN:{r:12,w:10,s:15}, MON:{r:22,w:18,s:1}, MEX:{r:7,w:5,s:25}, MAL:{r:12,w:3,s:30}, RUS:{r:4,w:5,s:25}, SIN:{r:17,w:14,s:8}, TUR:{r:13,w:5,s:25}, USA:{r:4,w:4,s:28}, NED:{r:-1,w:-1,s:20} },
+            1: { UAE:{r:25,w:5,s:60}, AUT:{r:18,w:0,s:70}, AUS:{r:38,w:15,s:40}, AZE:{r:33,w:5,s:60}, BEL:{r:23,w:12,s:45}, BHR:{r:15,w:0,s:70}, BRA:{r:15,w:10,s:50}, CAN:{r:18,w:-5,s:80}, CHN:{r:10,w:10,s:50}, GER:{r:15,w:10,s:50}, ESP:{r:10,w:20,s:30}, EUR:{r:23,w:20,s:30}, FRA:{r:33,w:10,s:50}, GBR:{r:18,w:0,s:70}, HUN:{r:20,w:25,s:20}, ITA:{r:23,w:-10,s:90}, JPN:{r:23,w:20,s:30}, MON:{r:43,w:35,s:1}, MEX:{r:13,w:10,s:50}, MAL:{r:23,w:5,s:60}, RUS:{r:8,w:10,s:50}, SIN:{r:33,w:27,s:15}, TUR:{r:25,w:10,s:50}, USA:{r:8,w:7,s:55}, NED:{r:-1,w:-1,s:40} }
         };
 
         const flagCodes = {
@@ -72,11 +92,15 @@
             "HUN":"hu", "AZE":"az", "USA":"us", "GBR":"gb", "CHN":"cn", "MON":"mc", "BHR":"bh", "RUS":"ru", "EUR":"eu"
         };
 
-        const setupScale = { 190: { 3: -8, 2: -4, 1: -2 }, 185: { 3: -6, 2: -3, 1: -1 }, 180: { 3: -4, 2: -2, 1: -1 }, 175: { 3: -2, 2: -1, 1: 0 }, 170: { 3: 0, 2: 0, 1: 0 }, 165: { 3: 2, 2: 1, 1: 0 } };
-        const setupCircuits = {
-            3: { UAE:{r:6,w:1,s:12}, AUT:{r:4,w:0,s:14}, AUS:{r:9,w:4,s:8}, AZE:{r:8,w:1,s:12}, BEL:{r:6,w:3,s:9}, BHR:{r:4,w:0,s:14}, BRA:{r:4,w:2,s:10}, CAN:{r:4,w:-1,s:16}, CHN:{r:2,w:2,s:10}, GER:{r:4,w:2,s:10}, ESP:{r:2,w:5,s:6}, EUR:{r:6,w:5,s:6}, FRA:{r:8,w:2,s:10}, GBR:{r:4,w:0,s:14}, HUN:{r:5,w:6,s:4}, ITA:{r:6,w:-2,s:18}, JPN:{r:6,w:5,s:6}, MON:{r:11,w:9,s:1}, MEX:{r:3,w:2,s:10}, MAL:{r:6,w:1,s:12}, RUS:{r:2,w:2,s:10}, SIN:{r:8,w:7,s:3}, TUR:{r:6,w:2,s:10}, USA:{r:2,w:2,s:11}, NED:{r:1,w:1,s:10} },
-            2: { UAE:{r:13,w:3,s:30}, AUT:{r:9,w:0,s:35}, AUS:{r:19,w:8,s:20}, AZE:{r:17,w:3,s:30}, BEL:{r:12,w:6,s:23}, BHR:{r:8,w:0,s:35}, BRA:{r:8,w:5,s:25}, CAN:{r:9,w:-3,s:40}, CHN:{r:5,w:5,s:25}, GER:{r:8,w:5,s:25}, ESP:{r:5,w:10,s:15}, EUR:{r:12,w:10,s:15}, FRA:{r:17,w:5,s:25}, GBR:{r:9,w:0,s:35}, HUN:{r:10,w:13,s:10}, ITA:{r:12,w:-5,s:45}, JPN:{r:12,w:10,s:15}, MON:{r:22,w:18,s:1}, MEX:{r:7,w:5,s:25}, MAL:{r:12,w:3,s:30}, RUS:{r:4,w:5,s:25}, SIN:{r:17,w:14,s:8}, TUR:{r:13,w:5,s:25}, USA:{r:4,w:4,s:28}, NED:{r:-1,w:-1,s:20} },
-            1: { UAE:{r:25,w:5,s:60}, AUT:{r:18,w:0,s:70}, AUS:{r:38,w:15,s:40}, AZE:{r:33,w:5,s:60}, BEL:{r:23,w:12,s:45}, BHR:{r:15,w:0,s:70}, BRA:{r:15,w:10,s:50}, CAN:{r:18,w:-5,s:80}, CHN:{r:10,w:10,s:50}, GER:{r:15,w:10,s:50}, ESP:{r:10,w:20,s:30}, EUR:{r:23,w:20,s:30}, FRA:{r:33,w:10,s:50}, GBR:{r:18,w:0,s:70}, HUN:{r:20,w:25,s:20}, ITA:{r:23,w:-10,s:90}, JPN:{r:23,w:20,s:30}, MON:{r:43,w:35,s:1}, MEX:{r:13,w:10,s:50}, MAL:{r:23,w:5,s:60}, RUS:{r:8,w:10,s:50}, SIN:{r:33,w:27,s:15}, TUR:{r:25,w:10,s:50}, USA:{r:8,w:7,s:55}, NED:{r:-1,w:-1,s:40} }
+        // --- MATRIZ OFICIAL DE VUELTAS SEGÚN DISTANCIA ---
+        const raceLengthMap = {
+            'ae': [50, 37, 25, 12], 'au': [57, 42, 28, 14], 'at': [68, 51, 34, 17], 'az': [46, 34, 23, 11],
+            'bh': [59, 44, 29, 14], 'be': [43, 32, 21, 10], 'br': [69, 51, 34, 17], 'ca': [63, 47, 31, 15],
+            'cn': [55, 41, 27, 13], 'eu': [50, 37, 25, 12], 'fr': [48, 36, 24, 12], 'de': [67, 50, 33, 16],
+            'jp': [55, 41, 27, 13], 'gb': [48, 36, 24, 12], 'it': [51, 38, 25, 12], 'my': [55, 41, 27, 13],
+            'mx': [70, 52, 35, 17], 'mc': [59, 44, 29, 14], 'ru': [46, 34, 23, 11], 'sg': [60, 45, 30, 15],
+            'es': [62, 46, 31, 15], 'us': [60, 45, 30, 15], 'tr': [54, 40, 27, 13], 'hu': [79, 59, 39, 19],
+            'nl': [72, 59, 35, 19]
         };
 
         let state = {
@@ -92,13 +116,13 @@
             showPostRaceModal: false,
             chartUser: null,
             compareUser: '',
-            weather: null, 
-            forecast: null, 
-            calc: { circuit: 'AZE', tPoints: 66, fPoints: 67, temp: 20, distance: 100, stints: [{ compound: 'S', laps: 6, boost: '5' }] },
+            weather: null,
+            forecast: null,
+            calc: { circuit: 'AZE', tPoints: 66, fPoints: 67, distance: "100", stints: [{ compound: 'S', laps: 6, boost: '3' }] },
             setupCalc: { height: 175 }
         };
 
-        // --- CLIMA EN VIVO EXACTO RESTAURADO ---
+        // --- CLIMA EN VIVO (OPEN-METEO) ---
         window.fetchWeather = async (trackCode) => {
             state.weather = 'loading'; state.forecast = null; render();
             const track = circuitsData[trackCode];
@@ -106,83 +130,34 @@
             try {
                 const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${track.lat}&longitude=${track.lon}&current_weather=true&hourly=temperature_2m,precipitation_probability&timezone=auto`);
                 const data = await res.json();
-                if (data && data.current_weather) {
-                    state.weather = { temp: data.current_weather.temperature, code: data.current_weather.weathercode };
-                    state.calc.temp = Math.round(data.current_weather.temperature);
-                    state.forecast = {
-                        times: data.hourly.time.slice(0, 24).map(t => t.split('T')[1]),
-                        temps: data.hourly.temperature_2m.slice(0, 24),
-                        rains: data.hourly.precipitation_probability.slice(0, 24)
-                    };
-                    render();
-                }
+                state.weather = { temp: data.current_weather.temperature, code: data.current_weather.weathercode };
+                state.forecast = { times: data.hourly.time.slice(0, 24).map(t => t.split('T')[1]), temps: data.hourly.temperature_2m.slice(0, 24), rains: data.hourly.precipitation_probability.slice(0, 24) };
+                render();
             } catch(e) { state.weather = { error: true }; render(); }
         };
 
         function getWeatherDisplay(weather) {
-            if (!weather || weather === 'loading') return '<span class="animate-pulse text-zinc-500 font-bold">📡 Satélite Meteo...</span>';
-            if (weather.error) return '<span class="text-red-500 font-bold">❌ Error radar</span>';
+            if (!weather || weather === 'loading') return '<span class="animate-pulse text-zinc-500 font-bold">📡 Radar...</span>';
             const icons = { 0: '☀️', 1: '⛅', 2: '⛅', 3: '☁️', 45: '🌫️', 51: '🌧️', 61: '🌧️', 80: '🌦️', 95: '⛈️' };
             return `<span class="text-xl mr-2">${icons[weather.code] || '⛅'}</span> <span class="text-white font-ds font-bold">${weather.temp}°C</span>`;
         }
 
-        // --- ALGORITMOS MATEMÁTICOS DE IGP EXTENSION (SIN INVENTAR NADA) ---
-        function getWear(track, comp, laps, pts, boost) {
+        // --- MATEMÁTICAS EXACTAS iGPLUS ---
+        function getWear(track, comp, laps, pts, leagueLen, boost) {
             const c = circuitsData[track];
+            const multipliers = { 100: 1, 75: 1.25, 50: 1.5, 25: 3 }; 
+            const tyreWearFactors = { 'SS': 2.14, 'S': 1.4, 'M': 1.0, 'H': 0.78, 'I': 1.0, 'W': 1.0 }; 
             
-            // 1. Escala de Distancia (100, 75, 50, 25)
-            const leagueLen = parseInt(state.calc.distance) || 100;
-            const multipliers = { 100: 1, 75: 1.25, 50: 1.5, 25: 3 };
-            const multiplierKey = multipliers[leagueLen] || 1;
-
-            // 2. Control de Temperatura Oficial
-            // Si el clima en vivo falló, usa el input manual
-            const weatherNow = (state.weather && state.weather.temp !== undefined && state.weather !== 'loading' && !state.weather.error) ? state.weather.temp : parseInt(state.calc.temp);
-            const avgSpeed = c.avg || 210; 
-            const optimal = -0.0323 * avgSpeed + 10.9 - (weatherNow / 10);
-            const tyreScale = { SS: optimal - 1, S: optimal, M: optimal + 1, H: optimal + 2, I: optimal + 1, W: optimal + 1 };
-
-            // 3. Diferencia y Decaimiento por Empuje
-            const pushLevel = parseInt(boost) || 3;
-            const diff = tyreScale[comp] - (5 - pushLevel);
-            let pushDecay = 0;
+            const t = (1.29 * Math.pow(pts, -0.0696)) * (0.00527 * c.tyreWear + 0.556) * c.length * (multipliers[leagueLen] || 1.5) * (tyreWearFactors[comp] || 1);
+            const exponent = (-t / 100 * 1.18) * laps;
+            const stint = Math.pow(Math.E, exponent) * 100;
             
-            if (diff >= 1 && diff <= 2) pushDecay = 0.3;
-            else if (diff >= 2 && diff <= 3) pushDecay = 0.5;
-            else if (diff >= 3) pushDecay = 1.5;
-            else if (diff >= 0 && diff <= 1) pushDecay = 0;
-            else if (diff >= -1 && diff <= 0) pushDecay = -0.3;
-            else if (diff >= -2 && diff <= -1) pushDecay = -0.8;
-            else if (diff <= -2) pushDecay = -1.5;
-
-            // 4. Fórmula Exponencial Real
-            const tyreWearFactors = { SS: 2.14, S: 1.4, M: 1, H: 0.78, I: 1, W: 1 };
-            const tyreWear = tyreWearFactors[comp] || 1;
-            
-            const t = (1.29 * Math.pow(pts, -0.0696)) * (0.00527 * c.tyreWear + 0.556) * c.length * multiplierKey * tyreWear;
-
-            // Desgaste base
-            const stintExp = Math.pow(Math.exp(1), (-t / 100 * 1.18) * laps) * 100;
-            
-            // Ajuste por vuelta (calculo de iGPlus)
-            let lapWear = Math.pow(1 - t / 100 + pushDecay / 100, laps) * 100;
-            if (laps > 3 && diff <= -2) {
-                lapWear = Math.pow(1 - t / 100 + pushDecay / 100 - 0.013, laps) * 100;
-            }
-
-            // CORRECCIÓN EXACTA A iGP PLUS: El creador de la extensión cometió un error
-            // en su código original: "const average = ((stint + stint) / 2).toFixed(2);"
-            // Por lo tanto, la extensión SIEMPRE retorna la base e ignora el lapWear.
-            // Para que nuestros números coincidan 100% con la extensión, hacemos exactamente lo mismo:
-            const average = (stintExp + stintExp) / 2;
-            return Math.max(0, average); 
+            return Math.max(0, stint);
         }
 
         function getFuel(track, pts, laps, boost) {
             const c = circuitsData[track];
-            // Ajuste exacto de la extensión iGPlus (Nivel 5 a 1)
             const pushAdj = { '5': 0.02, '4': 0.01, '3': 0, '2': -0.004, '1': -0.007 }[boost] || 0;
-            // Coeficientes exactos del código: DEFAULT_TYRE_COEFFICIENTS = [0.6983736841, -0.08510976572]
             const baseFuelPerKm = 0.6983736841 * Math.pow(pts, -0.08510976572);
             return (baseFuelPerKm + pushAdj) * c.length * laps;
         }
@@ -195,6 +170,7 @@
             return { r: Math.max(1, base.r + adj), w: Math.max(1, base.w), s: Math.max(1, base.s) };
         }
 
+        // --- UI ---
         function render() {
             const root = document.getElementById('app');
             if (!state.isLoggedIn) { renderAuth(root); return; }
@@ -222,15 +198,15 @@
                 ${state.chartUser ? renderChartModal() : ''}
             `;
             attachEvents();
+
             if (state.section === 'strategy') {
                 setTimeout(() => { 
-                    if(window.drawWearChart) window.drawWearChart(); 
+                    window.drawWearChart(); 
                     if(window.drawWeatherChart) window.drawWeatherChart(); 
                 }, 50);
             }
         }
 
-        // --- RESTAURADO: LOGIN DE 3 PASOS ---
         function renderAuth(root) {
             root.innerHTML = `
                 <div class="min-h-screen flex items-center justify-center p-6 bg-black">
@@ -266,50 +242,36 @@
                 
             if(document.getElementById('step1F')) {
                 document.getElementById('step1F').onsubmit = async (e) => {
-                    e.preventDefault();
-                    const u = document.getElementById('uInput').value.trim().toLowerCase();
+                    e.preventDefault(); const u = document.getElementById('uInput').value.trim().toLowerCase();
                     if(!u) return;
                     const snap = await get(ref(db, `perfiles/${u}`));
                     state.username = u;
-                    if (!snap.exists()) {
-                        state.step = 2; state.isNew = true;
-                    } else {
-                        if (snap.val().password === 'ext') { state.step = 3; state.isNew = false; }
-                        else { state.step = 2; state.isNew = false; }
-                    }
+                    if (!snap.exists()) { state.step = 2; state.isNew = true; } 
+                    else { if (snap.val().password === 'ext') { state.step = 3; state.isNew = false; } else { state.step = 2; state.isNew = false; } }
                     render();
                 };
             }
             if(document.getElementById('step2F')) {
                 document.getElementById('step2F').onsubmit = async (e) => {
-                    e.preventDefault();
-                    const p = document.getElementById('pInput').value;
+                    e.preventDefault(); const p = document.getElementById('pInput').value;
                     if(!p) return;
                     const snap = await get(ref(db, `perfiles/${state.username}`));
                     if (state.isNew) {
                         const stats = { puntos:0, temporada:1, victorias:0, podios:0, poles:0, copas:0 };
                         await set(ref(db, `perfiles/${state.username}`), { password: p, stats, pizarra: {}, historial: {} });
-                        state.isLoggedIn = true;
-                        state.showPostRaceModal = true;
+                        state.isLoggedIn = true; state.showPostRaceModal = true;
                     } else {
-                        if(snap.val().password === p) { 
-                            state.isLoggedIn = true; 
-                            state.showPostRaceModal = true;
-                        } else { alert("Contraseña incorrecta."); }
+                        if(snap.val().password === p) { state.isLoggedIn = true; state.showPostRaceModal = true; } else { alert("Contraseña incorrecta."); }
                     }
                     render();
                 };
             }
             if(document.getElementById('step3F')) {
                 document.getElementById('step3F').onsubmit = async (e) => {
-                    e.preventDefault();
-                    const p = document.getElementById('newPass').value;
+                    e.preventDefault(); const p = document.getElementById('newPass').value;
                     if(p.length < 3) return alert("Contraseña muy corta");
                     await update(ref(db, `perfiles/${state.username}`), { password: p });
-                    alert("¡Cuenta activada con éxito!");
-                    state.isLoggedIn = true;
-                    state.showPostRaceModal = true;
-                    render();
+                    alert("¡Cuenta activada con éxito!"); state.isLoggedIn = true; render();
                 };
             }
         }
@@ -360,25 +322,25 @@
             const trackImg = circuitsData[state.calc.circuit].img;
 
             return `
-            <div class="glass-panel p-6 rounded-2xl h-fit space-y-6">
+            <div class="glass-panel p-6 rounded-2xl h-fit space-y-6 border-t-2 border-violet-600">
                 <div class="text-center">
-                    <h2 class="font-ds text-xl uppercase italic text-violet-500 mb-1">Setup iGPlus</h2>
+                    <h2 class="font-ds text-xl uppercase italic text-white mb-1">Setup iGPlus</h2>
                     <p class="text-[8px] text-zinc-500 uppercase font-bold tracking-[0.2em] mb-4">${trackName}</p>
                     <div class="w-full flex items-center justify-center mb-6">
-                        <img src="${trackImg}" class="w-full h-auto max-h-48 object-contain drop-shadow-lg" alt="Mapa">
+                        <img src="${trackImg}" class="w-full h-auto max-h-56 object-contain drop-shadow-lg" alt="Mapa">
                     </div>
                 </div>
 
-                <div class="flex justify-center items-center gap-4 bg-zinc-900/50 p-4 rounded-xl border border-zinc-800">
+                <div class="flex justify-center items-center gap-4 bg-zinc-900/50 p-4 rounded-xl">
                     <span class="text-[9px] text-zinc-400 font-bold uppercase">Altura Piloto:</span>
-                    <input type="number" value="${state.setupCalc.height}" onchange="window.upSetupH(this.value)" class="w-20 p-2.5 bg-black border border-zinc-800 text-violet-500 text-center font-bold rounded-lg outline-none shadow-inner">
+                    <input type="number" value="${state.setupCalc.height}" onchange="window.upSetupH(this.value)" class="w-20 p-2.5 bg-black border border-zinc-800 text-violet-500 text-center font-bold rounded outline-none">
                 </div>
-                <div class="overflow-hidden rounded-2xl border border-zinc-800">
+                <div class="overflow-hidden rounded-xl border border-zinc-800">
                     <table class="w-full text-center text-[10px]">
                         <tr class="bg-black text-zinc-500 font-bold uppercase text-[8px] border-b border-zinc-800">
                             <th class="p-3 text-left">LIGA</th><th class="p-3">ALERÓN</th><th class="p-3">ALTURA</th><th class="p-3">SUSP.</th>
                         </tr>
-                        <tr class="border-l-2 border-violet-500 bg-violet-600/10"><td class="p-4 text-left font-bold text-violet-500">ELITE (O)</td><td class="text-white font-ds text-lg">${s1.w}</td><td class="text-white font-ds text-lg">${s1.r}</td><td class="text-white font-ds text-lg">${s1.s}</td></tr>
+                        <tr><td class="p-4 text-left font-bold text-violet-500 border-l-4 border-violet-600 bg-violet-600/10">ELITE (O)</td><td class="text-white font-ds text-lg">${s1.w}</td><td class="text-white font-ds text-lg">${s1.r}</td><td class="text-white font-ds text-lg">${s1.s}</td></tr>
                         <tr class="border-t border-zinc-800/30"><td class="p-4 text-left font-bold text-zinc-400">PRO (P)</td><td class="text-zinc-200 font-ds text-lg">${s2.w}</td><td class="text-zinc-200 font-ds text-lg">${s2.r}</td><td class="text-zinc-200 font-ds text-lg">${s2.s}</td></tr>
                         <tr class="border-t border-zinc-800/30"><td class="p-4 text-left font-bold text-orange-800">ROOKIE (B)</td><td class="text-zinc-400 font-ds text-lg">${s3.w}</td><td class="text-zinc-400 font-ds text-lg">${s3.r}</td><td class="text-zinc-400 font-ds text-lg">${s3.s}</td></tr>
                     </table>
@@ -391,65 +353,87 @@
             if(state.section === 'chat') return renderChat();
             if(state.section === 'setup') return renderSetup();
             
+            const numStints = state.calc.stints.length;
+            const numPits = Math.max(0, numStints - 1);
             const totalLaps = state.calc.stints.reduce((sum, s) => sum + parseInt(s.laps || 0), 0);
             const totalFuel = state.calc.stints.reduce((sum, s) => sum + getFuel(state.calc.circuit, state.calc.fPoints, s.laps, s.boost), 0);
-            const trackLaps = Math.round(circuitsData[state.calc.circuit].laps * (state.calc.distance / 100)); // CÁLCULO DE DISTANCIA RESTAURADO
-            const trackImg = circuitsData[state.calc.circuit].img;
+            
+            const cData = circuitsData[state.calc.circuit];
+            
+            // --- CORRECCIÓN EXACTA DE VUELTAS SEGÚN MATRIZ DE iGPLUS ---
+            const lenIndex = { '100': 0, '75': 1, '50': 2, '25': 3 }[state.calc.distance] || 0;
+            const fCode = flagCodes[state.calc.circuit] || 'un';
+            const trackLaps = (raceLengthMap[fCode] && raceLengthMap[fCode][lenIndex] !== undefined) ? raceLengthMap[fCode][lenIndex] : Math.round(cData.laps * (state.calc.distance / 100));
+            // ---------------------------------------------------------
+            
+            const trackImg = cData.img;
+            const lostTimeInPits = numPits * cData.pitTime;
 
             return `
                 <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
                     <div class="glass-panel p-6 rounded-2xl h-fit space-y-6">
                         <div>
-                            <label class="text-[9px] text-zinc-500 font-bold uppercase block mb-2">Circuito</label>
+                            <label class="text-[9px] text-zinc-500 font-bold uppercase block mb-2 tracking-widest">Circuito</label>
                             <select id="selTrack" class="w-full p-3 rounded-lg bg-zinc-900 border border-zinc-800 text-xs uppercase font-bold text-white outline-none">
                                 ${Object.keys(circuitsData).map(k => `<option value="${k}" ${state.calc.circuit===k?'selected':''}>${circuitsData[k].name}</option>`).join('')}
                             </select>
-                            
-                            <!-- WIDGET CLIMA EN VIVO RESTAURADO -->
-                            <div id="weatherWidget" class="mt-3 bg-zinc-900/50 border border-zinc-800/50 rounded-xl p-3 flex items-center justify-center text-xs shadow-inner">
+
+                            <div id="weatherWidget" class="mt-3 bg-zinc-900/50 border border-zinc-800/50 rounded-lg p-2.5 flex items-center justify-center text-xs shadow-inner">
                                 ${getWeatherDisplay(state.weather)}
                             </div>
 
                             <div class="mt-4 w-full flex items-center justify-center">
-                                <img src="${trackImg}" class="w-full h-auto max-h-48 object-contain drop-shadow-lg">
+                                <img src="${trackImg}" alt="Mapa del circuito" class="w-full h-auto max-h-48 object-contain drop-shadow-lg">
                             </div>
                         </div>
                         <div class="grid grid-cols-2 gap-2 mb-2">
-                            <div class="space-y-1"><span class="text-[8px] text-zinc-600 uppercase font-bold ml-1">Diseño Neum.</span><input id="numT" type="number" value="${state.calc.tPoints}" class="w-full p-3 rounded-lg bg-black border border-zinc-800 text-center text-violet-500 font-bold outline-none"></div>
-                            <div class="space-y-1"><span class="text-[8px] text-zinc-600 uppercase font-bold ml-1">Diseño Comb.</span><input id="numF" type="number" value="${state.calc.fPoints}" class="w-full p-3 rounded-lg bg-black border border-zinc-800 text-center text-blue-400 font-bold outline-none"></div>
+                            <div class="space-y-1"><span class="text-[8px] text-zinc-600 uppercase font-bold ml-1">Diseño Neum.</span><input id="numT" type="number" value="${state.calc.tPoints}" class="w-full p-3 rounded-lg bg-black border border-zinc-800 text-center text-violet-500 font-bold outline-none shadow-inner"></div>
+                            <div class="space-y-1"><span class="text-[8px] text-zinc-600 uppercase font-bold ml-1">Diseño Comb.</span><input id="numF" type="number" value="${state.calc.fPoints}" class="w-full p-3 rounded-lg bg-black border border-zinc-800 text-center text-blue-400 font-bold outline-none shadow-inner"></div>
                         </div>
                         <div class="grid grid-cols-2 gap-2 mb-2">
                             <div class="space-y-1">
                                 <span class="text-[8px] text-zinc-600 uppercase font-bold ml-1">Distancia</span>
                                 <select id="distSelect" class="w-full p-3 rounded-lg bg-black border border-zinc-800 text-center text-white font-bold outline-none">
-                                    <option value="100" ${state.calc.distance==100?'selected':''}>100%</option>
-                                    <option value="75" ${state.calc.distance==75?'selected':''}>75%</option>
-                                    <option value="50" ${state.calc.distance==50?'selected':''}>50%</option>
-                                    <option value="25" ${state.calc.distance==25?'selected':''}>25%</option>
+                                    <option value="100" ${state.calc.distance=="100"?'selected':''}>100%</option>
+                                    <option value="75" ${state.calc.distance=="75"?'selected':''}>75%</option>
+                                    <option value="50" ${state.calc.distance=="50"?'selected':''}>50%</option>
+                                    <option value="25" ${state.calc.distance=="25"?'selected':''}>25%</option>
                                 </select>
                             </div>
-                            <div class="space-y-1"><span class="text-[8px] text-zinc-600 uppercase font-bold ml-1">Temp (°C)</span><input id="tempInput" type="number" value="${state.calc.temp}" class="w-full p-3 rounded-lg bg-black border border-zinc-800 text-center text-red-400 font-bold outline-none"></div>
+                            <div class="space-y-1">
+                                <span class="text-[8px] text-zinc-600 uppercase font-bold ml-1">Radar (°C)</span>
+                                <div class="w-full p-3 rounded-lg bg-zinc-900 border border-zinc-800 text-center text-red-400 font-bold">${state.weather ? state.weather.temp : '--'}</div>
+                            </div>
                         </div>
                         <div class="pt-4 border-t border-zinc-800">
-                             <div class="flex justify-between items-end">
-                                <div><p class="text-[18px] font-ds ${totalLaps > trackLaps ? 'text-red-500' : 'text-white'}">${totalLaps} / ${trackLaps}</p><p class="text-[8px] text-zinc-600 uppercase font-bold">Vueltas Totales</p></div>
+                             <div class="flex justify-between items-end mb-3">
+                                <div><p class="text-[18px] font-ds ${totalLaps > trackLaps ? 'text-red-500' : 'text-white'}">${totalLaps} / ${trackLaps}</p><p class="text-[8px] text-zinc-600 uppercase font-bold">Vueltas</p></div>
                                 <div class="text-right"><p class="text-[18px] font-ds text-blue-400">${totalFuel.toFixed(1)}L</p><p class="text-[8px] text-zinc-600 uppercase font-bold">Litros Totales</p></div>
+                             </div>
+                             <div class="flex justify-between items-end bg-zinc-900/50 p-2 rounded-lg border border-zinc-800">
+                                <div><p class="text-[14px] font-ds text-zinc-300">${numPits}</p><p class="text-[8px] text-zinc-500 uppercase font-bold">Paradas</p></div>
+                                <div class="text-right"><p class="text-[14px] font-ds text-orange-500">~${lostTimeInPits}s</p><p class="text-[8px] text-zinc-500 uppercase font-bold">Tiempo en Pits</p></div>
                              </div>
                         </div>
                     </div>
                     <div class="lg:col-span-3 space-y-4">
-                        <div class="flex justify-between items-center"><h2 class="font-ds text-lg uppercase italic text-violet-500">Sugerencias de estrategia</h2><button id="addStint" class="bg-violet-600 text-white px-4 py-2 rounded-lg text-[10px] font-bold shadow-lg shadow-violet-900/20">Añadir Stint</button></div>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="flex justify-between items-center"><h2 class="font-ds text-lg uppercase italic text-violet-500">Sugerencias de estrategia</h2>
+                            <div class="flex gap-2">
+                                <button onclick="window.copyRadio()" class="bg-zinc-800 text-zinc-300 hover:text-white hover:bg-zinc-700 px-4 py-2 rounded-lg text-[10px] font-bold uppercase transition-colors border border-zinc-700">Copiar Estrategia</button>
+                                <button id="addStint" class="bg-violet-600 text-white px-4 py-2 rounded-lg text-[10px] font-bold uppercase shadow-lg shadow-violet-900/20">Añadir Stint</button>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                             ${state.calc.stints.map((s, i) => {
-                                const wear = getWear(state.calc.circuit, s.compound, s.laps, state.calc.tPoints, s.boost);
+                                const wear = getWear(state.calc.circuit, s.compound, s.laps, state.calc.tPoints, state.calc.distance, s.boost);
                                 const fuel = getFuel(state.calc.circuit, state.calc.fPoints, s.laps, s.boost);
                                 return `
                                 <div class="glass-panel p-5 rounded-xl border-l-4 border-violet-600 relative">
                                     <button onclick="window.delS(${i})" class="absolute top-4 right-4 text-zinc-700 hover:text-red-500">✕</button>
                                     <div class="flex justify-center gap-2 mb-6">${['SS','S','M','H','I','W'].map(c => `<button onclick="window.upS(${i},'compound','${c}')" class="tyre-btn compound-${c.toLowerCase()} ${s.compound===c?'active':''}">${c}</button>`).join('')}</div>
                                     <div class="grid grid-cols-2 gap-3">
-                                        <div><span class="text-[7px] text-zinc-600 uppercase font-bold block mb-1">Vueltas</span><input type="number" value="${s.laps}" onchange="window.upS(${i},'laps',this.value)" class="w-full p-2.5 rounded bg-black border border-zinc-800 text-center font-bold text-white outline-none"></div>
-                                        <div><span class="text-[7px] text-zinc-600 uppercase font-bold block mb-1">Empuje</span><select onchange="window.upS(${i},'boost',this.value)" class="w-full p-2.5 rounded bg-black border border-zinc-800 text-[10px] uppercase font-bold text-center outline-none text-white">${[1,2,3,4,5].map(v => `<option value="${v}" ${s.boost==v+''?'selected':''}>Nivel ${v}</option>`).join('')}</select></div>
+                                        <div><span class="text-[7px] text-zinc-600 uppercase font-bold block mb-1">Vueltas</span><input type="number" value="${s.laps}" onchange="window.upS(${i},'laps',this.value)" class="w-full p-2.5 rounded bg-black border border-zinc-800 text-center font-bold text-white outline-none shadow-inner"></div>
+                                        <div><span class="text-[7px] text-zinc-600 uppercase font-bold block mb-1">Empuje</span><select onchange="window.upS(${i},'boost',this.value)" class="w-full p-2.5 rounded bg-black border border-zinc-800 text-[10px] uppercase font-bold text-center outline-none text-white shadow-inner">${[1,2,3,4,5].map(v => `<option value="${v}" ${s.boost==v+''?'selected':''}>Nivel ${v}</option>`).join('')}</select></div>
                                     </div>
                                     <div class="mt-4 pt-4 border-t border-zinc-900/50 flex justify-between">
                                         <div><p class="text-[7px] text-zinc-600 uppercase font-bold">Vida Final</p><p class="font-bold text-base ${wear<20?'text-red-500':'text-green-500'} font-ds">${wear.toFixed(1)}%</p></div>
@@ -458,24 +442,15 @@
                                 </div>`;
                             }).join('')}
                         </div>
-
-                        <!-- GRÁFICOS RESTAURADOS -->
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
-                            <div class="glass-panel p-4 rounded-xl h-48 w-full border border-zinc-800/50 relative">
-                                <span class="absolute top-3 left-4 text-[9px] text-zinc-500 font-bold uppercase tracking-widest">Telemetría de Desgaste</span>
-                                <canvas id="wearChart"></canvas>
-                            </div>
-                            <div class="glass-panel p-4 rounded-xl h-48 w-full border border-zinc-800/50 relative">
-                                <span class="absolute top-3 left-4 text-[9px] text-zinc-500 font-bold uppercase tracking-widest">Pronóstico Meteorológico (24h)</span>
-                                <canvas id="weatherChart"></canvas>
-                            </div>
+                            <div class="glass-panel p-4 rounded-xl h-48 border border-zinc-800/50 relative"><span class="absolute top-3 left-4 text-[8px] text-zinc-500 font-bold uppercase tracking-widest">Telemetría Neumáticos</span><canvas id="wearChart"></canvas></div>
+                            <div class="glass-panel p-4 rounded-xl h-48 border border-zinc-800/50 relative"><span class="absolute top-3 left-4 text-[8px] text-zinc-500 font-bold uppercase tracking-widest">Pronóstico Meteorológico (24h)</span><canvas id="weatherChart"></canvas></div>
                         </div>
-
                     </div>
                 </div>`;
         }
 
-        // --- FUNCIONES DE DIBUJO DE GRÁFICAS RESTAURADAS ---
+        // --- GRÁFICAS ---
         window.wearChartInst = null;
         window.drawWearChart = () => {
             const ctx = document.getElementById('wearChart'); if(!ctx) return;
@@ -483,9 +458,9 @@
             let labels = [0], data = [100], colors = [], curLap = 0;
             const tC = { 'SS': '#ef4444', 'S': '#eab308', 'M': '#f4f4f5', 'H': '#f97316', 'I': '#22c55e', 'W': '#3b82f6' };
             state.calc.stints.forEach((s, idx) => {
-                const totalW = 100 - getWear(state.calc.circuit, s.compound, s.laps, state.calc.tPoints, s.boost);
+                const totalW = 100 - getWear(state.calc.circuit, s.compound, s.laps, state.calc.tPoints, state.calc.distance, s.boost);
                 const wPL = totalW / (s.laps || 1); let cW = 100;
-                for(let i=1; i<=s.laps; i++){ curLap++; cW-=wPL; labels.push(curLap); data.push(Math.max(0, cW)); colors.push(tC[s.compound]); }
+                for(let i=1; i<=s.laps; i++){ curLap++; cW-=wPL; labels.push(curLap); data.push(Math.max(0, cW)); colors.push(tC[s.compound] || '#fff'); }
                 if(idx < state.calc.stints.length - 1) { labels.push('PIT'); data.push(100); colors.push('#000'); }
             });
             window.wearChartInst = new Chart(ctx, { type: 'line', data: { labels, datasets: [{ data, borderColor: '#9333ea', borderWidth: 1.5, pointBackgroundColor: ['#9333ea', ...colors], pointRadius: 3, fill: true, backgroundColor: 'rgba(147, 51, 234, 0.05)', tension: 0.1 }] }, options: { responsive: true, maintainAspectRatio: false, scales: { y: { min:0, max:100, ticks: {color: '#555', font:{size:8}}}, x: { ticks: {color: '#555', font:{size:8}}} }, plugins: { legend: { display: false } } } });
@@ -496,6 +471,11 @@
             const ctx = document.getElementById('weatherChart'); if(!ctx || !state.forecast) return;
             if(window.weatherChartInst) window.weatherChartInst.destroy();
             
+            const track = circuitsData[state.calc.circuit];
+            const latStr = track.lat >= 0 ? `${track.lat}°N` : `${Math.abs(track.lat)}°S`;
+            const lonStr = track.lon >= 0 ? `${track.lon}°E` : `${Math.abs(track.lon)}°W`;
+            const subtitle = `${state.weather.temp}°C - ${track.name} ${latStr} ${lonStr}`;
+
             window.weatherChartInst = new Chart(ctx, {
                 type: 'line',
                 data: {
@@ -506,8 +486,13 @@
                     ]
                 },
                 options: {
-                    responsive: true, maintainAspectRatio: false, interaction: { mode: 'index', intersect: false },
-                    plugins: { legend: { display: false } },
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: { mode: 'index', intersect: false },
+                    plugins: {
+                        legend: { display: true, position: 'right', labels: { color: '#a1a1aa', boxWidth: 10, font: { size: 9 } } },
+                        title: { display: true, text: subtitle, color: '#71717a', font: { size: 10, weight: 'normal' }, padding: { top: 0, bottom: 10 } }
+                    },
                     scales: {
                         y: { position: 'left', grid: { color: 'rgba(255,255,255,0.05)', drawBorder: false }, ticks: { display: false } },
                         y1: { position: 'right', min: 0, max: 100, grid: { display: false, drawBorder: false }, ticks: { display: false } },
@@ -517,7 +502,6 @@
             });
         };
 
-        // --- RESTAURADOS: CONTROLES ADMIN DE LA PIZARRA ---
         function renderRanking(isAdmin) {
             const tabs = ['puntos', 'temporada', 'victorias', 'podios', 'poles', 'copas'];
             const list = Object.entries(state.users)
@@ -525,9 +509,7 @@
                 .map(([id, d]) => ({ id, ...d, score: d.stats[state.rankingTab], temporada: d.stats.temporada || 1 }))
                 .sort((a,b) => b.score - a.score);
 
-            const listWithTrends = list.map((u) => {
-                return { ...u, trend: state.users[u.id]?.stats?.[`trend_${state.rankingTab}`] || 0 };
-            });
+            const listWithTrends = list.map((u) => { return { ...u, trend: state.users[u.id]?.stats?.[`trend_${state.rankingTab}`] || 0 }; });
 
             return `
                 <div class="space-y-4">
@@ -542,29 +524,28 @@
                             <tr class="bg-zinc-900 text-zinc-500 uppercase text-[8px]">
                                 <th class="p-5">Pos</th>
                                 <th class="p-5">Manager</th>
+                                <th class="p-5 text-center">Dif</th>
                                 <th class="p-5 text-right uppercase">${state.rankingTab}</th>
                                 ${isAdmin?'<th class="p-5 text-center">Acción</th>':''}
                             </tr>
                             ${listWithTrends.map((u, i) => {
                                 let trendIcon = '<span class="text-orange-500 text-[10px] ml-1.5 font-black" title="Mantiene Posición">-</span>';
                                 let rowBgStyle = 'background-color: rgba(249, 115, 22, 0.15);';
-
-                                if (u.trend === 1) {
-                                    trendIcon = '<span class="text-green-500 text-[10px] ml-1.5 font-black" title="Sube Posición">▲</span>';
-                                    rowBgStyle = 'background-color: rgba(34, 197, 94, 0.15);';
-                                } else if (u.trend === -1) {
-                                    trendIcon = '<span class="text-red-500 text-[10px] ml-1.5 font-black" title="Baja Posición">▼</span>';
-                                    rowBgStyle = 'background-color: rgba(239, 68, 68, 0.15);';
-                                }
+                                if (u.trend === 1) { trendIcon = '<span class="text-green-500 text-[10px] ml-1.5 font-black" title="Sube Posición">▲</span>'; rowBgStyle = 'background-color: rgba(34, 197, 94, 0.15);'; } 
+                                else if (u.trend === -1) { trendIcon = '<span class="text-red-500 text-[10px] ml-1.5 font-black" title="Baja Posición">▼</span>'; rowBgStyle = 'background-color: rgba(239, 68, 68, 0.15);'; }
 
                                 const safeDomId = 'in_' + u.id.replace(/[^a-zA-Z0-9]/g, '_');
                                 const safeNameParam = u.id.replace(/'/g, "\\'");
+                                
+                                let difText = "-";
+                                if (i > 0) { const diff = listWithTrends[i-1].score - u.score; difText = diff === 0 ? "0" : `-${Math.round(diff * 10) / 10}`; }
 
                                 return `
                                 <tr class="border-b border-zinc-900/50 transition-colors" style="${rowBgStyle}">
                                     <td class="p-5 font-bold text-zinc-100 whitespace-nowrap">#${i+1} ${trendIcon}</td>
-                                    <td class="p-5 uppercase font-bold text-zinc-100 cursor-pointer hover:text-violet-400 transition-colors" onclick="window.openChart('${safeNameParam}')" title="Ver Estadísticas VS Equipo">${u.id}</td>
-                                    <td class="p-5 text-right text-violet-500 font-bold font-ds text-sm">${u.score}</td>
+                                    <td class="p-5 uppercase font-bold text-zinc-100 cursor-pointer hover:text-violet-500 transition-colors" onclick="window.openChart('${safeNameParam}')" title="Ver Perfil e Historial">${u.id}</td>
+                                    <td class="p-5 text-center text-zinc-400 font-ds text-[10px]">${difText}</td>
+                                    <td class="p-5 text-right text-violet-600 font-bold font-ds text-sm">${u.score}</td>
                                     ${isAdmin ? `
                                     <td class="p-5 text-center flex justify-center items-center gap-1">
                                         <input id="${safeDomId}" type="number" class="w-12 bg-black border border-zinc-800 rounded-md p-1.5 text-center text-[10px] text-white" placeholder="+0">
@@ -578,17 +559,16 @@
                         </table>
                     </div>
 
-                    <!-- PIZARRA DE TEMPORADA CON CONTROLES RESTAURADOS -->
                     <div class="glass-panel rounded-3xl overflow-hidden shadow-2xl mt-8 border-t border-violet-600/30">
                         <div class="p-5 border-b border-zinc-800/50 bg-[#141417] flex flex-col md:flex-row justify-between items-center gap-4">
                             <h3 class="font-ds text-sm text-white uppercase tracking-widest shrink-0">Pizarra de Temporada (Actual)</h3>
                             <div class="flex gap-2 w-full md:w-auto items-center">
                                 ${isAdmin ? `
                                 <form id="addBoardM" class="flex gap-2 w-full">
-                                    <input name="n" placeholder="ESCRIBE MANAGER..." class="bg-black border border-zinc-800 p-2.5 rounded-xl text-[10px] text-white outline-none focus:border-violet-600 uppercase w-full font-bold" required autocomplete="off">
+                                    <input name="n" placeholder="ESCRIBE MANAGER..." class="bg-black border border-zinc-800 p-2.5 rounded-xl text-[10px] text-white outline-none focus:border-violet-600 uppercase w-full font-bold" required>
                                     <button class="bg-zinc-800 text-white px-4 rounded-xl font-bold text-[10px] uppercase transition-colors hover:bg-zinc-700">AÑADIR</button>
                                 </form>
-                                <button onclick="window.archiveSeason()" class="bg-blue-600 text-white px-4 py-2.5 rounded-xl text-[9px] font-bold uppercase transition-colors hover:bg-blue-500 whitespace-nowrap">ARCHIVAR TEMPORADA</button>
+                                <button onclick="window.archiveSeason()" class="bg-blue-600 text-white px-4 py-2.5 rounded-xl text-[9px] font-bold uppercase transition-colors hover:bg-blue-500 whitespace-nowrap">ARCHIVAR</button>
                                 ` : ''}
                             </div>
                         </div>
@@ -599,8 +579,7 @@
                                         <th class="p-3 text-left sticky left-0 bg-[#141417] z-10 shadow-[4px_0_10px_rgba(0,0,0,0.5)]">Piloto</th>
                                         ${Object.keys(circuitsData).map(tc => {
                                             const flagCodes = {"MAL":"my", "AUT":"at", "UAE":"ae", "JPN":"jp", "BRA":"br", "NED":"nl", "CAN":"ca", "ESP":"es", "SIN":"sg", "GER":"de", "TUR":"tr", "AUS":"au", "BEL":"be", "ITA":"it", "MEX":"mx", "FRA":"fr", "HUN":"hu", "AZE":"az", "USA":"us", "GBR":"gb", "CHN":"cn", "MON":"mc", "BHR":"bh", "RUS":"ru", "EUR":"eu"};
-                                            const fc = flagCodes[tc] || 'un';
-                                            return `<th class="p-3 min-w-[50px]"><img src="https://flagcdn.com/w20/${fc}.png" class="w-4 h-4 rounded-full object-cover mx-auto mb-1 opacity-80" onerror="this.style.display='none'"><span class="text-[8px]">${tc}</span></th>`;
+                                            return `<th class="p-3 min-w-[50px]"><img src="https://flagcdn.com/w20/${flagCodes[tc]||'un'}.png" class="w-4 h-4 rounded-full object-cover mx-auto mb-1 opacity-80" onerror="this.style.display='none'"><span class="text-[8px]">${tc}</span></th>`;
                                         }).join('')}
                                     </tr>
                                 </thead>
@@ -620,10 +599,9 @@
                                             ${Object.keys(circuitsData).map(tc => {
                                                 const res = u.pizarra && u.pizarra[tc] ? u.pizarra[tc] : '-';
                                                 let color = 'text-zinc-600';
-                                                if(res === 'P1') color = 'text-violet-400 drop-shadow-[0_0_5px_rgba(147,51,234,0.5)] text-sm';
+                                                if(res === 'P1') color = 'text-yellow-500 drop-shadow-[0_0_5px_rgba(234,179,8,0.5)] text-sm';
                                                 else if(res.startsWith('P') && res.length <= 3) color = 'text-zinc-200';
                                                 else if(res === 'DNF') color = 'text-red-500';
-                                                
                                                 const clickEvent = isAdmin ? `onclick="window.setTrackResult('${safeNameParam}', '${tc}')" class="cursor-pointer hover:bg-zinc-800 rounded transition-colors"` : '';
                                                 return `<td class="p-3 font-ds ${color}" ${clickEvent}>${res}</td>`;
                                             }).join('')}
@@ -636,73 +614,29 @@
                 </div>`;
         }
 
-        // --- RESTAURADO: HISTORIAL EN EL MODAL DE CHART ---
         function renderChartModal() {
             const otherUsers = Object.keys(state.users).filter(u => u !== state.chartUser);
             const u = state.users[state.chartUser];
             if(!u) return '';
 
-            const flagCodes = {"MAL":"my", "AUT":"at", "UAE":"ae", "JPN":"jp", "BRA":"br", "NED":"nl", "CAN":"ca", "ESP":"es", "SIN":"sg", "GER":"de", "TUR":"tr", "AUS":"au", "BEL":"be", "ITA":"it", "MEX":"mx", "FRA":"fr", "HUN":"hu", "AZE":"az", "USA":"us", "GBR":"gb", "CHN":"cn", "MON":"mc", "BHR":"bh", "RUS":"ru", "EUR":"eu"};
-
             let historyHtml = '<p class="text-zinc-500 text-[10px] uppercase font-bold text-center py-4">No hay temporadas archivadas aún.</p>';
             if (u.historial && Object.keys(u.historial).length > 0) {
                 historyHtml = Object.entries(u.historial).map(([tempName, tracks]) => {
                     const tracksHtml = Object.entries(tracks).map(([tc, res]) => {
-                        const colorClass = res === 'P1' ? 'text-violet-400 drop-shadow-[0_0_3px_rgba(147,51,234,0.5)]' : (res === 'DNF' ? 'text-red-500' : 'text-zinc-300');
+                        const colorClass = res === 'P1' ? 'text-yellow-500 drop-shadow-[0_0_3px_rgba(234,179,8,0.5)]' : (res === 'DNF' ? 'text-red-500' : 'text-zinc-300');
+                        const flagCodes = {"MAL":"my", "AUT":"at", "UAE":"ae", "JPN":"jp", "BRA":"br", "NED":"nl", "CAN":"ca", "ESP":"es", "SIN":"sg", "GER":"de", "TUR":"tr", "AUS":"au", "BEL":"be", "ITA":"it", "MEX":"mx", "FRA":"fr", "HUN":"hu", "AZE":"az", "USA":"us", "GBR":"gb", "CHN":"cn", "MON":"mc", "BHR":"bh", "RUS":"ru", "EUR":"eu"};
                         const fc = flagCodes[tc] || 'un';
-                        return `
-                            <div class="bg-zinc-900/50 p-2 rounded-lg border border-zinc-800 flex justify-between items-center shadow-inner">
-                                <div class="flex items-center gap-1.5">
-                                    <img src="https://flagcdn.com/w20/${fc}.png" class="w-3.5 h-3.5 rounded-full opacity-80" onerror="this.style.display='none'">
-                                    <span class="text-[8px] text-zinc-400 font-bold uppercase tracking-wider">${tc}</span>
-                                </div>
-                                <span class="font-ds text-[10px] font-bold ${colorClass}">${res}</span>
-                            </div>`;
+                        return `<div class="bg-zinc-900/50 p-2 rounded-lg border border-zinc-800 flex justify-between items-center"><div class="flex items-center gap-1.5"><img src="https://flagcdn.com/w20/${fc}.png" class="w-3.5 h-3.5 rounded-full opacity-80" onerror="this.style.display='none'"><span class="text-[8px] text-zinc-400 font-bold uppercase tracking-wider">${tc}</span></div><span class="font-ds text-[10px] font-bold ${colorClass}">${res}</span></div>`;
                     }).join('');
-
-                    return `
-                    <div class="mt-6 border-l-2 border-zinc-800 pl-4">
-                        <h4 class="text-violet-500 font-ds text-xs uppercase mb-3">${tempName}</h4>
-                        <div class="grid grid-cols-3 sm:grid-cols-4 gap-3">
-                            ${tracksHtml}
-                        </div>
-                    </div>`;
+                    return `<div class="mt-6 border-l-2 border-zinc-800 pl-4"><h4 class="text-yellow-600 font-ds text-xs uppercase mb-3">${tempName}</h4><div class="grid grid-cols-3 sm:grid-cols-4 gap-3">${tracksHtml}</div></div>`;
                 }).join('');
             }
 
-            return `
-            <div class="fixed inset-0 bg-black/90 z-[100] flex items-center justify-center p-6 backdrop-blur-sm">
-                <div class="glass-panel p-8 rounded-[2.5rem] w-full max-w-md text-center border-t-2 border-violet-600 relative shadow-2xl flex flex-col max-h-[90vh]">
-                    <button onclick="window.closeChart()" class="absolute top-5 right-6 text-zinc-500 hover:text-white font-bold text-lg transition-colors">✕</button>
-                    <h3 class="font-ds text-violet-500 mb-1 italic uppercase text-2xl tracking-tighter">${state.chartUser}</h3>
-                    <div class="text-[9px] text-zinc-500 font-bold uppercase tracking-widest mb-6">Perfil Oficial del Piloto</div>
-                    
-                    <div class="overflow-y-auto no-scrollbar flex-grow text-left space-y-6">
-                        <div class="bg-black/40 rounded-2xl border border-zinc-800/50 p-5">
-                            <div class="mb-5 flex justify-between items-center gap-3">
-                                <span class="font-ds text-sm text-white uppercase tracking-widest">Estadísticas</span>
-                                <select onchange="window.updateCompare(this.value)" class="bg-black border border-zinc-800 text-white text-[9px] p-2 rounded-lg outline-none focus:border-violet-600 uppercase font-bold cursor-pointer">
-                                    <option value="">-- VS PROMEDIO EQUIPO --</option>
-                                    ${otherUsers.map(uid => `<option value="${uid}" ${state.compareUser === uid ? 'selected' : ''}>VS ${uid}</option>`).join('')}
-                                </select>
-                            </div>
-                            <div id="statsBarsContainer" class="w-full flex flex-col gap-4"></div>
-                        </div>
-
-                        <!-- HISTORIAL RESTAURADO -->
-                        <div class="bg-black/40 rounded-2xl border border-zinc-800/50 p-5">
-                            <h3 class="font-ds text-sm text-white uppercase tracking-widest border-b border-zinc-800 pb-3 mb-2">Historial de Carreras (Archivo)</h3>
-                            ${historyHtml}
-                        </div>
-                    </div>
-                </div>
-            </div>`;
+            return `<div class="fixed inset-0 bg-black/90 z-[100] flex items-center justify-center p-4 backdrop-blur-sm"><div class="glass-panel p-6 md:p-8 rounded-[2.5rem] w-full max-w-2xl text-center border-t-2 border-violet-600 relative shadow-2xl flex flex-col max-h-[90vh]"><button onclick="window.closeChart()" class="absolute top-5 right-6 text-zinc-500 hover:text-white font-bold text-lg transition-colors">✕</button><h3 class="font-ds text-violet-500 mb-1 italic uppercase text-2xl tracking-tighter">${state.chartUser}</h3><div class="text-[9px] text-zinc-500 font-bold uppercase tracking-widest mb-6">Perfil Oficial del Piloto</div><div class="overflow-y-auto no-scrollbar flex-grow text-left space-y-6"><div class="bg-black/40 rounded-2xl border border-zinc-800/50 p-5"><div class="mb-5 flex justify-between items-center gap-3"><span class="font-ds text-sm text-white uppercase tracking-widest">Estadísticas</span><select onchange="window.updateCompare(this.value)" class="bg-black border border-zinc-800 text-white text-[9px] p-2 rounded-lg outline-none focus:border-violet-600 uppercase font-bold cursor-pointer"><option value="">-- VS PROMEDIO EQUIPO --</option>${otherUsers.map(uid => `<option value="${uid}" ${state.compareUser === uid ? 'selected' : ''}>VS ${uid}</option>`).join('')}</select></div><div id="statsBarsContainer" class="w-full flex flex-col gap-4"></div></div><div class="bg-black/40 rounded-2xl border border-zinc-800/50 p-5"><h3 class="font-ds text-sm text-white uppercase tracking-widest border-b border-zinc-800 pb-3 mb-2">Historial de Carreras (Archivo)</h3>${historyHtml}</div></div></div></div>`;
         }
 
         function renderChat() {
-            return `<div class="flex flex-col h-[70vh] glass-panel rounded-3xl overflow-hidden border border-zinc-800"><div id="chatBox" class="flex-grow p-5 overflow-y-auto space-y-4 no-scrollbar">
-                ${state.messages.map(m => `<div class="flex flex-col ${m.u === state.username ? 'items-end' : 'items-start'}"><span class="text-[7px] font-bold text-zinc-600 uppercase mb-1 ml-1 mr-1">${m.u}</span><div class="p-3.5 rounded-2xl text-xs max-w-[80%] ${m.u === state.username ? 'bg-violet-600 text-white' : 'bg-zinc-900 text-white border border-zinc-800'}">${m.t}</div></div>`).join('')}
-                </div><form id="chatF" class="p-4 bg-zinc-900/80 border-t border-zinc-800/50 flex gap-2"><input name="m" placeholder="Escribe al equipo..." class="flex-grow bg-black p-3.5 rounded-2xl text-xs outline-none focus:border-violet-600 text-white" autocomplete="off"><button class="bg-violet-600 text-white px-6 rounded-2xl font-bold text-[10px] uppercase">Enviar</button></form></div>`;
+            return `<div class="flex flex-col h-[70vh] glass-panel rounded-3xl overflow-hidden border border-zinc-800"><div id="chatBox" class="flex-grow p-5 overflow-y-auto space-y-4 no-scrollbar">${state.messages.map(m => `<div class="flex flex-col ${m.u === state.username ? 'items-end' : 'items-start'}"><span class="text-[7px] font-bold text-zinc-600 uppercase mb-1 ml-1 mr-1">${m.u}</span><div class="p-3.5 rounded-2xl text-xs max-w-[80%] ${m.u === state.username ? 'bg-violet-600 text-white' : 'bg-zinc-900 text-white border border-zinc-800'}">${m.t}</div></div>`).join('')}</div><form id="chatF" class="p-4 bg-zinc-900/80 border-t border-zinc-800/50 flex gap-2"><input name="m" placeholder="Escribe al equipo..." class="flex-grow bg-black p-3.5 rounded-2xl text-xs outline-none focus:border-violet-600 text-white" autocomplete="off"><button class="bg-violet-600 text-white px-6 rounded-2xl font-bold text-[10px] uppercase">Enviar</button></form></div>`;
         }
 
         function renderSyncModal() {
@@ -710,13 +644,44 @@
             return `<div class="fixed inset-0 bg-black/90 z-[100] flex items-center justify-center p-6 backdrop-blur-sm"><div class="glass-panel p-8 rounded-[2.5rem] max-w-sm w-full text-center border-violet-600/30"><h3 class="font-ds text-white mb-2 italic uppercase">Sincronización Total</h3><div class="bg-black p-4 rounded-2xl border border-zinc-800 mb-6"><code class="text-[9px] text-blue-400 break-all select-all font-mono">=IMPORTDATA("${url}")</code></div><button onclick="window.toggleSync(false)" class="w-full py-4 rounded-2xl bg-zinc-900 text-white text-[10px] font-bold uppercase border border-zinc-800">Cerrar</button></div></div>`;
         }
 
+        // --- FUNCIONES Y ACCIONES GLOBALES ---
+        window.closePostRaceModal = () => { state.showPostRaceModal = false; render(); };
         window.go = (s) => { state.section = s; render(); };
         window.upS = (i, k, v) => { state.calc.stints[i][k] = v; render(); };
         window.delS = (i) => { state.calc.stints.splice(i, 1); render(); };
         window.setTab = (t) => { state.rankingTab = t; render(); };
         window.toggleSync = (v) => { state.showSync = v; render(); };
         window.back = () => { state.step = 1; render(); };
-        window.closePostRaceModal = () => { state.showPostRaceModal = false; render(); };
+        window.upSetupH = (v) => { state.setupCalc.height = parseInt(v) || 175; render(); };
+
+        window.copyRadio = () => {
+            const c = circuitsData[state.calc.circuit];
+            let text = `🏁 Estrategia Porsche: ${c.name} 🏁\n\n`;
+            state.calc.stints.forEach((s, i) => { text += `Stint ${i+1}: Neumático ${s.compound} | ${s.laps} vueltas | Nivel ${s.boost}\n`; });
+            const fuel = state.calc.stints.reduce((sum, s) => sum + getFuel(state.calc.circuit, state.calc.fPoints, s.laps, s.boost), 0);
+            text += `\n⛽ Combustible Total: ${fuel.toFixed(1)}L`;
+            navigator.clipboard.writeText(text).then(() => { alert("¡Estrategia copiada!"); });
+        };
+
+        window.quickCommand = async (e, managerId) => {
+            if (e.key === 'Enter') {
+                const parts = e.target.value.trim().toLowerCase().split(' ');
+                if (parts.length >= 2) {
+                    const searchTrack = parts[0];
+                    const result = parts[1].toUpperCase();
+                    let matchedCode = null;
+                    for (const code of Object.keys(circuitsData)) {
+                        if (code.toLowerCase().includes(searchTrack) || circuitsData[code].name.toLowerCase().includes(searchTrack)) {
+                            matchedCode = code; break;
+                        }
+                    }
+                    if (matchedCode) {
+                        await update(ref(db, `perfiles/${managerId}/pizarra`), { [matchedCode]: result });
+                        e.target.value = ''; 
+                    } else { alert(`Circuito no encontrado: "${searchTrack}"`); }
+                }
+            }
+        };
 
         const updateGlobalRanking = async (tab, id, action, val = 0) => {
             let newScores = {};
@@ -737,6 +702,7 @@
         window.openChart = (id) => { state.chartUser = id; state.compareUser = ''; render(); setTimeout(() => window.drawChart(id), 50); };
         window.updateCompare = (rivalId) => { state.compareUser = rivalId; window.drawChart(state.chartUser, rivalId); };
         window.closeChart = () => { state.chartUser = null; render(); };
+        
         window.drawChart = (id, compareId = state.compareUser) => {
             const container = document.getElementById('statsBarsContainer'); if(!container) return;
             const userData = state.users[id]; if(!userData || !userData.stats) return;
@@ -755,9 +721,8 @@
             container.innerHTML = html;
         };
 
-        // --- RESTAURADOS: ACCIONES DE ADMIN Y EVENTOS ---
         window.archiveSeason = async () => {
-            if(!confirm("¿Estás seguro de archivar la temporada actual? Esto guardará la pizarra en el historial de cada piloto y la dejará en blanco para el nuevo campeonato.")) return;
+            if(!confirm("¿Archivar la temporada actual? Esto guardará la pizarra en el historial de cada piloto.")) return;
             let updates = {};
             Object.entries(state.users).forEach(([uid, u]) => {
                 const currentTemp = u.stats?.temporada || 1;
@@ -768,7 +733,7 @@
                 updates[`perfiles/${uid}/stats/temporada`] = currentTemp + 1;
             });
             await update(ref(db), updates);
-            alert("¡Temporada archivada con éxito en los historiales de los pilotos!");
+            alert("¡Temporada archivada con éxito!");
         };
 
         window.setTrackResult = async (managerId, trackCode) => {
@@ -781,70 +746,28 @@
         };
 
         window.removeBoard = async (id) => {
-            if(confirm(`¿Ocultar a ${id} de la Pizarra de Temporada? Sus estadísticas globales no se borrarán.`)) {
+            if(confirm(`¿Ocultar a ${id} de la Pizarra de Temporada?`)) {
                 await update(ref(db, `perfiles/${id}`), { hidePizarra: true });
             }
         };
 
-        window.quickCommand = async (e, managerId) => {
-            if (e.key === 'Enter') {
-                const val = e.target.value.trim().toLowerCase();
-                const parts = val.split(' ');
-                
-                if (parts.length >= 2) {
-                    const searchTrack = parts[0];
-                    const result = parts[1].toUpperCase();
-                    
-                    let matchedCode = null;
-                    for (const code of Object.keys(circuitsData)) {
-                        if (code.toLowerCase().includes(searchTrack) || circuitsData[code].name.toLowerCase().includes(searchTrack)) {
-                            matchedCode = code;
-                            break;
-                        }
-                    }
-                    
-                    if (matchedCode) {
-                        await update(ref(db, `perfiles/${managerId}/pizarra`), { [matchedCode]: result });
-                        e.target.value = ''; 
-                    } else {
-                        alert(`Circuito no encontrado: "${searchTrack}". Usa códigos como 'mex', 'mon', 'aze'.`);
-                    }
-                }
-            }
-        };
-
         function attachEvents() {
-            if(document.getElementById('selTrack')) {
-                document.getElementById('selTrack').onchange = (e) => { 
-                    state.calc.circuit = e.target.value; 
-                    render(); 
-                    window.fetchWeather(state.calc.circuit); 
-                };
-            }
+            if(document.getElementById('selTrack')) document.getElementById('selTrack').onchange = (e) => { state.calc.circuit = e.target.value; render(); window.fetchWeather(state.calc.circuit); };
             if(document.getElementById('distSelect')) document.getElementById('distSelect').onchange = (e) => { state.calc.distance = e.target.value; render(); };
             if(document.getElementById('tempInput')) document.getElementById('tempInput').onchange = (e) => { state.calc.temp = e.target.value; render(); };
             if(document.getElementById('numT')) document.getElementById('numT').onchange = (e) => { state.calc.tPoints = e.target.value; render(); };
             if(document.getElementById('numF')) document.getElementById('numF').onchange = (e) => { state.calc.fPoints = e.target.value; render(); };
-            if(document.getElementById('addStint')) document.getElementById('addStint').onclick = () => { state.calc.stints.push({ compound: 'M', laps: 5, boost: '5' }); render(); };
+            if(document.getElementById('addStint')) document.getElementById('addStint').onclick = () => { state.calc.stints.push({ compound: 'M', laps: 6, boost: '3' }); render(); };
             
             if(document.getElementById('addBoardM')) {
                 document.getElementById('addBoardM').onsubmit = async (e) => {
-                    e.preventDefault();
-                    const n = e.target.n.value.trim().toLowerCase();
+                    e.preventDefault(); const n = e.target.n.value.trim().toLowerCase();
                     if(n && !state.users[n]) {
-                        await set(ref(db, `perfiles/${n}`), { 
-                            password: 'ext', 
-                            stats: { puntos:0, temporada:1, victorias:0, podios:0, poles:0, copas:0 },
-                            pizarra: {},
-                            historial: {}
-                        });
+                        await set(ref(db, `perfiles/${n}`), { password: 'ext', stats: { puntos:0, temporada:1, victorias:0, podios:0, poles:0, copas:0 }, pizarra: {}, historial: {} });
                     } else if(state.users[n]) {
                         if (state.users[n].hidePizarra) {
-                            await update(ref(db, `perfiles/${n}`), { hidePizarra: null });
-                            alert("El manager ha sido restaurado en la pizarra.");
-                        } else {
-                            alert("Este manager ya existe y está en la pizarra.");
-                        }
+                            await update(ref(db, `perfiles/${n}`), { hidePizarra: null }); alert("El manager ha sido restaurado.");
+                        } else { alert("Este manager ya existe."); }
                     }
                     e.target.reset();
                 };
@@ -853,7 +776,7 @@
             if(document.getElementById('addM')) {
                 document.getElementById('addM').onsubmit = async (e) => {
                     e.preventDefault(); const n = e.target.n.value.trim().toLowerCase();
-                    if(n) await set(ref(db, `perfiles/${n}`), { password: 'ext', stats: { puntos:0, temporada:1, victorias:0, podios:0, poles:0, copas:0 }, pizarra: {} });
+                    if(n) await set(ref(db, `perfiles/${n}`), { password: 'ext', stats: { puntos:0, temporada:1, victorias:0, podios:0, poles:0, copas:0 } });
                     e.target.reset();
                 };
             }
@@ -890,7 +813,8 @@
 
                     await update(ref(db, `perfiles/${state.username}/pizarra`), { [track]: pText });
 
-                    window.closePostRaceModal();
+                    state.showPostRaceModal = false;
+                    render();
                 };
             }
 
@@ -900,9 +824,7 @@
         onValue(ref(db, 'perfiles'), (s) => { state.users = s.val() || {}; render(); });
         onValue(ref(db, 'chat'), (s) => { const data = s.val() || {}; state.messages = Object.values(data).sort((a,b) => a.ts - b.ts).slice(-50); if(state.section === 'chat') render(); });
         
-        // Inicializar temperatura API
-        if(!state.weather) window.fetchWeather(state.calc.circuit);
-        render();
+        window.fetchWeather(state.calc.circuit); // Iniciar radar meteorológico
     </script>
 </body>
 </html>
