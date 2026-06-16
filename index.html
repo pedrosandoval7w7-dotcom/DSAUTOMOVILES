@@ -177,16 +177,17 @@
             const isAdmin = state.username === 'admin';
             root.innerHTML = `
                 <header class="bg-black border-b border-zinc-800 p-4 sticky top-0 z-50">
-                    <div class="max-w-7xl mx-auto flex justify-between items-center">
+                    <div class="max-w-7xl mx-auto flex flex-wrap justify-between items-center gap-2">
                         <div class="flex items-center gap-2">
                             <h1 class="font-ds text-[10px] italic text-violet-500 uppercase">PORSCHE PERFORMANCE</h1>
                             <span class="text-[7px] bg-zinc-900 border border-zinc-800 px-1.5 py-0.5 rounded text-zinc-500 uppercase font-bold">${state.username}</span>
                         </div>
-                        <nav class="flex gap-4">
-                            <button onclick="window.go('strategy')" class="nav-link text-[10px] font-bold uppercase ${state.section==='strategy'?'active':''}">Estrategia</button>
-                            <button onclick="window.go('setup')" class="nav-link text-[10px] font-bold uppercase ${state.section==='setup'?'active':''}">Setup</button>
-                            <button onclick="window.go('ranking')" class="nav-link text-[10px] font-bold uppercase ${state.section==='ranking'?'active':''}">Ranking</button>
-                            <button onclick="window.go('chat')" class="nav-link text-[10px] font-bold uppercase ${state.section==='chat'?'active':''}">Chat</button>
+                        <nav class="flex gap-3 overflow-x-auto no-scrollbar">
+                            <button onclick="window.go('strategy')" class="nav-link text-[10px] font-bold uppercase whitespace-nowrap ${state.section==='strategy'?'active':''}">Estrategia</button>
+                            <button onclick="window.go('setup')" class="nav-link text-[10px] font-bold uppercase whitespace-nowrap ${state.section==='setup'?'active':''}">Setup</button>
+                            <button onclick="window.go('ranking')" class="nav-link text-[10px] font-bold uppercase whitespace-nowrap ${state.section==='ranking'?'active':''}">Ranking</button>
+                            <button onclick="window.go('predictions')" class="nav-link text-[10px] font-bold uppercase whitespace-nowrap ${state.section==='predictions'?'active':''}">Pronósticos</button>
+                            <button onclick="window.go('chat')" class="nav-link text-[10px] font-bold uppercase whitespace-nowrap ${state.section==='chat'?'active':''}">Chat</button>
                         </nav>
                     </div>
                 </header>
@@ -348,10 +349,117 @@
             </div>`;
         }
 
+        function renderPredictions() {
+            const users = Object.entries(state.users).filter(([id, u]) => !u.hidePizarra);
+            
+            let predictions = users.map(([id, u]) => {
+                const currentPts = u.stats?.puntos || 0;
+                const racesDone = Object.keys(u.pizarra || {}).length;
+                const currentPPG = racesDone > 0 ? currentPts / racesDone : 0;
+                
+                let projectedAddedPts = 0;
+                const remainingTracks = Object.keys(circuitsData).filter(tc => !u.pizarra || !u.pizarra[tc]);
+                
+                remainingTracks.forEach(tc => {
+                    let histPts = [];
+                    if(u.historial) {
+                        Object.values(u.historial).forEach(season => {
+                            if(season[tc]) {
+                                const res = season[tc].toString().toUpperCase().trim();
+                                if(res === 'DNF') histPts.push(0);
+                                else if(res.startsWith('P')) {
+                                    const pos = parseInt(res.replace('P', ''));
+                                    const pMap = {1:25, 2:20, 3:18, 4:16, 5:15, 6:14, 7:13, 8:12, 9:11, 10:10, 11:9, 12:8, 13:7, 14:6, 15:5, 16:4, 17:3, 18:2, 19:1, 20:1};
+                                    histPts.push(pMap[pos] || 0);
+                                }
+                            }
+                        });
+                    }
+                    let trackExpected = currentPPG;
+                    if(histPts.length > 0) {
+                        let histAvg = histPts.reduce((a,b)=>a+b, 0) / histPts.length;
+                        trackExpected = (currentPPG * 0.6) + (histAvg * 0.4);
+                    }
+                    projectedAddedPts += trackExpected;
+                });
+                
+                const projectedTotal = currentPts + projectedAddedPts;
+                return { id, currentPts, projectedTotal: Math.round(projectedTotal), currentPos: 0 };
+            });
+
+            // Determinar posiciones actuales
+            let currentStandings = [...predictions].sort((a,b) => b.currentPts - a.currentPts);
+            currentStandings.forEach((p, i) => {
+                predictions.find(x => x.id === p.id).currentPos = i + 1;
+            });
+
+            // Ordenar por proyección final
+            predictions.sort((a,b) => b.projectedTotal - a.projectedTotal);
+
+            // Calcular Probabilidades (Heurística baseada en distancia al líder proyectado)
+            const maxProj = predictions.length > 0 ? predictions[0].projectedTotal : 0;
+            let probSum = 0;
+            predictions.forEach(p => {
+                let diff = maxProj - p.projectedTotal;
+                p.rawProb = Math.max(0, 100 - (diff * 2.0)); // Si estás a 50 pts proyectados, prob = 0%
+                probSum += p.rawProb;
+            });
+
+            return `
+                <div class="space-y-6">
+                    <div class="glass-panel p-6 rounded-2xl border-t-2 border-violet-600 shadow-2xl">
+                        <h2 class="font-ds text-xl uppercase italic text-violet-500 mb-2">🔮 Pronóstico de Temporada</h2>
+                        <p class="text-[10px] text-zinc-400 mb-6 uppercase tracking-widest font-bold">Modelo Predictivo: 60% Forma Actual / 40% Historial de Circuito</p>
+                        
+                        <div class="overflow-x-auto no-scrollbar">
+                            <table class="w-full text-left text-xs">
+                                <thead>
+                                    <tr class="bg-zinc-900 text-zinc-500 uppercase text-[8px]">
+                                        <th class="p-4">Proy</th>
+                                        <th class="p-4">Piloto</th>
+                                        <th class="p-4 text-center">Pts Actuales</th>
+                                        <th class="p-4 text-center">Pts Fin Temporada</th>
+                                        <th class="p-4 text-center">Prob. Campeón</th>
+                                        <th class="p-4 text-center">Tendencia</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-zinc-800/50">
+                                    ${predictions.map((p, i) => {
+                                        const prob = probSum > 0 ? ((p.rawProb / probSum) * 100).toFixed(1) : 0;
+                                        const projPos = i + 1;
+                                        
+                                        let trend = '<span class="text-zinc-600 font-black" title="Mantiene Posición">-</span>';
+                                        if(projPos < p.currentPos) trend = '<span class="text-green-500 drop-shadow-[0_0_3px_rgba(34,197,94,0.5)] font-black text-sm" title="Sube posiciones">▲</span>';
+                                        if(projPos > p.currentPos) trend = '<span class="text-red-500 drop-shadow-[0_0_3px_rgba(239,68,68,0.5)] font-black text-sm" title="Baja posiciones">▼</span>';
+
+                                        let probColor = 'text-zinc-600';
+                                        if(prob > 40) probColor = 'text-green-500 drop-shadow-[0_0_5px_rgba(34,197,94,0.5)]';
+                                        else if(prob > 15) probColor = 'text-yellow-500 drop-shadow-[0_0_5px_rgba(234,179,8,0.5)]';
+                                        else if(prob > 2) probColor = 'text-orange-500';
+
+                                        return `
+                                        <tr class="hover:bg-zinc-900/40 transition-colors">
+                                            <td class="p-4 font-bold text-zinc-400">#${projPos}</td>
+                                            <td class="p-4 uppercase font-bold text-zinc-100">${p.id}</td>
+                                            <td class="p-4 text-center font-ds text-zinc-500">${p.currentPts}</td>
+                                            <td class="p-4 text-center font-ds text-violet-500 text-sm font-bold">${p.projectedTotal}</td>
+                                            <td class="p-4 text-center font-ds ${probColor} font-bold tracking-wider">${prob}%</td>
+                                            <td class="p-4 text-center">${trend}</td>
+                                        </tr>`;
+                                    }).join('')}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
         function renderSection(isAdmin) {
             if(state.section === 'ranking') return renderRanking(isAdmin);
             if(state.section === 'chat') return renderChat();
             if(state.section === 'setup') return renderSetup();
+            if(state.section === 'predictions') return renderPredictions();
             
             const numStints = state.calc.stints.length;
             const numPits = Math.max(0, numStints - 1);
