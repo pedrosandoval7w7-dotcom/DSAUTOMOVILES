@@ -122,6 +122,63 @@
             setupCalc: { height: 175 }
         };
 
+        // --- CEREBRO CENTRALIZADO PARA GUARDAR RESULTADOS DE PISTA ---
+        // Suma puntos y sincroniza la pizarra automáticamente desde cualquier lugar (Modal, Click, o Comando)
+        window.processRaceResult = async (managerId, trackCode, newResult, isPole = false) => {
+            const u = state.users[managerId];
+            if (!u) return;
+            
+            const oldRes = (u.pizarra && u.pizarra[trackCode]) ? u.pizarra[trackCode] : '';
+            const curStats = u.stats || { puntos:0, temporada:1, victorias:0, podios:0, poles:0, copas:0 };
+            
+            // MAPA OFICIAL DE PUNTOS QUE SOLICITASTE
+            const pointsMap = {1:25, 2:20, 3:18, 4:16, 5:15, 6:14, 7:13, 8:12, 9:11, 10:10, 11:9, 12:8, 13:7, 14:6, 15:5, 16:4, 17:3, 18:2, 19:1, 20:1};
+            
+            // 1. Analizar el resultado anterior (para saber qué restar)
+            let oldPts = 0, oldWin = 0, oldPod = 0;
+            const oldResStr = oldRes.toString().toUpperCase().trim();
+            if (oldResStr.startsWith('P')) {
+                const p = parseInt(oldResStr.replace('P', ''));
+                if (!isNaN(p)) {
+                    oldPts = pointsMap[p] || 0; // Posiciones 21-32 darán 0 aquí
+                    if (p === 1) oldWin = 1;
+                    if (p >= 1 && p <= 3) oldPod = 1;
+                }
+            }
+            
+            // 2. Analizar el resultado nuevo (para saber qué sumar)
+            let newPts = 0, newWin = 0, newPod = 0;
+            const newResStr = newResult.toString().toUpperCase().trim();
+            if (newResStr.startsWith('P')) {
+                const p = parseInt(newResStr.replace('P', ''));
+                if (!isNaN(p)) {
+                    newPts = pointsMap[p] || 0; // Posiciones 21-32 darán 0 aquí
+                    if (p === 1) newWin = 1;
+                    if (p >= 1 && p <= 3) newPod = 1;
+                }
+            }
+
+            // 3. Diferencias matemáticas (si se equivocaron y corrigieron, esto lo balancea exacto)
+            const diffPts = newPts - oldPts;
+            const diffWin = newWin - oldWin;
+            const diffPod = newPod - oldPod;
+            const diffPole = isPole ? 1 : 0;
+
+            // 4. Aplicar cambios a Firebase (Puntos lo mandamos por el Ranking para activar las flechas de tendencia)
+            if (diffPts !== 0) {
+                await updateGlobalRanking('puntos', managerId, 'add', diffPts);
+            }
+
+            let updates = {};
+            updates[`perfiles/${managerId}/stats/victorias`] = Math.max(0, (curStats.victorias || 0) + diffWin);
+            updates[`perfiles/${managerId}/stats/podios`] = Math.max(0, (curStats.podios || 0) + diffPod);
+            if (isPole) updates[`perfiles/${managerId}/stats/poles`] = (curStats.poles || 0) + diffPole;
+            
+            updates[`perfiles/${managerId}/pizarra/${trackCode}`] = newResStr;
+
+            await update(ref(db), updates);
+        };
+
         // --- CLIMA EN VIVO (OPEN-METEO) ---
         window.fetchWeather = async (trackCode) => {
             state.weather = 'loading'; state.forecast = null; render();
@@ -173,8 +230,15 @@
         // --- UI ---
         function render() {
             const root = document.getElementById('app');
+            
+            // GUARDAMOS LA POSICIÓN DEL SCROLL ANTES DE REDIBUJAR LA PANTALLA
+            // ¡Esto soluciona el salto molesto cuando das "Enter" o agregas stints!
+            const mainScrollContainer = document.querySelector('main');
+            const currentScrollPosition = mainScrollContainer ? mainScrollContainer.scrollTop : 0;
+
             if (!state.isLoggedIn) { renderAuth(root); return; }
             const isAdmin = state.username === 'admin';
+            
             root.innerHTML = `
                 <header class="bg-black border-b border-zinc-800 p-4 sticky top-0 z-50">
                     <div class="max-w-7xl mx-auto flex flex-wrap justify-between items-center gap-2">
@@ -199,6 +263,12 @@
                 ${state.chartUser ? renderChartModal() : ''}
             `;
             attachEvents();
+
+            // RESTAURAMOS EL SCROLL EXACTAMENTE DONDE LO DEJASTE
+            const newMainContainer = document.querySelector('main');
+            if (newMainContainer) {
+                newMainContainer.scrollTop = currentScrollPosition;
+            }
 
             if (state.section === 'strategy') {
                 setTimeout(() => { 
@@ -396,12 +466,12 @@
             // Ordenar por proyección final
             predictions.sort((a,b) => b.projectedTotal - a.projectedTotal);
 
-            // Calcular Probabilidades (Heurística baseada en distancia al líder proyectado)
+            // Calcular Probabilidades
             const maxProj = predictions.length > 0 ? predictions[0].projectedTotal : 0;
             let probSum = 0;
             predictions.forEach(p => {
                 let diff = maxProj - p.projectedTotal;
-                p.rawProb = Math.max(0, 100 - (diff * 2.0)); // Si estás a 50 pts proyectados, prob = 0%
+                p.rawProb = Math.max(0, 100 - (diff * 2.0)); 
                 probSum += p.rawProb;
             });
 
@@ -468,11 +538,9 @@
             
             const cData = circuitsData[state.calc.circuit];
             
-            // --- CORRECCIÓN EXACTA DE VUELTAS SEGÚN MATRIZ DE iGPLUS ---
             const lenIndex = { '100': 0, '75': 1, '50': 2, '25': 3 }[state.calc.distance] || 0;
             const fCode = flagCodes[state.calc.circuit] || 'un';
             const trackLaps = (raceLengthMap[fCode] && raceLengthMap[fCode][lenIndex] !== undefined) ? raceLengthMap[fCode][lenIndex] : Math.round(cData.laps * (state.calc.distance / 100));
-            // ---------------------------------------------------------
             
             const trackImg = cData.img;
             const lostTimeInPits = numPits * cData.pitTime;
@@ -528,7 +596,7 @@
                         <div class="flex justify-between items-center"><h2 class="font-ds text-lg uppercase italic text-violet-500">Sugerencias de estrategia</h2>
                             <div class="flex gap-2">
                                 <button onclick="window.copyRadio()" class="bg-zinc-800 text-zinc-300 hover:text-white hover:bg-zinc-700 px-4 py-2 rounded-lg text-[10px] font-bold uppercase transition-colors border border-zinc-700">Copiar Estrategia</button>
-                                <button id="addStint" class="bg-violet-600 text-white px-4 py-2 rounded-lg text-[10px] font-bold uppercase shadow-lg shadow-violet-900/20">Añadir Stint</button>
+                                <button id="addStint" type="button" class="bg-violet-600 text-white px-4 py-2 rounded-lg text-[10px] font-bold uppercase shadow-lg shadow-violet-900/20">Añadir Stint</button>
                             </div>
                         </div>
                         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -538,7 +606,7 @@
                                 return `
                                 <div class="glass-panel p-5 rounded-xl border-l-4 border-violet-600 relative">
                                     <button onclick="window.delS(${i})" class="absolute top-4 right-4 text-zinc-700 hover:text-red-500">✕</button>
-                                    <div class="flex justify-center gap-2 mb-6">${['SS','S','M','H','I','W'].map(c => `<button onclick="window.upS(${i},'compound','${c}')" class="tyre-btn compound-${c.toLowerCase()} ${s.compound===c?'active':''}">${c}</button>`).join('')}</div>
+                                    <div class="flex justify-center gap-2 mb-6">${['SS','S','M','H','I','W'].map(c => `<button type="button" onclick="window.upS(${i},'compound','${c}')" class="tyre-btn compound-${c.toLowerCase()} ${s.compound===c?'active':''}">${c}</button>`).join('')}</div>
                                     <div class="grid grid-cols-2 gap-3">
                                         <div><span class="text-[7px] text-zinc-600 uppercase font-bold block mb-1">Vueltas</span><input type="number" value="${s.laps}" onchange="window.upS(${i},'laps',this.value)" class="w-full p-2.5 rounded bg-black border border-zinc-800 text-center font-bold text-white outline-none shadow-inner"></div>
                                         <div><span class="text-[7px] text-zinc-600 uppercase font-bold block mb-1">Empuje</span><select onchange="window.upS(${i},'boost',this.value)" class="w-full p-2.5 rounded bg-black border border-zinc-800 text-[10px] uppercase font-bold text-center outline-none text-white shadow-inner">${[1,2,3,4,5].map(v => `<option value="${v}" ${s.boost==v+''?'selected':''}>Nivel ${v}</option>`).join('')}</select></div>
@@ -771,26 +839,6 @@
             navigator.clipboard.writeText(text).then(() => { alert("¡Estrategia copiada!"); });
         };
 
-        window.quickCommand = async (e, managerId) => {
-            if (e.key === 'Enter') {
-                const parts = e.target.value.trim().toLowerCase().split(' ');
-                if (parts.length >= 2) {
-                    const searchTrack = parts[0];
-                    const result = parts[1].toUpperCase();
-                    let matchedCode = null;
-                    for (const code of Object.keys(circuitsData)) {
-                        if (code.toLowerCase().includes(searchTrack) || circuitsData[code].name.toLowerCase().includes(searchTrack)) {
-                            matchedCode = code; break;
-                        }
-                    }
-                    if (matchedCode) {
-                        await update(ref(db, `perfiles/${managerId}/pizarra`), { [matchedCode]: result });
-                        e.target.value = ''; 
-                    } else { alert(`Circuito no encontrado: "${searchTrack}"`); }
-                }
-            }
-        };
-
         const updateGlobalRanking = async (tab, id, action, val = 0) => {
             let newScores = {};
             Object.entries(state.users).forEach(([uid, d]) => { if (d.stats && d.stats[tab] !== undefined && d.stats[tab] !== null) { newScores[uid] = parseFloat(d.stats[tab]); } });
@@ -844,15 +892,6 @@
             alert("¡Temporada archivada con éxito!");
         };
 
-        window.setTrackResult = async (managerId, trackCode) => {
-            const currentRes = (state.users[managerId].pizarra && state.users[managerId].pizarra[trackCode]) ? state.users[managerId].pizarra[trackCode] : '';
-            const res = prompt(`RESULTADO PARA ${managerId.toUpperCase()} EN [${trackCode.toUpperCase()}]\nEjemplos: P1, P2, DNF, -`, currentRes);
-            if (res !== null) {
-                const resultStr = res.toUpperCase().trim();
-                await update(ref(db, `perfiles/${managerId}/pizarra`), { [trackCode]: resultStr });
-            }
-        };
-
         window.removeBoard = async (id) => {
             if(confirm(`¿Ocultar a ${id} de la Pizarra de Temporada?`)) {
                 await update(ref(db, `perfiles/${id}`), { hidePizarra: true });
@@ -865,8 +904,39 @@
             if(document.getElementById('tempInput')) document.getElementById('tempInput').onchange = (e) => { state.calc.temp = e.target.value; render(); };
             if(document.getElementById('numT')) document.getElementById('numT').onchange = (e) => { state.calc.tPoints = e.target.value; render(); };
             if(document.getElementById('numF')) document.getElementById('numF').onchange = (e) => { state.calc.fPoints = e.target.value; render(); };
+            
+            // Corregido: type="button" agregado previamente para evitar recargas automáticas.
             if(document.getElementById('addStint')) document.getElementById('addStint').onclick = () => { state.calc.stints.push({ compound: 'M', laps: 6, boost: '3' }); render(); };
             
+            // --- CÓDIGO UNIFICADO PARA COMANDOS RÁPIDOS Y CLICK ---
+            window.quickCommand = async (e, managerId) => {
+                if (e.key === 'Enter') {
+                    const parts = e.target.value.trim().toLowerCase().split(' ');
+                    if (parts.length >= 2) {
+                        const searchTrack = parts[0];
+                        const result = parts[1];
+                        let matchedCode = null;
+                        for (const code of Object.keys(circuitsData)) {
+                            if (code.toLowerCase().includes(searchTrack) || circuitsData[code].name.toLowerCase().includes(searchTrack)) {
+                                matchedCode = code; break;
+                            }
+                        }
+                        if (matchedCode) {
+                            await window.processRaceResult(managerId, matchedCode, result);
+                            e.target.value = ''; 
+                        } else { alert(`Circuito no encontrado: "${searchTrack}"`); }
+                    }
+                }
+            };
+
+            window.setTrackResult = async (managerId, trackCode) => {
+                const currentRes = (state.users[managerId].pizarra && state.users[managerId].pizarra[trackCode]) ? state.users[managerId].pizarra[trackCode] : '';
+                const res = prompt(`RESULTADO PARA ${managerId.toUpperCase()} EN [${trackCode.toUpperCase()}]\nEjemplos: P1, P2, DNF, -`, currentRes);
+                if (res !== null) {
+                    await window.processRaceResult(managerId, trackCode, res);
+                }
+            };
+
             if(document.getElementById('addBoardM')) {
                 document.getElementById('addBoardM').onsubmit = async (e) => {
                     e.preventDefault(); const n = e.target.n.value.trim().toLowerCase();
@@ -902,24 +972,10 @@
                     const pos = parseInt(e.target.pos.value);
                     const isDNF = e.target.dnf.checked;
                     const isPole = e.target.pole.checked;
-
-                    const isWin = pos === 1 && !isDNF;
-                    const isPodium = pos <= 3 && !isDNF;
-
-                    const pointsMap = {1:25, 2:20, 3:18, 4:16, 5:15, 6:14, 7:13, 8:12, 9:11, 10:10, 11:9, 12:8, 13:7, 14:6, 15:5, 16:4, 17:3, 18:2, 19:1, 20:1};
-                    const pts = isDNF ? 0 : (pointsMap[pos] || 0);
                     const pText = isDNF ? 'DNF' : `P${pos}`;
 
-                    const curStats = state.users[state.username]?.stats || { puntos:0, victorias:0, podios:0, poles:0, copas:0 };
-
-                    await update(ref(db, `perfiles/${state.username}/stats`), {
-                        puntos: (curStats.puntos || 0) + pts,
-                        victorias: (curStats.victorias || 0) + (isWin ? 1 : 0),
-                        podios: (curStats.podios || 0) + (isPodium ? 1 : 0),
-                        poles: (curStats.poles || 0) + (isPole ? 1 : 0)
-                    });
-
-                    await update(ref(db, `perfiles/${state.username}/pizarra`), { [track]: pText });
+                    // Ahora usa la función inteligente centralizada para balancear los puntos
+                    await window.processRaceResult(state.username, track, pText, isPole);
 
                     state.showPostRaceModal = false;
                     render();
@@ -932,7 +988,7 @@
         onValue(ref(db, 'perfiles'), (s) => { state.users = s.val() || {}; render(); });
         onValue(ref(db, 'chat'), (s) => { const data = s.val() || {}; state.messages = Object.values(data).sort((a,b) => a.ts - b.ts).slice(-50); if(state.section === 'chat') render(); });
         
-        window.fetchWeather(state.calc.circuit); // Iniciar radar meteorológico
+        window.fetchWeather(state.calc.circuit);
     </script>
 </body>
 </html>
