@@ -3,6 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    
+    <!-- CONFIGURACIÓN PWA PARA INSTALACIÓN MÓVIL -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#050505">
+    <link rel="apple-touch-icon" href="https://upload.wikimedia.org/wikipedia/commons/thumb/8/8c/Porsche_logo.svg/192px-Porsche_logo.svg.png">
+    <link rel="manifest" href="data:application/manifest+json;charset=utf-8,%7B%22name%22%3A%22Porsche%20Performance%22%2C%22short_name%22%3A%22Porsche%22%2C%22start_url%22%3A%22.%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%23050505%22%2C%22theme_color%22%3A%22%239333ea%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22https%3A%2F%2Fupload.wikimedia.org%2Fwikipedia%2Fcommons%2Fthumb%2F8%2F8c%2FPorsche_logo.svg%2F192px-Porsche_logo.svg.png%22%2C%22sizes%22%3A%22192x192%22%2C%22type%22%3A%22image%2Fpng%22%7D%5D%7D">
+    
     <title>Porsche Performance - Estrategia</title>
     
     <!-- ESCUDO DE SEGURIDAD: Bloqueo de Clic Derecho y F12 -->
@@ -15,6 +23,13 @@
                 e.preventDefault();
             }
         });
+
+        // SERVICE WORKER OCULTO PARA HABILITAR INSTALACIÓN PWA
+        if ('serviceWorker' in navigator) {
+            const swCode = "self.addEventListener('install', e => self.skipWaiting()); self.addEventListener('activate', e => self.clients.claim()); self.addEventListener('fetch', e => {});";
+            const swBlob = new Blob([swCode], {type: 'application/javascript'});
+            navigator.serviceWorker.register(URL.createObjectURL(swBlob)).catch(()=>{});
+        }
     </script>
 
     <script src="https://cdn.tailwindcss.com"></script>
@@ -103,6 +118,65 @@
             'nl': [72, 59, 35, 19]
         };
 
+        window.customAlert = (msg) => {
+            return new Promise(resolve => {
+                const overlay = document.createElement('div');
+                overlay.className = 'fixed inset-0 bg-black/90 z-[9999] flex items-center justify-center p-6 backdrop-blur-sm';
+                overlay.innerHTML = `
+                    <div class="glass-panel p-8 rounded-3xl max-w-sm w-full text-center border-t-2 border-violet-600 shadow-2xl">
+                        <p class="text-white text-sm mb-6 font-bold uppercase tracking-wide">${msg}</p>
+                        <button id="alertOk" class="w-full bg-violet-600 text-white py-3 rounded-xl font-bold uppercase text-[10px]">Aceptar</button>
+                    </div>
+                `;
+                document.body.appendChild(overlay);
+                document.getElementById('alertOk').onclick = () => { overlay.remove(); resolve(); };
+            });
+        };
+
+        window.customConfirm = (msg) => {
+            return new Promise(resolve => {
+                const overlay = document.createElement('div');
+                overlay.className = 'fixed inset-0 bg-black/90 z-[9999] flex items-center justify-center p-6 backdrop-blur-sm';
+                overlay.innerHTML = `
+                    <div class="glass-panel p-8 rounded-3xl max-w-sm w-full text-center border-t-2 border-violet-600 shadow-2xl">
+                        <p class="text-white text-sm mb-6 font-bold uppercase tracking-wide">${msg}</p>
+                        <div class="flex gap-3">
+                            <button id="confirmCancel" class="w-full bg-zinc-800 text-white py-3 rounded-xl font-bold uppercase text-[10px]">Cancelar</button>
+                            <button id="confirmOk" class="w-full bg-violet-600 text-white py-3 rounded-xl font-bold uppercase text-[10px]">Aceptar</button>
+                        </div>
+                    </div>
+                `;
+                document.body.appendChild(overlay);
+                document.getElementById('confirmOk').onclick = () => { overlay.remove(); resolve(true); };
+                document.getElementById('confirmCancel').onclick = () => { overlay.remove(); resolve(false); };
+            });
+        };
+
+        window.customPrompt = (msg, defaultVal = '') => {
+            return new Promise(resolve => {
+                const overlay = document.createElement('div');
+                overlay.className = 'fixed inset-0 bg-black/90 z-[9999] flex items-center justify-center p-6 backdrop-blur-sm';
+                overlay.innerHTML = `
+                    <div class="glass-panel p-8 rounded-3xl max-w-sm w-full text-center border-t-2 border-violet-600 shadow-2xl">
+                        <p class="text-white text-xs mb-4 font-bold uppercase tracking-wide">${msg}</p>
+                        <input id="promptInput" value="${defaultVal}" class="w-full p-3 rounded-xl bg-black border border-zinc-800 text-white text-center text-sm outline-none focus:border-violet-600 mb-6 uppercase" autocomplete="off">
+                        <div class="flex gap-3">
+                            <button id="promptCancel" class="w-full bg-zinc-800 text-white py-3 rounded-xl font-bold uppercase text-[10px]">Cancelar</button>
+                            <button id="promptOk" class="w-full bg-violet-600 text-white py-3 rounded-xl font-bold uppercase text-[10px]">Guardar</button>
+                        </div>
+                    </div>
+                `;
+                document.body.appendChild(overlay);
+                const input = document.getElementById('promptInput');
+                input.focus();
+                input.select();
+                
+                document.getElementById('promptOk').onclick = () => { overlay.remove(); resolve(input.value); };
+                document.getElementById('promptCancel').onclick = () => { overlay.remove(); resolve(null); };
+                input.onkeydown = (e) => { if(e.key === 'Enter') document.getElementById('promptOk').click(); };
+            });
+        };
+
         let state = {
             isLoggedIn: false,
             step: 1, 
@@ -123,7 +197,6 @@
         };
 
         // --- CEREBRO CENTRALIZADO PARA GUARDAR RESULTADOS DE PISTA ---
-        // Suma puntos y sincroniza la pizarra automáticamente desde cualquier lugar (Modal, Click, o Comando)
         window.processRaceResult = async (managerId, trackCode, newResult, isPole = false) => {
             const u = state.users[managerId];
             if (!u) return;
@@ -131,40 +204,36 @@
             const oldRes = (u.pizarra && u.pizarra[trackCode]) ? u.pizarra[trackCode] : '';
             const curStats = u.stats || { puntos:0, temporada:1, victorias:0, podios:0, poles:0, copas:0 };
             
-            // MAPA OFICIAL DE PUNTOS QUE SOLICITASTE
+            // MAPA OFICIAL DE PUNTOS
             const pointsMap = {1:25, 2:20, 3:18, 4:16, 5:15, 6:14, 7:13, 8:12, 9:11, 10:10, 11:9, 12:8, 13:7, 14:6, 15:5, 16:4, 17:3, 18:2, 19:1, 20:1};
             
-            // 1. Analizar el resultado anterior (para saber qué restar)
             let oldPts = 0, oldWin = 0, oldPod = 0;
             const oldResStr = oldRes.toString().toUpperCase().trim();
             if (oldResStr.startsWith('P')) {
                 const p = parseInt(oldResStr.replace('P', ''));
                 if (!isNaN(p)) {
-                    oldPts = pointsMap[p] || 0; // Posiciones 21-32 darán 0 aquí
+                    oldPts = pointsMap[p] || 0;
                     if (p === 1) oldWin = 1;
                     if (p >= 1 && p <= 3) oldPod = 1;
                 }
             }
             
-            // 2. Analizar el resultado nuevo (para saber qué sumar)
             let newPts = 0, newWin = 0, newPod = 0;
             const newResStr = newResult.toString().toUpperCase().trim();
             if (newResStr.startsWith('P')) {
                 const p = parseInt(newResStr.replace('P', ''));
                 if (!isNaN(p)) {
-                    newPts = pointsMap[p] || 0; // Posiciones 21-32 darán 0 aquí
+                    newPts = pointsMap[p] || 0;
                     if (p === 1) newWin = 1;
                     if (p >= 1 && p <= 3) newPod = 1;
                 }
             }
 
-            // 3. Diferencias matemáticas (si se equivocaron y corrigieron, esto lo balancea exacto)
             const diffPts = newPts - oldPts;
             const diffWin = newWin - oldWin;
             const diffPod = newPod - oldPod;
             const diffPole = isPole ? 1 : 0;
 
-            // 4. Aplicar cambios a Firebase (Puntos lo mandamos por el Ranking para activar las flechas de tendencia)
             if (diffPts !== 0) {
                 await updateGlobalRanking('puntos', managerId, 'add', diffPts);
             }
@@ -232,7 +301,6 @@
             const root = document.getElementById('app');
             
             // GUARDAMOS LA POSICIÓN DEL SCROLL ANTES DE REDIBUJAR LA PANTALLA
-            // ¡Esto soluciona el salto molesto cuando das "Enter" o agregas stints!
             const mainScrollContainer = document.querySelector('main');
             const currentScrollPosition = mainScrollContainer ? mainScrollContainer.scrollTop : 0;
 
@@ -264,7 +332,7 @@
             `;
             attachEvents();
 
-            // RESTAURAMOS EL SCROLL EXACTAMENTE DONDE LO DEJASTE
+            // RESTAURAMOS EL SCROLL
             const newMainContainer = document.querySelector('main');
             if (newMainContainer) {
                 newMainContainer.scrollTop = currentScrollPosition;
@@ -332,7 +400,8 @@
                         await set(ref(db, `perfiles/${state.username}`), { password: p, stats, pizarra: {}, historial: {} });
                         state.isLoggedIn = true; state.showPostRaceModal = true;
                     } else {
-                        if(snap.val().password === p) { state.isLoggedIn = true; state.showPostRaceModal = true; } else { alert("Contraseña incorrecta."); }
+                        if(snap.val().password === p) { state.isLoggedIn = true; state.showPostRaceModal = true; } 
+                        else { await window.customAlert("Contraseña incorrecta."); }
                     }
                     render();
                 };
@@ -340,9 +409,9 @@
             if(document.getElementById('step3F')) {
                 document.getElementById('step3F').onsubmit = async (e) => {
                     e.preventDefault(); const p = document.getElementById('newPass').value;
-                    if(p.length < 3) return alert("Contraseña muy corta");
+                    if(p.length < 3) return await window.customAlert("Contraseña muy corta");
                     await update(ref(db, `perfiles/${state.username}`), { password: p });
-                    alert("¡Cuenta activada con éxito!"); state.isLoggedIn = true; render();
+                    await window.customAlert("¡Cuenta activada con éxito!"); state.isLoggedIn = true; render();
                 };
             }
         }
@@ -422,10 +491,21 @@
         function renderPredictions() {
             const users = Object.entries(state.users).filter(([id, u]) => !u.hidePizarra);
             
+            // 1. Calcular el promedio general de la liga (para hacer el modelo más realista y evitar anomalías)
+            let totalLeaguePts = 0, totalLeagueRaces = 0;
+            users.forEach(([id, u]) => {
+                totalLeaguePts += u.stats?.puntos || 0;
+                totalLeagueRaces += Object.keys(u.pizarra || {}).length;
+            });
+            const leagueAvgPPR = totalLeagueRaces > 0 ? (totalLeaguePts / totalLeagueRaces) : 0;
+
             let predictions = users.map(([id, u]) => {
                 const currentPts = u.stats?.puntos || 0;
                 const racesDone = Object.keys(u.pizarra || {}).length;
-                const currentPPG = racesDone > 0 ? currentPts / racesDone : 0;
+                
+                // REGRESIÓN A LA MEDIA: Mezclamos el PPG del piloto con el de la liga para hacerlo realista.
+                const rawPPG = racesDone > 0 ? currentPts / racesDone : leagueAvgPPR;
+                const smoothedPPG = racesDone > 0 ? ((rawPPG * racesDone) + (leagueAvgPPR * 2)) / (racesDone + 2) : leagueAvgPPR;
                 
                 let projectedAddedPts = 0;
                 const remainingTracks = Object.keys(circuitsData).filter(tc => !u.pizarra || !u.pizarra[tc]);
@@ -445,10 +525,10 @@
                             }
                         });
                     }
-                    let trackExpected = currentPPG;
+                    let trackExpected = smoothedPPG;
                     if(histPts.length > 0) {
                         let histAvg = histPts.reduce((a,b)=>a+b, 0) / histPts.length;
-                        trackExpected = (currentPPG * 0.6) + (histAvg * 0.4);
+                        trackExpected = (smoothedPPG * 0.5) + (histAvg * 0.5);
                     }
                     projectedAddedPts += trackExpected;
                 });
@@ -459,62 +539,74 @@
 
             // Determinar posiciones actuales
             let currentStandings = [...predictions].sort((a,b) => b.currentPts - a.currentPts);
-            currentStandings.forEach((p, i) => {
-                predictions.find(x => x.id === p.id).currentPos = i + 1;
-            });
+            currentStandings.forEach((p, i) => { predictions.find(x => x.id === p.id).currentPos = i + 1; });
 
             // Ordenar por proyección final
             predictions.sort((a,b) => b.projectedTotal - a.projectedTotal);
 
-            // Calcular Probabilidades
+            // Calcular Probabilidades y Posición Final (1 a 32)
             const maxProj = predictions.length > 0 ? predictions[0].projectedTotal : 0;
+            const p3Proj = predictions.length >= 3 ? predictions[2].projectedTotal : 0;
+            
             let probSum = 0;
-            predictions.forEach(p => {
-                let diff = maxProj - p.projectedTotal;
-                p.rawProb = Math.max(0, 100 - (diff * 2.0)); 
+            predictions.forEach((p, i) => {
+                p.projPos = i + 1; // Posición exacta de 1 a 32
+                
+                // Probabilidad de Campeón (Decaimiento exponencial si se aleja del líder)
+                let diffLead = Math.max(0, maxProj - p.projectedTotal);
+                p.rawProb = Math.max(0, 100 * Math.pow(0.85, diffLead)); 
                 probSum += p.rawProb;
+
+                // Probabilidad de Podio (Top 3)
+                let diffPodio = p.projectedTotal - p3Proj;
+                if(diffPodio >= 0) p.podioProb = Math.min(99.9, 50 + (diffPodio * 2));
+                else p.podioProb = Math.max(0.1, 50 * Math.pow(0.9, Math.abs(diffPodio)));
             });
 
             return `
                 <div class="space-y-6">
                     <div class="glass-panel p-6 rounded-2xl border-t-2 border-violet-600 shadow-2xl">
-                        <h2 class="font-ds text-xl uppercase italic text-violet-500 mb-2">🔮 Pronóstico de Temporada</h2>
-                        <p class="text-[10px] text-zinc-400 mb-6 uppercase tracking-widest font-bold">Modelo Predictivo: 60% Forma Actual / 40% Historial de Circuito</p>
+                        <h2 class="font-ds text-xl uppercase italic text-violet-500 mb-2">🔮 Radar de Pronósticos IA</h2>
+                        <p class="text-[10px] text-zinc-400 mb-6 uppercase tracking-widest font-bold">Algoritmo Realista: Regresión a la Media (50% Estado Actual / 50% Historial)</p>
                         
                         <div class="overflow-x-auto no-scrollbar">
                             <table class="w-full text-left text-xs">
                                 <thead>
                                     <tr class="bg-zinc-900 text-zinc-500 uppercase text-[8px]">
-                                        <th class="p-4">Proy</th>
+                                        <th class="p-4 text-center">Pos. Actual</th>
                                         <th class="p-4">Piloto</th>
-                                        <th class="p-4 text-center">Pts Actuales</th>
-                                        <th class="p-4 text-center">Pts Fin Temporada</th>
+                                        <th class="p-4 text-center">Pts. Base</th>
+                                        <th class="p-4 text-center border-l border-zinc-800">Proy. Pts</th>
+                                        <th class="p-4 text-center text-violet-400 font-bold bg-violet-900/10">Pos. Final Proy</th>
+                                        <th class="p-4 text-center">Prob. Podio</th>
                                         <th class="p-4 text-center">Prob. Campeón</th>
-                                        <th class="p-4 text-center">Tendencia</th>
                                     </tr>
                                 </thead>
                                 <tbody class="divide-y divide-zinc-800/50">
-                                    ${predictions.map((p, i) => {
-                                        const prob = probSum > 0 ? ((p.rawProb / probSum) * 100).toFixed(1) : 0;
-                                        const projPos = i + 1;
+                                    ${predictions.map((p) => {
+                                        const probChamp = probSum > 0 ? ((p.rawProb / probSum) * 100).toFixed(1) : 0;
+                                        const probPod = Math.min(99.9, p.podioProb).toFixed(1);
                                         
-                                        let trend = '<span class="text-zinc-600 font-black" title="Mantiene Posición">-</span>';
-                                        if(projPos < p.currentPos) trend = '<span class="text-green-500 drop-shadow-[0_0_3px_rgba(34,197,94,0.5)] font-black text-sm" title="Sube posiciones">▲</span>';
-                                        if(projPos > p.currentPos) trend = '<span class="text-red-500 drop-shadow-[0_0_3px_rgba(239,68,68,0.5)] font-black text-sm" title="Baja posiciones">▼</span>';
+                                        let trend = '<span class="text-zinc-600 font-black text-[10px] ml-1" title="Mantiene Posición">-</span>';
+                                        if(p.projPos < p.currentPos) trend = '<span class="text-green-500 drop-shadow-[0_0_3px_rgba(34,197,94,0.5)] font-black text-sm ml-1" title="Sube posiciones">▲</span>';
+                                        if(p.projPos > p.currentPos) trend = '<span class="text-red-500 drop-shadow-[0_0_3px_rgba(239,68,68,0.5)] font-black text-sm ml-1" title="Baja posiciones">▼</span>';
 
-                                        let probColor = 'text-zinc-600';
-                                        if(prob > 40) probColor = 'text-green-500 drop-shadow-[0_0_5px_rgba(34,197,94,0.5)]';
-                                        else if(prob > 15) probColor = 'text-yellow-500 drop-shadow-[0_0_5px_rgba(234,179,8,0.5)]';
-                                        else if(prob > 2) probColor = 'text-orange-500';
+                                        let pColor = 'text-zinc-600';
+                                        if(probChamp > 40) pColor = 'text-green-500 drop-shadow-[0_0_5px_rgba(34,197,94,0.5)]';
+                                        else if(probChamp > 10) pColor = 'text-yellow-500 drop-shadow-[0_0_5px_rgba(234,179,8,0.5)]';
+                                        else if(probChamp > 1) pColor = 'text-orange-500';
+
+                                        let podColor = probPod > 50 ? 'text-green-400' : 'text-zinc-500';
 
                                         return `
                                         <tr class="hover:bg-zinc-900/40 transition-colors">
-                                            <td class="p-4 font-bold text-zinc-400">#${projPos}</td>
-                                            <td class="p-4 uppercase font-bold text-zinc-100">${p.id}</td>
+                                            <td class="p-4 font-bold text-zinc-500 text-center">P${p.currentPos}</td>
+                                            <td class="p-4 uppercase font-bold text-zinc-100">${p.id} ${trend}</td>
                                             <td class="p-4 text-center font-ds text-zinc-500">${p.currentPts}</td>
-                                            <td class="p-4 text-center font-ds text-violet-500 text-sm font-bold">${p.projectedTotal}</td>
-                                            <td class="p-4 text-center font-ds ${probColor} font-bold tracking-wider">${prob}%</td>
-                                            <td class="p-4 text-center">${trend}</td>
+                                            <td class="p-4 text-center font-ds text-zinc-300 border-l border-zinc-800/50">${p.projectedTotal}</td>
+                                            <td class="p-4 text-center font-ds text-white text-base font-bold bg-violet-900/10">P${p.projPos}</td>
+                                            <td class="p-4 text-center font-ds ${podColor}">${probPod}%</td>
+                                            <td class="p-4 text-center font-ds ${pColor} font-bold">${probChamp}%</td>
                                         </tr>`;
                                     }).join('')}
                                 </tbody>
@@ -626,7 +718,6 @@
                 </div>`;
         }
 
-        // --- GRÁFICAS ---
         window.wearChartInst = null;
         window.drawWearChart = () => {
             const ctx = document.getElementById('wearChart'); if(!ctx) return;
@@ -680,12 +771,26 @@
 
         function renderRanking(isAdmin) {
             const tabs = ['puntos', 'temporada', 'victorias', 'podios', 'poles', 'copas'];
-            const list = Object.entries(state.users)
-                .filter(([id, d]) => d.stats && d.stats[state.rankingTab] !== undefined && d.stats[state.rankingTab] !== null)
-                .map(([id, d]) => ({ id, ...d, score: d.stats[state.rankingTab], temporada: d.stats.temporada || 1 }))
+            
+            // FILTRO MODIFICADO PARA LA PESTAÑA TEMPORADA
+            const listWithTrends = Object.entries(state.users)
+                .filter(([id, d]) => d.stats)
+                .map(([id, d]) => {
+                    let s = 0;
+                    if (state.rankingTab === 'temporada') {
+                        s = d.stats.puntos || 0; // MUESTRA PUNTOS EN PESTAÑA TEMPORADA
+                    } else {
+                        s = d.stats[state.rankingTab] || 0;
+                    }
+                    return {
+                        id,
+                        ...d,
+                        score: s,
+                        temporada: d.stats.temporada || 1,
+                        trend: d.stats[`trend_${state.rankingTab}`] || 0
+                    };
+                })
                 .sort((a,b) => b.score - a.score);
-
-            const listWithTrends = list.map((u) => { return { ...u, trend: state.users[u.id]?.stats?.[`trend_${state.rankingTab}`] || 0 }; });
 
             return `
                 <div class="space-y-4">
@@ -701,7 +806,7 @@
                                 <th class="p-5">Pos</th>
                                 <th class="p-5">Manager</th>
                                 <th class="p-5 text-center">Dif</th>
-                                <th class="p-5 text-right uppercase">${state.rankingTab}</th>
+                                <th class="p-5 text-right uppercase">${state.rankingTab === 'temporada' ? 'PUNTOS' : state.rankingTab}</th>
                                 ${isAdmin?'<th class="p-5 text-center">Acción</th>':''}
                             </tr>
                             ${listWithTrends.map((u, i) => {
@@ -830,13 +935,13 @@
         window.back = () => { state.step = 1; render(); };
         window.upSetupH = (v) => { state.setupCalc.height = parseInt(v) || 175; render(); };
 
-        window.copyRadio = () => {
+        window.copyRadio = async () => {
             const c = circuitsData[state.calc.circuit];
             let text = `🏁 Estrategia Porsche: ${c.name} 🏁\n\n`;
             state.calc.stints.forEach((s, i) => { text += `Stint ${i+1}: Neumático ${s.compound} | ${s.laps} vueltas | Nivel ${s.boost}\n`; });
             const fuel = state.calc.stints.reduce((sum, s) => sum + getFuel(state.calc.circuit, state.calc.fPoints, s.laps, s.boost), 0);
             text += `\n⛽ Combustible Total: ${fuel.toFixed(1)}L`;
-            navigator.clipboard.writeText(text).then(() => { alert("¡Estrategia copiada!"); });
+            navigator.clipboard.writeText(text).then(async () => { await window.customAlert("¡Estrategia copiada!"); });
         };
 
         const updateGlobalRanking = async (tab, id, action, val = 0) => {
@@ -852,9 +957,9 @@
         };
 
         window.addPoints = async (id) => { const safeDomId = 'in_' + id.replace(/[^a-zA-Z0-9]/g, '_'); const input = document.getElementById(safeDomId); if (!input) return; const val = parseFloat(input.value) || 0; if (val === 0) return; await updateGlobalRanking(state.rankingTab, id, 'add', val); input.value = ''; };
-        window.clearStat = async (id) => { if(confirm(`¿Poner a 0 la lista de ${state.rankingTab} para ${id}?`)) { await updateGlobalRanking(state.rankingTab, id, 'clear'); } };
-        window.resetPass = async (id) => { if(confirm(`¿Quieres resetear la contraseña de ${id}?`)) { await update(ref(db, `perfiles/${id}`), { password: 'ext' }); alert("Contraseña reseteada."); } };
-        window.removeStat = async (id) => { if(confirm(`¿Quitar a ${id} SOLO del ranking de ${state.rankingTab.toUpperCase()}?`)) { await updateGlobalRanking(state.rankingTab, id, 'remove'); } };
+        window.clearStat = async (id) => { if(await window.customConfirm(`¿Poner a 0 la lista de ${state.rankingTab} para ${id}?`)) { await updateGlobalRanking(state.rankingTab, id, 'clear'); } };
+        window.resetPass = async (id) => { if(await window.customConfirm(`¿Quieres resetear la contraseña de ${id}?`)) { await update(ref(db, `perfiles/${id}`), { password: 'ext' }); await window.customAlert("Contraseña reseteada."); } };
+        window.removeStat = async (id) => { if(await window.customConfirm(`¿Quitar a ${id} SOLO del ranking de ${state.rankingTab.toUpperCase()}?`)) { await updateGlobalRanking(state.rankingTab, id, 'remove'); } };
         window.openChart = (id) => { state.chartUser = id; state.compareUser = ''; render(); setTimeout(() => window.drawChart(id), 50); };
         window.updateCompare = (rivalId) => { state.compareUser = rivalId; window.drawChart(state.chartUser, rivalId); };
         window.closeChart = () => { state.chartUser = null; render(); };
@@ -878,7 +983,7 @@
         };
 
         window.archiveSeason = async () => {
-            if(!confirm("¿Archivar la temporada actual? Esto guardará la pizarra en el historial de cada piloto.")) return;
+            if(!(await window.customConfirm("¿Archivar la temporada actual? Esto guardará la pizarra en el historial de cada piloto."))) return;
             let updates = {};
             Object.entries(state.users).forEach(([uid, u]) => {
                 const currentTemp = u.stats?.temporada || 1;
@@ -889,11 +994,11 @@
                 updates[`perfiles/${uid}/stats/temporada`] = currentTemp + 1;
             });
             await update(ref(db), updates);
-            alert("¡Temporada archivada con éxito!");
+            await window.customAlert("¡Temporada archivada con éxito!");
         };
 
         window.removeBoard = async (id) => {
-            if(confirm(`¿Ocultar a ${id} de la Pizarra de Temporada?`)) {
+            if(await window.customConfirm(`¿Ocultar a ${id} de la Pizarra de Temporada?`)) {
                 await update(ref(db, `perfiles/${id}`), { hidePizarra: true });
             }
         };
@@ -905,10 +1010,8 @@
             if(document.getElementById('numT')) document.getElementById('numT').onchange = (e) => { state.calc.tPoints = e.target.value; render(); };
             if(document.getElementById('numF')) document.getElementById('numF').onchange = (e) => { state.calc.fPoints = e.target.value; render(); };
             
-            // Corregido: type="button" agregado previamente para evitar recargas automáticas.
             if(document.getElementById('addStint')) document.getElementById('addStint').onclick = () => { state.calc.stints.push({ compound: 'M', laps: 6, boost: '3' }); render(); };
             
-            // --- CÓDIGO UNIFICADO PARA COMANDOS RÁPIDOS Y CLICK ---
             window.quickCommand = async (e, managerId) => {
                 if (e.key === 'Enter') {
                     const parts = e.target.value.trim().toLowerCase().split(' ');
@@ -924,14 +1027,14 @@
                         if (matchedCode) {
                             await window.processRaceResult(managerId, matchedCode, result);
                             e.target.value = ''; 
-                        } else { alert(`Circuito no encontrado: "${searchTrack}"`); }
+                        } else { await window.customAlert(`Circuito no encontrado: "${searchTrack}"`); }
                     }
                 }
             };
 
             window.setTrackResult = async (managerId, trackCode) => {
                 const currentRes = (state.users[managerId].pizarra && state.users[managerId].pizarra[trackCode]) ? state.users[managerId].pizarra[trackCode] : '';
-                const res = prompt(`RESULTADO PARA ${managerId.toUpperCase()} EN [${trackCode.toUpperCase()}]\nEjemplos: P1, P2, DNF, -`, currentRes);
+                const res = await window.customPrompt(`RESULTADO PARA ${managerId.toUpperCase()} EN [${trackCode.toUpperCase()}]\nEjemplos: P1, P2, DNF, -`, currentRes);
                 if (res !== null) {
                     await window.processRaceResult(managerId, trackCode, res);
                 }
@@ -944,8 +1047,8 @@
                         await set(ref(db, `perfiles/${n}`), { password: 'ext', stats: { puntos:0, temporada:1, victorias:0, podios:0, poles:0, copas:0 }, pizarra: {}, historial: {} });
                     } else if(state.users[n]) {
                         if (state.users[n].hidePizarra) {
-                            await update(ref(db, `perfiles/${n}`), { hidePizarra: null }); alert("El manager ha sido restaurado.");
-                        } else { alert("Este manager ya existe."); }
+                            await update(ref(db, `perfiles/${n}`), { hidePizarra: null }); 
+                        } else { await window.customAlert("Este manager ya existe."); }
                     }
                     e.target.reset();
                 };
@@ -974,7 +1077,6 @@
                     const isPole = e.target.pole.checked;
                     const pText = isDNF ? 'DNF' : `P${pos}`;
 
-                    // Ahora usa la función inteligente centralizada para balancear los puntos
                     await window.processRaceResult(state.username, track, pText, isPole);
 
                     state.showPostRaceModal = false;
